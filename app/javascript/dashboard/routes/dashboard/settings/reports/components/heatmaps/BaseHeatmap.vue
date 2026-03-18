@@ -51,17 +51,17 @@ const quantileRange = computed(() => {
 });
 
 function formatDate(dateString) {
-  return format(new Date(dateString), 'MMM d, yyyy');
+  return format(new Date(dateString), 'd/M');
 }
 
 const DAYS_OF_WEEK = [
-  t('DAYS_OF_WEEK.SUNDAY'),
-  t('DAYS_OF_WEEK.MONDAY'),
-  t('DAYS_OF_WEEK.TUESDAY'),
-  t('DAYS_OF_WEEK.WEDNESDAY'),
-  t('DAYS_OF_WEEK.THURSDAY'),
-  t('DAYS_OF_WEEK.FRIDAY'),
-  t('DAYS_OF_WEEK.SATURDAY'),
+  t('DAYS_OF_WEEK.SUNDAY').substring(0, 3),
+  t('DAYS_OF_WEEK.MONDAY').substring(0, 3),
+  t('DAYS_OF_WEEK.TUESDAY').substring(0, 3),
+  t('DAYS_OF_WEEK.WEDNESDAY').substring(0, 3),
+  t('DAYS_OF_WEEK.THURSDAY').substring(0, 3),
+  t('DAYS_OF_WEEK.FRIDAY').substring(0, 3),
+  t('DAYS_OF_WEEK.SATURDAY').substring(0, 3),
 ];
 
 function getDayOfTheWeek(date) {
@@ -161,9 +161,9 @@ const tooltip = useHeatmapTooltip();
           v-for="row in dataRows"
           :key="row.dateKey"
           v-memo="[row.dateKey]"
-          class="h-8 min-w-[70px] text-n-slate-12 text-[10px] font-semibold flex flex-col items-end justify-center"
+          class="h-8 min-w-[70px] text-n-slate-12 text-[10px] font-semibold flex items-center justify-end gap-1"
         >
-          {{ getDayOfTheWeek(new Date(row.dateKey)) }}
+          <span>{{ getDayOfTheWeek(new Date(row.dateKey)) }}</span>
           <time class="font-normal text-n-slate-11">
             {{ formatDate(row.dateKey) }}
           </time>
