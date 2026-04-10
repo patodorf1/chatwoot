@@ -12,6 +12,8 @@ const props = defineProps({
 
 const emit = defineEmits(['updateSignature']);
 const signature = ref(props.messageSignature);
+const isHtmlMode = ref(false);
+
 watch(
   () => props.messageSignature ?? '',
   newValue => {
@@ -22,11 +24,31 @@ watch(
 const updateSignature = () => {
   emit('updateSignature', signature.value);
 };
+
+const toggleMode = () => {
+  isHtmlMode.value = !isHtmlMode.value;
+};
 </script>
 
 <template>
-  <form class="flex flex-col gap-6" @submit.prevent="updateSignature()">
+  <form class="flex flex-col gap-4" @submit.prevent="updateSignature()">
+    <div class="flex items-center justify-between">
+      <button
+        type="button"
+        class="text-xs text-n-slate-11 hover:text-n-slate-12 underline"
+        @click="toggleMode"
+      >
+        {{ isHtmlMode ? 'Visual editor' : 'Edit HTML' }}
+      </button>
+    </div>
+    <textarea
+      v-if="isHtmlMode"
+      v-model="signature"
+      class="w-full h-[12rem] font-mono text-xs p-3 rounded-lg border border-n-weak bg-n-solid-2 text-n-slate-12 resize-y"
+      placeholder="<p>Your HTML signature here...</p>"
+    />
     <WootMessageEditor
+      v-else
       id="message-signature-input"
       v-model="signature"
       class="message-editor h-[10rem] !px-3"

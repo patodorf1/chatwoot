@@ -95,7 +95,7 @@ const replyToPreview = computed(() => {
 
 <template>
   <div
-    class="text-sm"
+    class="text-xs"
     :class="[
       messageClass,
       {
@@ -117,13 +117,12 @@ const replyToPreview = computed(() => {
     <MessageMeta
       v-if="shouldShowMeta"
       :class="[
-        flexOrientationClass,
         variant === MESSAGE_VARIANTS.EMAIL ? 'px-3 pb-3' : '',
         variant === MESSAGE_VARIANTS.PRIVATE
           ? 'text-n-amber-12/50'
           : 'text-n-slate-11',
       ]"
-      class="mt-2"
+      class="float-right ml-2 mt-0.5"
     />
   </div>
 </template>
