@@ -191,7 +191,7 @@
     },
     "REPLYBOX": {
       "REPLY": "Responder",
-      "PRIVATE_NOTE": "Nota privada",
+      "PRIVATE_NOTE": "Privada",
       "SEND": "Enviar",
       "CREATE": "Añadir nota",
       "INSERT_READ_MORE": "Leer más",

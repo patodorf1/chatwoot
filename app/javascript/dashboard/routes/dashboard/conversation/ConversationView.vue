@@ -211,7 +211,6 @@ export default {
       :inbox-id="inboxId"
       :is-on-expanded-layout="isOnExpandedLayout"
     >
-      <SidepanelSwitch v-if="currentChat.id" />
     </ConversationBox>
     <ConversationSidebar v-if="shouldShowSidebar" :current-chat="currentChat" />
     <CmdBarConversationSnooze />

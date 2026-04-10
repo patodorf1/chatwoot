@@ -212,7 +212,6 @@ onMounted(async () => {
           :inbox-id="inboxId"
           :is-on-expanded-layout="false"
         >
-          <SidepanelSwitch v-if="currentChat.id" />
         </ConversationBox>
         <ConversationSidebar
           v-if="isContactPanelOpen"

@@ -5,6 +5,7 @@ import { useStore } from 'vuex';
 import { useAlert } from 'dashboard/composables';
 import { useI18n } from 'vue-i18n';
 import { emitter } from 'shared/helpers/mitt';
+import { useUISettings } from 'dashboard/composables/useUISettings';
 import EmailTranscriptModal from './EmailTranscriptModal.vue';
 import ResolveAction from '../../buttons/ResolveAction.vue';
 import ButtonV4 from 'dashboard/components-next/button/Button.vue';
@@ -22,6 +23,17 @@ const { t } = useI18n();
 
 const [showEmailActionsModal, toggleEmailModal] = useToggle(false);
 const [showActionsDropdown, toggleDropdown] = useToggle(false);
+
+const { uiSettings, updateUISettings } = useUISettings();
+const isContactSidebarOpen = computed(
+  () => uiSettings.value.is_contact_sidebar_open
+);
+const toggleContactSidebar = () => {
+  updateUISettings({
+    is_contact_sidebar_open: !isContactSidebarOpen.value,
+    is_copilot_panel_open: false,
+  });
+};
 
 const currentChat = computed(() => store.getters.getSelectedChat);
 
@@ -92,6 +104,15 @@ onUnmounted(() => {
 
 <template>
   <div class="relative flex items-center gap-2 actions--container">
+    <ButtonV4
+      v-tooltip="$t('CONVERSATION.SIDEBAR.CONTACT')"
+      size="sm"
+      variant="ghost"
+      color="slate"
+      icon="i-ph-user-bold"
+      :class="{ 'bg-n-alpha-2': isContactSidebarOpen }"
+      @click="toggleContactSidebar"
+    />
     <ResolveAction
       :conversation-id="currentChat.id"
       :status="currentChat.status"
