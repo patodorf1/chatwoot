@@ -38,6 +38,14 @@ export function useChannelIcon(inbox) {
       icon = 'i-woot-whatsapp';
     }
 
+    // Special case for API channels used for WhatsApp (e.g., GoWA)
+    if (type === 'Channel::Api') {
+      const inboxName = (inboxDetails.name || '').toLowerCase();
+      if (inboxName.includes('whatsapp') || inboxName.includes('wsp')) {
+        icon = 'i-woot-whatsapp';
+      }
+    }
+
     return icon ?? 'i-ri-global-fill';
   });
 

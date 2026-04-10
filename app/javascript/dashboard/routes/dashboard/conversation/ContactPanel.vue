@@ -2,27 +2,18 @@
 import { computed, watch, onMounted, ref } from 'vue';
 import {
   useMapGetter,
-  useFunctionGetter,
   useStore,
 } from 'dashboard/composables/store';
-import { useAccount } from 'dashboard/composables/useAccount';
 import { useUISettings } from 'dashboard/composables/useUISettings';
-import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
 import AccordionItem from 'dashboard/components/Accordion/AccordionItem.vue';
-import ContactConversations from './ContactConversations.vue';
 import ConversationAction from './ConversationAction.vue';
 import ConversationParticipant from './ConversationParticipant.vue';
 import ContactInfo from './contact/ContactInfo.vue';
 import ContactNotes from './contact/ContactNotes.vue';
-import ConversationInfo from './ConversationInfo.vue';
 import CustomAttributes from './customAttributes/CustomAttributes.vue';
 import Draggable from 'vuedraggable';
-import MacrosList from './Macros/List.vue';
-import ShopifyOrdersList from 'dashboard/components/widgets/conversation/ShopifyOrdersList.vue';
 import SidebarActionsHeader from 'dashboard/components-next/SidebarActionsHeader.vue';
-import LinearIssuesList from 'dashboard/components/widgets/conversation/linear/IssuesList.vue';
-import LinearSetupCTA from 'dashboard/components/widgets/conversation/linear/LinearSetupCTA.vue';
 
 const props = defineProps({
   conversationId: {
@@ -45,55 +36,14 @@ const {
 const dragging = ref(false);
 const conversationSidebarItems = ref([]);
 
-const shopifyIntegration = useFunctionGetter(
-  'integrations/getIntegration',
-  'shopify'
-);
-
-const isShopifyFeatureEnabled = computed(
-  () => shopifyIntegration.value.enabled
-);
-
-const { isCloudFeatureEnabled } = useAccount();
-
-const isLinearFeatureEnabled = computed(() =>
-  isCloudFeatureEnabled(FEATURE_FLAGS.LINEAR)
-);
-
-const linearIntegration = useFunctionGetter(
-  'integrations/getIntegration',
-  'linear'
-);
-
-const isLinearClientIdConfigured = computed(() => {
-  return !!linearIntegration.value?.id;
-});
-
-const isLinearConnected = computed(
-  () => linearIntegration.value?.enabled || false
-);
-
 const store = useStore();
 const currentChat = useMapGetter('getSelectedChat');
 const conversationId = computed(() => props.conversationId);
-const conversationMetadataGetter = useMapGetter(
-  'conversationMetadata/getConversationMetadata'
-);
-const currentConversationMetaData = computed(() =>
-  conversationMetadataGetter.value(conversationId.value)
-);
-const conversationAdditionalAttributes = computed(
-  () => currentConversationMetaData.value.additional_attributes || {}
-);
-
 const channelType = computed(() => currentChat.value.meta?.channel);
 
 const contactGetter = useMapGetter('contacts/getContact');
 const contactId = computed(() => currentChat.value.meta?.sender?.id);
 const contact = computed(() => contactGetter.value(contactId.value));
-const contactAdditionalAttributes = computed(
-  () => contact.value.additional_attributes || {}
-);
 
 const getContactDetails = () => {
   if (contactId.value) {
@@ -125,8 +75,6 @@ onMounted(() => {
   conversationSidebarItems.value = conversationSidebarItemsOrder.value;
   getContactDetails();
   store.dispatch('attributes/get', 0);
-  // Load integrations to ensure linear integration state is available
-  store.dispatch('integrations/get', 'linear');
 });
 </script>
 
@@ -184,21 +132,6 @@ onMounted(() => {
               />
             </AccordionItem>
           </div>
-          <div v-else-if="element.name === 'conversation_info'">
-            <AccordionItem
-              :title="$t('CONVERSATION_SIDEBAR.ACCORDION.CONVERSATION_INFO')"
-              :is-open="isContactSidebarItemOpen('is_conv_details_open')"
-              compact
-              @toggle="
-                value => toggleSidebarUIState('is_conv_details_open', value)
-              "
-            >
-              <ConversationInfo
-                :conversation-attributes="conversationAdditionalAttributes"
-                :contact-attributes="contactAdditionalAttributes"
-              />
-            </AccordionItem>
-          </div>
           <div v-else-if="element.name === 'contact_attributes'">
             <AccordionItem
               :title="$t('CONVERSATION_SIDEBAR.ACCORDION.CONTACT_ATTRIBUTES')"
@@ -217,72 +150,6 @@ onMounted(() => {
                   $t('CONVERSATION_CUSTOM_ATTRIBUTES.NO_RECORDS_FOUND')
                 "
               />
-            </AccordionItem>
-          </div>
-          <div v-else-if="element.name === 'previous_conversation'">
-            <AccordionItem
-              v-if="contact.id"
-              :title="
-                $t('CONVERSATION_SIDEBAR.ACCORDION.PREVIOUS_CONVERSATION')
-              "
-              :is-open="isContactSidebarItemOpen('is_previous_conv_open')"
-              compact
-              @toggle="
-                value => toggleSidebarUIState('is_previous_conv_open', value)
-              "
-            >
-              <ContactConversations
-                :contact-id="contact.id"
-                :conversation-id="conversationId"
-              />
-            </AccordionItem>
-          </div>
-          <woot-feature-toggle
-            v-else-if="element.name === 'macros'"
-            feature-key="macros"
-          >
-            <AccordionItem
-              :title="$t('CONVERSATION_SIDEBAR.ACCORDION.MACROS')"
-              :is-open="isContactSidebarItemOpen('is_macro_open')"
-              compact
-              @toggle="value => toggleSidebarUIState('is_macro_open', value)"
-            >
-              <MacrosList :conversation-id="conversationId" />
-            </AccordionItem>
-          </woot-feature-toggle>
-          <div
-            v-else-if="
-              element.name === 'linear_issues' &&
-              isLinearFeatureEnabled &&
-              isLinearClientIdConfigured
-            "
-          >
-            <AccordionItem
-              :title="$t('CONVERSATION_SIDEBAR.ACCORDION.LINEAR_ISSUES')"
-              :is-open="isContactSidebarItemOpen('is_linear_issues_open')"
-              compact
-              @toggle="
-                value => toggleSidebarUIState('is_linear_issues_open', value)
-              "
-            >
-              <LinearSetupCTA v-if="!isLinearConnected" />
-              <LinearIssuesList v-else :conversation-id="conversationId" />
-            </AccordionItem>
-          </div>
-          <div
-            v-else-if="
-              element.name === 'shopify_orders' && isShopifyFeatureEnabled
-            "
-          >
-            <AccordionItem
-              :title="$t('CONVERSATION_SIDEBAR.ACCORDION.SHOPIFY_ORDERS')"
-              :is-open="isContactSidebarItemOpen('is_shopify_orders_open')"
-              compact
-              @toggle="
-                value => toggleSidebarUIState('is_shopify_orders_open', value)
-              "
-            >
-              <ShopifyOrdersList :contact-id="contactId" />
             </AccordionItem>
           </div>
           <div v-else-if="element.name === 'contact_notes'">
