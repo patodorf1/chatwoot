@@ -218,6 +218,10 @@ const currentPageFilterKey = computed(() => {
 });
 
 const inbox = useFunctionGetter('inboxes/getInbox', activeInbox);
+const isWhatsAppOrAPIInbox = computed(() => {
+  const channelType = inbox.value?.channel_type;
+  return channelType === 'Channel::Api' || channelType === 'Channel::Whatsapp';
+});
 const currentPage = useFunctionGetter(
   'conversationPage/getCurrentPageFilter',
   activeAssigneeTab
@@ -840,6 +844,13 @@ provide('assignPriority', assignPriority);
 provide('isConversationSelected', isConversationSelected);
 provide('deleteConversation', handleDelete);
 
+// Force 'all' assignee tab for WhatsApp/API inboxes
+watch(isWhatsAppOrAPIInbox, val => {
+  if (val) {
+    activeAssigneeTab.value = wootConstants.ASSIGNEE_TYPE.ALL;
+  }
+}, { immediate: true });
+
 watch(activeTeam, () => resetAndFetchData());
 
 watch(
@@ -888,6 +899,7 @@ watch(conversationFilters, (newVal, oldVal) => {
       :has-active-folders="hasActiveFolders"
       :active-status="activeStatus"
       :is-on-expanded-layout="isOnExpandedLayout"
+      :hide-status-filter="isWhatsAppOrAPIInbox"
       :conversation-stats="conversationStats"
       :is-list-loading="chatListLoading && !conversationList.length"
       @add-folders="onClickOpenAddFoldersModal"
@@ -919,7 +931,7 @@ watch(conversationFilters, (newVal, oldVal) => {
     />
 
     <ChatTypeTabs
-      v-if="!hasAppliedFiltersOrActiveFolders"
+      v-if="!hasAppliedFiltersOrActiveFolders && !isWhatsAppOrAPIInbox"
       :items="assigneeTabItems"
       :active-tab="activeAssigneeTab"
       is-compact

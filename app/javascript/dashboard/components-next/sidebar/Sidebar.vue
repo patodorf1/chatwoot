@@ -612,7 +612,7 @@ const menuItems = computed(() => {
       closeMobileSidebar,
       { ignore: ['#mobile-sidebar-launcher'] },
     ]"
-    class="bg-n-background flex flex-col text-sm pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 w-[200px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 ltr:border-r rtl:border-l border-n-weak"
+    class="bg-n-background flex flex-col text-xs pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 w-[200px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 ltr:border-r rtl:border-l border-n-weak"
     :class="[
       {
         'shadow-lg md:shadow-none': isMobileSidebarOpen,
@@ -623,9 +623,16 @@ const menuItems = computed(() => {
     ]"
     :style="isMobile ? undefined : { width: `${sidebarWidth}px` }"
   >
+    <button
+      v-if="isEffectivelyCollapsed"
+      class="flex items-center justify-center h-6 mt-1 rounded hover:bg-n-alpha-2 text-n-slate-10 text-xs flex-shrink-0"
+      @click="snapToExpanded"
+    >
+      &raquo;
+    </button>
     <section
       class="grid"
-      :class="isEffectivelyCollapsed ? 'mt-3 mb-6 gap-4' : 'mt-1 mb-4 gap-2'"
+      :class="isEffectivelyCollapsed ? 'mt-1 mb-6 gap-4' : 'mt-1 mb-4 gap-2'"
     >
       <div
         class="flex gap-2 items-center min-w-0"
@@ -740,6 +747,13 @@ const menuItems = computed(() => {
           :is-collapsed="isEffectivelyCollapsed"
           @open-key-shortcut-modal="emit('openKeyShortcutModal')"
         />
+        <button
+          v-if="!isEffectivelyCollapsed"
+          class="flex items-center justify-center size-6 rounded hover:bg-n-alpha-2 text-n-slate-10 text-xs flex-shrink-0"
+          @click="snapToCollapsed"
+        >
+          &laquo;
+        </button>
       </div>
     </section>
     <!-- Resize Handle (desktop only) -->

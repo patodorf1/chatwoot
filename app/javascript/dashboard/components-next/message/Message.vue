@@ -248,7 +248,7 @@ const flexOrientationClass = computed(() => {
 const gridClass = computed(() => {
   const map = {
     [ORIENTATION.LEFT]: 'grid grid-cols-1fr',
-    [ORIENTATION.RIGHT]: 'grid grid-cols-[1fr_24px]',
+    [ORIENTATION.RIGHT]: 'grid grid-cols-1fr',
   };
 
   return map[orientation.value];
@@ -261,8 +261,8 @@ const gridTemplate = computed(() => {
       "meta"
     `,
     [ORIENTATION.RIGHT]: `
-      "bubble avatar"
-      "meta spacer"
+      "bubble"
+      "meta"
     `,
   };
 
@@ -276,10 +276,8 @@ const shouldGroupWithNext = computed(() => {
 });
 
 const shouldShowAvatar = computed(() => {
-  if (props.messageType === MESSAGE_TYPES.ACTIVITY) return false;
-  if (orientation.value === ORIENTATION.LEFT) return false;
-
-  return true;
+  // Hide all agent avatars — in personal WhatsApp inboxes it's obvious who sent
+  return false;
 });
 
 const componentToRender = computed(() => {
@@ -555,8 +553,7 @@ provideMessageContext({
       <div
         class="[grid-area:bubble] flex"
         :class="{
-          'ltr:ml-8 rtl:mr-8 justify-end': orientation === ORIENTATION.RIGHT,
-          'ltr:mr-8 rtl:ml-8': orientation === ORIENTATION.LEFT,
+          'justify-end': orientation === ORIENTATION.RIGHT,
           'min-w-0': variant === MESSAGE_VARIANTS.EMAIL,
         }"
         @contextmenu="openContextMenu($event)"

@@ -1,4 +1,4 @@
-import { inject, provide, ref, computed } from 'vue';
+import { inject, provide, ref, computed, watch } from 'vue';
 import { usePolicy } from 'dashboard/composables/usePolicy';
 import { useRouter } from 'vue-router';
 import { useUISettings } from 'dashboard/composables/useUISettings';
@@ -17,8 +17,20 @@ let globalCloseTimeout = null;
 export function useSidebarResize() {
   const { uiSettings, updateUISettings } = useUISettings();
 
-  const sidebarWidth = ref(uiSettings.value.sidebar_width || DEFAULT_WIDTH);
+  // Default to collapsed (MIN_WIDTH) unless user has explicitly set a width
+  const savedWidth = uiSettings.value.sidebar_width;
+  const sidebarWidth = ref(savedWidth !== undefined ? savedWidth : MIN_WIDTH);
   const isCollapsed = computed(() => sidebarWidth.value < COLLAPSED_THRESHOLD);
+
+  // Watch for external changes to sidebar_width (e.g., contact panel toggle)
+  watch(
+    () => uiSettings.value.sidebar_width,
+    newWidth => {
+      if (newWidth !== undefined && newWidth !== sidebarWidth.value) {
+        sidebarWidth.value = newWidth;
+      }
+    }
+  );
 
   const setSidebarWidth = width => {
     sidebarWidth.value = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, width));

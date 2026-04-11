@@ -126,6 +126,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    isWhatsAppLike: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: [
     'replaceText',
@@ -247,6 +251,7 @@ export default {
     },
     showMessageSignatureButton() {
       if (this.isEditorDisabled) return false;
+      if (this.isWhatsAppLike) return false;
       return !this.isOnPrivateNote;
     },
     sendWithSignature() {
@@ -288,7 +293,10 @@ export default {
 </script>
 
 <template>
-  <div class="flex justify-between p-3" :class="wrapClass">
+  <div
+    class="flex justify-between"
+    :class="[wrapClass, isWhatsAppLike ? 'p-1.5' : 'p-3']"
+  >
     <div class="left-wrap">
       <NextButton
         v-if="!isEditorDisabled"
@@ -399,7 +407,7 @@ export default {
         @click="toggleInsertArticle"
       />
     </div>
-    <div class="right-wrap">
+    <div v-if="!isWhatsAppLike" class="right-wrap">
       <NextButton
         :label="sendButtonText"
         type="submit"

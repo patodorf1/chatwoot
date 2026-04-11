@@ -95,7 +95,7 @@ const replyToPreview = computed(() => {
 
 <template>
   <div
-    class="text-xs"
+    class="text-[11px] leading-[1.4]"
     :class="[
       messageClass,
       {

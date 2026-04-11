@@ -74,6 +74,8 @@ export default {
       currentChat: 'getSelectedChat',
     }),
     showConversationList() {
+      // Hide conversation list when contact sidebar is open
+      if (this.shouldShowSidebar) return false;
       return this.isOnExpandedLayout ? !this.conversationId : true;
     },
     showMessageView() {

@@ -209,6 +209,12 @@ export default {
         }
         return this.$t('CONVERSATION.FOOTER.MESSAGING_RESTRICTED');
       }
+      if (
+        (this.isAWhatsAppChannel || this.isAPIInbox) &&
+        !this.isPrivate
+      ) {
+        return '';
+      }
       return this.isPrivate
         ? this.$t('CONVERSATION.FOOTER.PRIVATE_MSG_INPUT')
         : this.$t('CONVERSATION.FOOTER.MSG_INPUT');
@@ -288,7 +294,11 @@ export default {
         this.isATiktokChannel
       );
     },
+    isWhatsAppLikeChannel() {
+      return this.isAWhatsAppChannel || this.isAPIInbox;
+    },
     replyButtonLabel() {
+      if (this.isWhatsAppLikeChannel && !this.isOnPrivateNote) return '';
       let sendMessageText = this.$t('CONVERSATION.REPLYBOX.SEND');
       if (this.isPrivate) {
         sendMessageText = this.$t('CONVERSATION.REPLYBOX.CREATE');
@@ -663,7 +673,18 @@ export default {
         },
         Enter: {
           action: e => {
-            if (this.isAValidEvent('enter')) {
+            const forceEnterSend =
+              (this.isAWhatsAppChannel || this.isAPIInbox) &&
+              !this.isOnPrivateNote;
+            if (
+              forceEnterSend
+                ? this.isFocused &&
+                  !this.showUserMentions &&
+                  !this.showMentions &&
+                  !this.showCannedMenu &&
+                  !this.showVariablesMenu
+                : this.isAValidEvent('enter')
+            ) {
               this.onSendReply();
               e.preventDefault();
             }
@@ -1320,7 +1341,7 @@ export default {
           :is-private="isOnPrivateNote"
           :placeholder="messagePlaceHolder"
           :update-selection-with="updateEditorSelectionWith"
-          :min-height="4"
+          :min-height="isWhatsAppLikeChannel && !isOnPrivateNote ? 2 : 4"
           :disabled="isEditorDisabled"
           enable-variables
           :variables="messageVariables"
@@ -1398,6 +1419,7 @@ export default {
         :is-send-disabled="isReplyButtonDisabled"
         :is-note="isPrivate"
         :is-editor-disabled="isEditorDisabled"
+        :is-whats-app-like="isWhatsAppLikeChannel && !isOnPrivateNote"
         :on-file-upload="onFileUpload"
         :on-send="onSendReply"
         :conversation-type="conversationType"
