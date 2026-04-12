@@ -9,6 +9,7 @@ import Avatar from 'next/avatar/Avatar.vue';
 import SLACardLabel from './components/SLACardLabel.vue';
 import wootConstants from 'dashboard/constants/globals';
 import { snoozedReopenTime } from 'dashboard/helper/snoozeHelpers';
+import { useUISettings } from 'dashboard/composables/useUISettings';
 
 import { useI18n } from 'vue-i18n';
 
@@ -47,6 +48,22 @@ const snoozedDisplayText = computed(() => {
 });
 
 const hasSlaPolicyId = computed(() => props.chat?.sla_policy_id);
+
+const { uiSettings, updateUISettings } = useUISettings();
+const isContactSidebarOpen = computed(
+  () => uiSettings.value.is_contact_sidebar_open
+);
+const toggleContactSidebar = () => {
+  const opening = !isContactSidebarOpen.value;
+  const settings = {
+    is_contact_sidebar_open: opening,
+    is_copilot_panel_open: false,
+  };
+  if (opening) {
+    settings.sidebar_width = 56;
+  }
+  updateUISettings(settings);
+};
 
 const isOpen = computed(
   () => currentChat.value.status === wootConstants.STATUS_TYPE.OPEN
@@ -131,6 +148,15 @@ const toggleStatus = async () => {
         color="slate"
         :icon="resolveButtonIcon"
         @click="toggleStatus"
+      />
+      <ButtonV4
+        v-tooltip="t('CONVERSATION.SIDEBAR.CONTACT')"
+        size="sm"
+        variant="ghost"
+        color="slate"
+        icon="i-lucide-user"
+        :class="{ 'bg-n-alpha-2': isContactSidebarOpen }"
+        @click="toggleContactSidebar"
       />
     </div>
   </div>

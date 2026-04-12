@@ -441,7 +441,7 @@ const menuItems = computed(() => {
       closeMobileSidebar,
       { ignore: ['#mobile-sidebar-launcher'] },
     ]"
-    class="bg-[#e0dafd] text-[#6a6779] flex flex-col text-xs pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 w-[200px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 ltr:border-r rtl:border-l border-[#34353f]/10"
+    class="bg-[#e0dafd] dark:bg-n-background text-[#6a6779] dark:text-white/70 flex flex-col text-xs pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 w-[200px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 ltr:border-r rtl:border-l border-[#34353f]/10 dark:border-white/10"
     :class="[
       {
         'shadow-lg md:shadow-none': isMobileSidebarOpen,
@@ -502,7 +502,7 @@ const menuItems = computed(() => {
         <RouterLink
           v-else
           :to="{ name: 'search' }"
-          class="flex items-center justify-center size-8 rounded-lg outline outline-1 outline-[#34353f]/20 bg-[#34353f]/10 transition-all duration-100 ease-out hover:bg-[#34353f]/20"
+          class="flex items-center justify-center size-8 rounded-lg outline outline-1 outline-[#34353f]/20 transition-all duration-100 ease-out hover:bg-[#34353f]/10"
           :title="t('COMBOBOX.SEARCH_PLACEHOLDER')"
         >
           <span class="i-lucide-search size-4 text-[#6a6779]" />
@@ -516,7 +516,7 @@ const menuItems = computed(() => {
               class="dark:hover:!bg-n-slate-9/30"
               :class="[
                 isEffectivelyCollapsed
-                  ? '!size-8 !outline-n-weak !text-n-slate-11'
+                  ? '!size-8 !bg-transparent outline outline-1 outline-[#34353f]/20 !text-[#6a6779] hover:!bg-[#34353f]/10'
                   : '!h-7 !outline-n-weak !text-n-slate-11',
                 { '!bg-n-alpha-2 dark:!bg-n-slate-9/30': isOpen },
               ]"
@@ -563,7 +563,7 @@ const menuItems = computed(() => {
       />
       <div
         class="px-1 py-1.5 flex-shrink-0 flex w-full z-50 gap-2 items-center border-t border-[#34353f]/10 shadow-[0px_-2px_4px_0px_rgba(27,28,29,0.02)]"
-        :class="isEffectivelyCollapsed ? 'justify-center' : 'justify-between'"
+        :class="isEffectivelyCollapsed ? 'flex-col justify-center' : 'justify-between'"
       >
         <SidebarProfileMenu
           :is-collapsed="isEffectivelyCollapsed"
