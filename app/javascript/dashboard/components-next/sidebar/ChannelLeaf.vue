@@ -28,7 +28,7 @@ const reauthorizationRequired = computed(() => {
   <span class="size-4 grid place-content-center rounded-full">
     <ChannelIcon :inbox="inbox" class="size-4" />
   </span>
-  <div class="flex-1 truncate min-w-0">{{ label }}</div>
+  <div class="flex-1 truncate min-w-0 text-xs">{{ label }}</div>
   <div
     v-if="reauthorizationRequired"
     v-tooltip.top-end="$t('SIDEBAR.REAUTHORIZE')"
