@@ -563,7 +563,7 @@ const menuItems = computed(() => {
       />
       <div
         class="px-1 py-1.5 flex-shrink-0 flex w-full z-50 gap-2 items-center border-t border-[#34353f]/10 shadow-[0px_-2px_4px_0px_rgba(27,28,29,0.02)]"
-        :class="isEffectivelyCollapsed ? 'flex-col justify-center' : 'justify-between'"
+        :class="isEffectivelyCollapsed ? 'flex-col-reverse justify-center' : 'justify-between'"
       >
         <SidebarProfileMenu
           :is-collapsed="isEffectivelyCollapsed"
