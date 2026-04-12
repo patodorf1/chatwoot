@@ -72,13 +72,13 @@ defineExpose({
     <div class="flex items-center justify-between w-full gap-2 py-1 h-7">
       <p
         v-if="offerText"
-        class="mb-0 text-sm leading-7 text-n-slate-12 line-clamp-1"
+        class="mb-0 text-xs leading-5 text-n-slate-12 line-clamp-1"
       >
         {{ offerText }}
       </p>
       <p
         v-else
-        class="mb-0 text-sm leading-7 text-n-slate-11 italic line-clamp-1"
+        class="mb-0 text-xs leading-5 text-n-slate-11 italic line-clamp-1"
       >
         Sin oferta asignada
       </p>

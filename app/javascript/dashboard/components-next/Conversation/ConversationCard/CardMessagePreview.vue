@@ -53,13 +53,13 @@ const unreadMessagesCount = computed(() => {
   <div class="flex items-end w-full gap-2 pb-1">
     <p
       v-if="offerText"
-      class="w-full mb-0 text-sm leading-7 text-n-slate-12 line-clamp-2"
+      class="w-full mb-0 text-xs leading-5 text-n-slate-12 line-clamp-2"
     >
       {{ offerText }}
     </p>
     <p
       v-else
-      class="w-full mb-0 text-sm leading-7 text-n-slate-11 italic line-clamp-2"
+      class="w-full mb-0 text-xs leading-5 text-n-slate-11 italic line-clamp-2"
     >
       Sin oferta asignada
     </p>
