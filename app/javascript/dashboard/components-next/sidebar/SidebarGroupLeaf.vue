@@ -25,15 +25,15 @@ const shouldRenderComponent = computed(() => {
     :permissions="resolvePermissions(to)"
     :feature-flag="resolveFeatureFlag(to)"
     as="li"
-    class="py-0.5 ltr:pl-2 rtl:pr-2 rtl:mr-3 ltr:ml-3 relative text-n-slate-11 child-item before:bg-n-slate-4 after:bg-transparent after:border-n-slate-4 before:left-0 rtl:before:right-0 min-w-0"
+    class="py-0.5 ltr:pl-2 rtl:pr-2 rtl:mr-3 ltr:ml-3 relative text-white/70 child-item before:bg-white/30 after:bg-transparent after:border-white/30 before:left-0 rtl:before:right-0 min-w-0"
   >
     <component
       :is="to ? 'router-link' : 'div'"
       :to="to"
       :title="label"
-      class="flex h-8 items-center gap-2 px-2 py-1 rounded-lg hover:bg-gradient-to-r from-transparent via-n-slate-3/70 to-n-slate-3/70 group min-w-0"
+      class="flex h-8 items-center gap-2 px-2 py-1 rounded-lg hover:bg-gradient-to-r from-transparent via-white/10 to-white/10 group min-w-0"
       :class="{
-        'text-n-slate-12 bg-n-alpha-2 active': active,
+        'text-white bg-white/10 active': active,
       }"
     >
       <component
@@ -47,7 +47,7 @@ const shouldRenderComponent = computed(() => {
         <span v-if="icon" class="size-4 grid place-content-center rounded-full">
           <Icon :icon="icon" class="size-4 inline-block" />
         </span>
-        <div class="flex-1 truncate min-w-0 text-sm">{{ label }}</div>
+        <div class="flex-1 truncate min-w-0 text-xs">{{ label }}</div>
       </template>
     </component>
   </Policy>

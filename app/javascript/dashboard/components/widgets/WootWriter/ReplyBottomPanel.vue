@@ -130,6 +130,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    showExpandButton: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: [
     'replaceText',
@@ -137,6 +141,7 @@ export default {
     'selectWhatsappTemplate',
     'selectContentTemplate',
     'toggleQuotedReply',
+    'togglePopout',
   ],
   setup(props) {
     const { setSignatureFlagForInbox, fetchSignatureFlagFromUISettings } =
@@ -294,8 +299,8 @@ export default {
 
 <template>
   <div
-    class="flex justify-between"
-    :class="[wrapClass, isWhatsAppLike ? 'p-1.5' : 'px-3 py-1.5']"
+    class="flex items-center gap-1"
+    :class="[wrapClass, isWhatsAppLike ? 'p-1.5' : 'ltr:pr-2 rtl:pl-2 py-1.5']"
   >
     <div class="left-wrap">
       <NextButton
@@ -405,6 +410,14 @@ export default {
         faded
         sm
         @click="toggleInsertArticle"
+      />
+      <NextButton
+        v-if="showExpandButton"
+        ghost
+        class="text-n-slate-11"
+        sm
+        icon="i-lucide-maximize-2"
+        @click="$emit('togglePopout')"
       />
     </div>
     <div v-if="!isWhatsAppLike" class="right-wrap">

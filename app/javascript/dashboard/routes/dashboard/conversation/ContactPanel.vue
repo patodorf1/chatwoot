@@ -73,6 +73,11 @@ onMounted(() => {
         attribute-type="contact_attribute"
         attribute-from="conversation_contact_panel"
         :contact-id="contact.id"
+        :allowed-attribute-keys="[
+          'posicion_propuesta',
+          'puesto_actual',
+          'tecnologia_principal',
+        ]"
         :empty-state-message="
           $t('CONVERSATION_CUSTOM_ATTRIBUTES.NO_RECORDS_FOUND')
         "

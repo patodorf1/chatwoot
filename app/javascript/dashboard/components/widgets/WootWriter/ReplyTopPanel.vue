@@ -54,7 +54,7 @@ export default {
       default: undefined,
     },
   },
-  emits: ['setReplyMode', 'togglePopout', 'executeCopilotAction'],
+  emits: ['setReplyMode', 'executeCopilotAction'],
   setup(props, { emit }) {
     const setReplyMode = mode => {
       emit('setReplyMode', mode);
@@ -146,7 +146,7 @@ export default {
 
 <template>
   <div
-    class="flex justify-between gap-2 h-[3.25rem] items-center ltr:pl-3 ltr:pr-2 rtl:pr-3 rtl:pl-2"
+    class="flex gap-2 h-[3.25rem] items-center ltr:pl-3 rtl:pr-3"
   >
     <EditorModeToggle
       :mode="mode"
@@ -154,21 +154,10 @@ export default {
       :is-reply-restricted="isReplyRestricted"
       @toggle-mode="handleModeToggle"
     />
-    <div class="flex items-center mx-4 my-0">
-      <div v-if="isMessageLengthReachingThreshold" class="text-xs">
-        <span :class="charLengthClass">
-          {{ characterLengthWarning }}
-        </span>
-      </div>
-    </div>
-    <div class="flex items-center gap-2">
-      <NextButton
-        ghost
-        class="text-n-slate-11"
-        sm
-        icon="i-lucide-maximize-2"
-        @click="$emit('togglePopout')"
-      />
+    <div v-if="isMessageLengthReachingThreshold" class="flex items-center text-xs">
+      <span :class="charLengthClass">
+        {{ characterLengthWarning }}
+      </span>
     </div>
   </div>
 </template>

@@ -1,6 +1,5 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import { useElementSize } from '@vueuse/core';
 import BackButton from '../BackButton.vue';
@@ -10,7 +9,6 @@ import ButtonV4 from 'dashboard/components-next/button/Button.vue';
 import Avatar from 'next/avatar/Avatar.vue';
 import SLACardLabel from './components/SLACardLabel.vue';
 import wootConstants from 'dashboard/constants/globals';
-import { conversationListPageURL } from 'dashboard/helper/URLHelper';
 import { snoozedReopenTime } from 'dashboard/helper/snoozeHelpers';
 
 import { useI18n } from 'vue-i18n';
@@ -28,33 +26,12 @@ const props = defineProps({
 
 const { t } = useI18n();
 const store = useStore();
-const route = useRoute();
 const conversationHeader = ref(null);
 const { width } = useElementSize(conversationHeader);
 const currentChat = computed(() => store.getters.getSelectedChat);
 const accountId = computed(() => store.getters.getCurrentAccountId);
 
 const chatMetadata = computed(() => props.chat.meta);
-
-const backButtonUrl = computed(() => {
-  const {
-    params: { inbox_id: inboxId, label, teamId, id: customViewId },
-    name,
-  } = route;
-
-  const conversationTypeMap = {
-    conversation_through_mentions: 'mention',
-    conversation_through_unattended: 'unattended',
-  };
-  return conversationListPageURL({
-    accountId: accountId.value,
-    inboxId,
-    label,
-    teamId,
-    conversationType: conversationTypeMap[name],
-    customViewId,
-  });
-});
 
 const isHMACVerified = computed(() => {
   return chatMetadata.value.hmac_verified !== false;
@@ -119,7 +96,6 @@ const toggleStatus = async () => {
     >
       <BackButton
         v-if="showBackButton"
-        :back-url="backButtonUrl"
         class="ltr:mr-2 rtl:ml-2"
       />
       <Avatar

@@ -31,6 +31,11 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  // Optional list of attribute keys to show. If empty, all attributes are shown.
+  allowedAttributeKeys: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const store = useStore();
@@ -73,20 +78,23 @@ const toggleButtonText = computed(() =>
     : t('CUSTOM_ATTRIBUTES.SHOW_LESS')
 );
 
-const filteredCustomAttributes = computed(() =>
-  attributes.value.map(attribute => {
-    // Check if the attribute key exists in customAttributes
+const filteredCustomAttributes = computed(() => {
+  const allowed = props.allowedAttributeKeys;
+  const filtered = allowed.length
+    ? attributes.value.filter(attr => allowed.includes(attr.attribute_key))
+    : attributes.value;
+
+  return filtered.map(attribute => {
     const hasValue = attribute.attribute_key in customAttributes.value;
 
     return {
       ...attribute,
       type: 'custom_attribute',
       key: attribute.attribute_key,
-      // Set value from customAttributes if it exists, otherwise use ''
       value: hasValue ? customAttributes.value[attribute.attribute_key] : '',
     };
-  })
-);
+  });
+});
 
 // Order key name for UI settings
 const orderKey = computed(

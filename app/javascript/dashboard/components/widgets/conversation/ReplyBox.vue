@@ -1256,84 +1256,87 @@ export default {
 <template>
   <ReplyBoxBanner :message="message" :is-on-private-note="isOnPrivateNote" />
   <div ref="replyEditor" class="reply-box" :class="replyBoxClass">
-    <ReplyTopPanel
-      :mode="replyType"
-      :conversation-id="conversationId"
-      :is-reply-restricted="isReplyRestricted"
-      :disabled="
-        (copilot.isActive.value && copilot.isButtonDisabled.value) ||
-        showAudioRecorderEditor
-      "
-      :is-editor-disabled="isEditorDisabled"
-      :is-message-length-reaching-threshold="isMessageLengthReachingThreshold"
-      :characters-remaining="charactersRemaining"
-      :editor-content="message"
-      :popout-reply-box="popOutReplyBox"
-      @set-reply-mode="setReplyMode"
-      @toggle-popout="togglePopout"
-      @toggle-copilot="copilot.toggleEditor"
-      @execute-copilot-action="executeCopilotAction"
-    />
+    <div class="flex items-center justify-between">
+      <ReplyTopPanel
+        :mode="replyType"
+        :conversation-id="conversationId"
+        :is-reply-restricted="isReplyRestricted"
+        :disabled="
+          (copilot.isActive.value && copilot.isButtonDisabled.value) ||
+          showAudioRecorderEditor
+        "
+        :is-editor-disabled="isEditorDisabled"
+        :is-message-length-reaching-threshold="isMessageLengthReachingThreshold"
+        :characters-remaining="charactersRemaining"
+        :editor-content="message"
+        class="shrink-0"
+        @set-reply-mode="setReplyMode"
+        @toggle-copilot="copilot.toggleEditor"
+        @execute-copilot-action="executeCopilotAction"
+      />
+      <Transition
+        mode="out-in"
+        enter-active-class="transition-all duration-300 ease-out"
+        enter-from-class="opacity-0 translate-y-2 scale-[0.98]"
+        enter-to-class="opacity-100 translate-y-0 scale-100"
+        leave-active-class="transition-all duration-200 ease-in"
+        leave-from-class="opacity-100 translate-y-0 scale-100"
+        leave-to-class="opacity-0 translate-y-2 scale-[0.98]"
+      >
+        <CopilotReplyBottomPanel
+          v-if="copilot.isActive.value"
+          key="copilot-bottom-panel"
+          :is-generating-content="copilot.isButtonDisabled.value"
+          @submit="onSubmitCopilotReply"
+          @cancel="copilot.reset"
+        />
+        <ReplyBottomPanel
+          v-else
+          key="reply-bottom-panel"
+          :conversation-id="conversationId"
+          :enable-multiple-file-upload="enableMultipleFileUpload"
+          :enable-whats-app-templates="showWhatsappTemplates"
+          :enable-content-templates="showContentTemplates"
+          :inbox="inbox"
+          :is-on-private-note="isOnPrivateNote"
+          :is-recording-audio="isRecordingAudio"
+          :is-send-disabled="isReplyButtonDisabled"
+          :is-note="isPrivate"
+          :is-editor-disabled="isEditorDisabled"
+          :is-whats-app-like="isWhatsAppLikeChannel && !isOnPrivateNote"
+          :on-file-upload="onFileUpload"
+          :on-send="onSendReply"
+          :conversation-type="conversationType"
+          :recording-audio-duration-text="recordingAudioDurationText"
+          :recording-audio-state="recordingAudioState"
+          :send-button-text="replyButtonLabel"
+          :show-audio-recorder="showAudioRecorder"
+          :show-emoji-picker="showEmojiPicker"
+          :show-file-upload="showFileUpload"
+          :show-quoted-reply-toggle="shouldShowQuotedReplyToggle"
+          :quoted-reply-enabled="quotedReplyPreference"
+          :toggle-audio-recorder-play-pause="toggleAudioRecorderPlayPause"
+          :toggle-audio-recorder="toggleAudioRecorder"
+          :toggle-emoji-picker="toggleEmojiPicker"
+          :message="message"
+          :portal-slug="connectedPortalSlug"
+          :new-conversation-modal-active="newConversationModalActive"
+          :show-expand-button="true"
+          @select-whatsapp-template="openWhatsappTemplateModal"
+          @select-content-template="openContentTemplateModal"
+          @replace-text="replaceText"
+          @toggle-insert-article="toggleInsertArticle"
+          @toggle-quoted-reply="toggleQuotedReply"
+          @toggle-popout="togglePopout"
+        />
+      </Transition>
+    </div>
     <ArticleSearchPopover
       v-if="showArticleSearchPopover && connectedPortalSlug"
       :selected-portal-slug="connectedPortalSlug"
       @insert="handleInsert"
       @close="onSearchPopoverClose"
     />
-    <Transition
-      mode="out-in"
-      enter-active-class="transition-all duration-300 ease-out"
-      enter-from-class="opacity-0 translate-y-2 scale-[0.98]"
-      enter-to-class="opacity-100 translate-y-0 scale-100"
-      leave-active-class="transition-all duration-200 ease-in"
-      leave-from-class="opacity-100 translate-y-0 scale-100"
-      leave-to-class="opacity-0 translate-y-2 scale-[0.98]"
-    >
-      <CopilotReplyBottomPanel
-        v-if="copilot.isActive.value"
-        key="copilot-bottom-panel"
-        :is-generating-content="copilot.isButtonDisabled.value"
-        @submit="onSubmitCopilotReply"
-        @cancel="copilot.reset"
-      />
-      <ReplyBottomPanel
-        v-else
-        key="reply-bottom-panel"
-        :conversation-id="conversationId"
-        :enable-multiple-file-upload="enableMultipleFileUpload"
-        :enable-whats-app-templates="showWhatsappTemplates"
-        :enable-content-templates="showContentTemplates"
-        :inbox="inbox"
-        :is-on-private-note="isOnPrivateNote"
-        :is-recording-audio="isRecordingAudio"
-        :is-send-disabled="isReplyButtonDisabled"
-        :is-note="isPrivate"
-        :is-editor-disabled="isEditorDisabled"
-        :is-whats-app-like="isWhatsAppLikeChannel && !isOnPrivateNote"
-        :on-file-upload="onFileUpload"
-        :on-send="onSendReply"
-        :conversation-type="conversationType"
-        :recording-audio-duration-text="recordingAudioDurationText"
-        :recording-audio-state="recordingAudioState"
-        :send-button-text="replyButtonLabel"
-        :show-audio-recorder="showAudioRecorder"
-        :show-emoji-picker="showEmojiPicker"
-        :show-file-upload="showFileUpload"
-        :show-quoted-reply-toggle="shouldShowQuotedReplyToggle"
-        :quoted-reply-enabled="quotedReplyPreference"
-        :toggle-audio-recorder-play-pause="toggleAudioRecorderPlayPause"
-        :toggle-audio-recorder="toggleAudioRecorder"
-        :toggle-emoji-picker="toggleEmojiPicker"
-        :message="message"
-        :portal-slug="connectedPortalSlug"
-        :new-conversation-modal-active="newConversationModalActive"
-        @select-whatsapp-template="openWhatsappTemplateModal"
-        @select-content-template="openContentTemplateModal"
-        @replace-text="replaceText"
-        @toggle-insert-article="toggleInsertArticle"
-        @toggle-quoted-reply="toggleQuotedReply"
-      />
-    </Transition>
 
     <Transition
       mode="out-in"
