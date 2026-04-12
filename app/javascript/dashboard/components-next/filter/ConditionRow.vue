@@ -148,7 +148,7 @@ defineExpose({ validate, resetValidation });
 <template>
   <li class="list-none">
     <div
-      class="flex items-center gap-2 rounded-md"
+      class="flex items-center gap-1.5 rounded-md"
       :class="{
         'animate-wiggle': showErrors && validationError,
       }"
@@ -208,7 +208,7 @@ defineExpose({ validate, resetValidation });
         @click.stop="emit('remove')"
       />
     </div>
-    <span v-if="showErrors && validationError" class="text-xs text-n-ruby-11">
+    <span v-if="showErrors && validationError" class="text-[10px] text-n-ruby-11">
       {{ t(`FILTER.ERRORS.${validationError}`) }}
     </span>
   </li>

@@ -1,10 +1,11 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import Auth from 'dashboard/api/auth';
 import { useMapGetter } from 'dashboard/composables/store';
 import { useAccount } from 'dashboard/composables/useAccount';
 import { useI18n } from 'vue-i18n';
 import Avatar from 'next/avatar/Avatar.vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
 import SidebarProfileMenuStatus from './SidebarProfileMenuStatus.vue';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
@@ -37,6 +38,8 @@ const isFeatureEnabledonAccount = useMapGetter(
   'accounts/isFeatureEnabledonAccount'
 );
 
+const showSettingsSubmenu = ref(false);
+
 const showChatSupport = computed(() => {
   return (
     isFeatureEnabledonAccount.value(
@@ -45,6 +48,54 @@ const showChatSupport = computed(() => {
     ) && globalConfig.value.chatwootInboxToken
   );
 });
+
+const settingsItems = computed(() => [
+  {
+    label: t('SIDEBAR.ACCOUNT_SETTINGS'),
+    icon: 'i-lucide-briefcase',
+    link: accountScopedRoute('general_settings_index'),
+  },
+  {
+    label: t('SIDEBAR.AGENTS'),
+    icon: 'i-lucide-square-user',
+    link: accountScopedRoute('agent_list'),
+  },
+  {
+    label: t('SIDEBAR.TEAMS'),
+    icon: 'i-lucide-users',
+    link: accountScopedRoute('settings_teams_list'),
+  },
+  {
+    label: t('SIDEBAR.INBOXES'),
+    icon: 'i-lucide-inbox',
+    link: accountScopedRoute('settings_inbox_list'),
+  },
+  {
+    label: t('SIDEBAR.LABELS'),
+    icon: 'i-lucide-tags',
+    link: accountScopedRoute('labels_list'),
+  },
+  {
+    label: t('SIDEBAR.CUSTOM_ATTRIBUTES'),
+    icon: 'i-lucide-code',
+    link: accountScopedRoute('attributes_list'),
+  },
+  {
+    label: t('SIDEBAR.AUTOMATION'),
+    icon: 'i-lucide-repeat',
+    link: accountScopedRoute('automation_list'),
+  },
+  {
+    label: t('SIDEBAR.CANNED_RESPONSES'),
+    icon: 'i-lucide-message-square-quote',
+    link: accountScopedRoute('canned_list'),
+  },
+  {
+    label: t('SIDEBAR.INTEGRATIONS'),
+    icon: 'i-lucide-blocks',
+    link: accountScopedRoute('settings_applications'),
+  },
+]);
 
 const menuItems = computed(() => {
   return [
@@ -76,37 +127,12 @@ const menuItems = computed(() => {
     {
       show: true,
       showOnCustomBrandedInstance: true,
-      label: t('SIDEBAR.SETTINGS'),
-      icon: 'i-lucide-settings',
-      link: accountScopedRoute('general_settings_index'),
-    },
-    {
-      show: true,
-      showOnCustomBrandedInstance: true,
       label: t('SIDEBAR_ITEMS.APPEARANCE'),
       icon: 'i-lucide-palette',
       click: () => {
         const ninja = document.querySelector('ninja-keys');
         ninja.open({ parent: 'appearance_settings' });
       },
-    },
-    {
-      show: true,
-      showOnCustomBrandedInstance: false,
-      label: t('SIDEBAR_ITEMS.DOCS'),
-      icon: 'i-lucide-book',
-      link: 'https://www.chatwoot.com/hc/user-guide/en',
-      nativeLink: true,
-      target: '_blank',
-    },
-    {
-      show: true,
-      showOnCustomBrandedInstance: false,
-      label: t('SIDEBAR_ITEMS.CHANGELOG'),
-      icon: 'i-lucide-scroll-text',
-      link: 'https://www.chatwoot.com/changelog/',
-      nativeLink: true,
-      target: '_blank',
     },
     {
       show: currentUser.value.type === 'SuperAdmin',
@@ -140,9 +166,9 @@ const allowedMenuItems = computed(() => {
   >
     <template #trigger="{ toggle, isOpen }">
       <button
-        class="flex gap-2 items-center p-1 text-left rounded-lg cursor-pointer hover:bg-white/10"
+        class="flex gap-2 items-center p-1 text-left rounded-lg cursor-pointer hover:bg-[#34353f]/10"
         :class="[
-          { 'bg-white/10': isOpen },
+          { 'bg-[#34353f]/10': isOpen },
           isCollapsed ? 'justify-center' : 'w-full',
         ]"
         :title="isCollapsed ? currentUser.available_name : undefined"
@@ -157,24 +183,53 @@ const allowedMenuItems = computed(() => {
           rounded-full
         />
         <div v-if="!isCollapsed" class="min-w-0">
-          <div class="text-sm font-medium leading-4 truncate text-white">
+          <div class="text-sm font-medium leading-4 truncate text-[#34353f]">
             {{ currentUser.available_name }}
           </div>
-          <div class="text-xs truncate text-white/70">
+          <div class="text-xs truncate text-[#6a6779]">
             {{ currentUser.email }}
           </div>
         </div>
       </button>
     </template>
     <DropdownBody class="bottom-12 z-50 mb-2 w-80 ltr:left-0 rtl:right-0">
-      <SidebarProfileMenuStatus />
-      <DropdownSeparator />
-      <template v-for="item in allowedMenuItems" :key="item.label">
-        <CustomBrandPolicyWrapper
-          :show-on-custom-branded-instance="item.showOnCustomBrandedInstance"
-        >
-          <DropdownItem v-if="item.show" v-bind="item" />
-        </CustomBrandPolicyWrapper>
+      <template v-if="showSettingsSubmenu">
+        <li class="n-dropdown-item">
+          <button
+            class="flex items-center gap-3 p-2 text-sm text-n-slate-12 w-full rounded-lg hover:bg-n-alpha-2"
+            @click="showSettingsSubmenu = false"
+          >
+            <Icon icon="i-lucide-arrow-left" class="size-4 text-n-slate-11" />
+            {{ t('SIDEBAR.SETTINGS') }}
+          </button>
+        </li>
+        <DropdownSeparator />
+        <DropdownItem
+          v-for="item in settingsItems"
+          :key="item.label"
+          v-bind="item"
+        />
+      </template>
+      <template v-else>
+        <SidebarProfileMenuStatus />
+        <DropdownSeparator />
+        <template v-for="item in allowedMenuItems" :key="item.label">
+          <CustomBrandPolicyWrapper
+            :show-on-custom-branded-instance="item.showOnCustomBrandedInstance"
+          >
+            <DropdownItem v-if="item.show" v-bind="item" />
+          </CustomBrandPolicyWrapper>
+        </template>
+        <DropdownSeparator />
+        <li class="n-dropdown-item">
+          <button
+            class="flex items-center gap-3 p-2 text-sm text-n-slate-12 w-full rounded-lg hover:bg-n-alpha-2"
+            @click.stop="showSettingsSubmenu = true"
+          >
+            <Icon icon="i-lucide-settings" class="size-4 text-n-slate-11" />
+            {{ t('SIDEBAR.SETTINGS') }}
+          </button>
+        </li>
       </template>
     </DropdownBody>
   </DropdownContainer>

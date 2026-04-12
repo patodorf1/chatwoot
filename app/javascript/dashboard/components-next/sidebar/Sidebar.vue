@@ -441,7 +441,7 @@ const menuItems = computed(() => {
       closeMobileSidebar,
       { ignore: ['#mobile-sidebar-launcher'] },
     ]"
-    class="bg-[#3B5998] text-white flex flex-col text-xs pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 w-[200px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 ltr:border-r rtl:border-l border-white/10"
+    class="bg-[#e0dafd] text-[#6a6779] flex flex-col text-xs pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 w-[200px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 ltr:border-r rtl:border-l border-[#34353f]/10"
     :class="[
       {
         'shadow-lg md:shadow-none': isMobileSidebarOpen,
@@ -473,7 +473,7 @@ const menuItems = computed(() => {
           <div class="grid flex-shrink-0 place-content-center size-6">
             <Logo class="size-4" />
           </div>
-          <div class="flex-shrink-0 w-px h-3 bg-white/30" />
+          <div class="flex-shrink-0 w-px h-3 bg-[#34353f]/20" />
           <SidebarAccountSwitcher
             class="flex-grow -mx-1 min-w-0"
             @show-create-account-modal="emit('showCreateAccountModal')"
@@ -487,14 +487,14 @@ const menuItems = computed(() => {
         <RouterLink
           v-if="!isEffectivelyCollapsed"
           :to="{ name: 'search' }"
-          class="flex gap-2 items-center px-2 py-1 w-full h-7 rounded-lg outline outline-1 outline-white/20 bg-white/10 transition-all duration-100 ease-out"
+          class="flex gap-2 items-center px-2 py-1 w-full h-7 rounded-lg outline outline-1 outline-[#34353f]/20 bg-[#34353f]/10 transition-all duration-100 ease-out"
         >
-          <span class="flex-shrink-0 i-lucide-search size-4 text-white/70" />
-          <span class="flex-grow text-start text-white/70">
+          <span class="flex-shrink-0 i-lucide-search size-4 text-[#6a6779]" />
+          <span class="flex-grow text-start text-[#6a6779]">
             {{ t('COMBOBOX.SEARCH_PLACEHOLDER') }}
           </span>
           <span
-            class="hidden tracking-wide pointer-events-none select-none text-white/70"
+            class="hidden tracking-wide pointer-events-none select-none text-[#6a6779]"
           >
             {{ searchShortcut }}
           </span>
@@ -502,10 +502,10 @@ const menuItems = computed(() => {
         <RouterLink
           v-else
           :to="{ name: 'search' }"
-          class="flex items-center justify-center size-8 rounded-lg outline outline-1 outline-white/20 bg-white/10 transition-all duration-100 ease-out hover:bg-white/20"
+          class="flex items-center justify-center size-8 rounded-lg outline outline-1 outline-[#34353f]/20 bg-[#34353f]/10 transition-all duration-100 ease-out hover:bg-[#34353f]/20"
           :title="t('COMBOBOX.SEARCH_PLACEHOLDER')"
         >
-          <span class="i-lucide-search size-4 text-white/70" />
+          <span class="i-lucide-search size-4 text-[#6a6779]" />
         </RouterLink>
         <ComposeConversation align-position="right" @close="onComposeClose">
           <template #trigger="{ toggle, isOpen }">
@@ -545,7 +545,7 @@ const menuItems = computed(() => {
       class="flex relative flex-col flex-shrink-0 gap-1 justify-between items-center"
     >
       <div
-        class="pointer-events-none absolute inset-x-0 -top-[1.938rem] h-8 bg-gradient-to-t from-[#3B5998] to-transparent"
+        class="pointer-events-none absolute inset-x-0 -top-[1.938rem] h-8 bg-gradient-to-t from-[#e0dafd] to-transparent"
       />
       <SidebarChangelogCard
         v-if="
@@ -562,7 +562,7 @@ const menuItems = computed(() => {
         "
       />
       <div
-        class="px-1 py-1.5 flex-shrink-0 flex w-full z-50 gap-2 items-center border-t border-white/10 shadow-[0px_-2px_4px_0px_rgba(27,28,29,0.02)]"
+        class="px-1 py-1.5 flex-shrink-0 flex w-full z-50 gap-2 items-center border-t border-[#34353f]/10 shadow-[0px_-2px_4px_0px_rgba(27,28,29,0.02)]"
         :class="isEffectivelyCollapsed ? 'justify-center' : 'justify-between'"
       >
         <SidebarProfileMenu
@@ -571,14 +571,14 @@ const menuItems = computed(() => {
         />
         <button
           v-if="isEffectivelyCollapsed"
-          class="flex items-center justify-center size-6 rounded hover:bg-white/10 text-white/70 text-xs flex-shrink-0"
+          class="flex items-center justify-center size-6 rounded hover:bg-[#34353f]/10 text-[#6a6779] text-xs flex-shrink-0"
           @click="snapToExpanded"
         >
           &raquo;
         </button>
         <button
           v-if="!isEffectivelyCollapsed"
-          class="flex items-center justify-center size-6 rounded hover:bg-white/10 text-white/70 text-xs flex-shrink-0"
+          class="flex items-center justify-center size-6 rounded hover:bg-[#34353f]/10 text-[#6a6779] text-xs flex-shrink-0"
           @click="snapToCollapsed"
         >
           &laquo;

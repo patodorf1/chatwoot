@@ -15,7 +15,7 @@ defineProps({
 
 <template>
   <div
-    class="flex items-center gap-2 px-2 py-1.5 rounded-lg h-6 text-white/50 select-none pointer-events-none"
+    class="flex items-center gap-2 px-2 py-1.5 rounded-lg h-6 text-[#6a6779] select-none pointer-events-none"
   >
     <Icon v-if="icon" :icon="icon" class="size-4" />
     <span class="text-xs font-medium leading-5 flex-grow">

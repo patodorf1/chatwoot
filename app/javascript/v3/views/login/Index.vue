@@ -224,6 +224,11 @@ export default {
   >
     <section class="max-w-5xl mx-auto">
       <img
+        src="/wr-logo.png"
+        alt="WeRecruitIT"
+        class="h-12 mx-auto mb-4"
+      />
+      <img
         :src="globalConfig.logo"
         :alt="globalConfig.installationName"
         class="block w-auto h-8 mx-auto dark:hidden"

@@ -4,7 +4,6 @@ import { useStore } from 'vuex';
 import { useElementSize } from '@vueuse/core';
 import BackButton from '../BackButton.vue';
 
-import MoreActions from './MoreActions.vue';
 import ButtonV4 from 'dashboard/components-next/button/Button.vue';
 import Avatar from 'next/avatar/Avatar.vue';
 import SLACardLabel from './components/SLACardLabel.vue';
@@ -30,12 +29,6 @@ const conversationHeader = ref(null);
 const { width } = useElementSize(conversationHeader);
 const currentChat = computed(() => store.getters.getSelectedChat);
 const accountId = computed(() => store.getters.getCurrentAccountId);
-
-const chatMetadata = computed(() => props.chat.meta);
-
-const isHMACVerified = computed(() => {
-  return chatMetadata.value.hmac_verified !== false;
-});
 
 const currentContact = computed(() =>
   store.getters['contacts/getContact'](props.chat.meta.sender.id)
@@ -89,7 +82,7 @@ const toggleStatus = async () => {
 <template>
   <div
     ref="conversationHeader"
-    class="flex flex-row items-center justify-between flex-1 w-full min-w-0 px-3 py-2 h-12"
+    class="flex flex-row items-center justify-between flex-1 w-full min-w-0 px-3 py-2 h-12 bg-white"
   >
     <div
       class="flex items-center justify-start max-w-full min-w-0 flex-1"
@@ -115,13 +108,7 @@ const toggleStatus = async () => {
           >
             {{ currentContact.name }}
           </span>
-          <fluent-icon
-            v-if="!isHMACVerified"
-            v-tooltip="$t('CONVERSATION.UNVERIFIED_SESSION')"
-            size="14"
-            class="text-n-amber-10 my-0 mx-0 min-w-[14px] flex-shrink-0"
-            icon="warning"
-          />
+          <!-- Identity verification warning removed -->
         </div>
 
         <div
@@ -145,7 +132,6 @@ const toggleStatus = async () => {
         :icon="resolveButtonIcon"
         @click="toggleStatus"
       />
-      <MoreActions :conversation-id="currentChat.id" />
     </div>
   </div>
 </template>

@@ -235,8 +235,8 @@ watch(
           type="button"
           class="flex items-center justify-center size-10 rounded-lg"
           :class="{
-            'text-white bg-white/10': isActive || hasActiveChild,
-            'text-white/70 hover:bg-white/10': !isActive && !hasActiveChild,
+            'text-[#34353f] bg-[#34353f]/10': isActive || hasActiveChild,
+            'text-[#6a6779] hover:bg-[#34353f]/10': !isActive && !hasActiveChild,
           }"
           :title="label"
           @click="hasChildren ? handleCollapsedClick() : undefined"
