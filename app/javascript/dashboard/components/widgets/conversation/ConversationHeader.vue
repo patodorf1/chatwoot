@@ -4,14 +4,15 @@ import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import { useElementSize } from '@vueuse/core';
 import BackButton from '../BackButton.vue';
-import InboxName from '../InboxName.vue';
+
 import MoreActions from './MoreActions.vue';
+import ButtonV4 from 'dashboard/components-next/button/Button.vue';
 import Avatar from 'next/avatar/Avatar.vue';
 import SLACardLabel from './components/SLACardLabel.vue';
 import wootConstants from 'dashboard/constants/globals';
 import { conversationListPageURL } from 'dashboard/helper/URLHelper';
 import { snoozedReopenTime } from 'dashboard/helper/snoozeHelpers';
-import { useInbox } from 'dashboard/composables/useInbox';
+
 import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
@@ -30,8 +31,6 @@ const store = useStore();
 const route = useRoute();
 const conversationHeader = ref(null);
 const { width } = useElementSize(conversationHeader);
-const { isAWebWidgetInbox } = useInbox();
-
 const currentChat = computed(() => store.getters.getSelectedChat);
 const accountId = computed(() => store.getters.getCurrentAccountId);
 
@@ -58,10 +57,7 @@ const backButtonUrl = computed(() => {
 });
 
 const isHMACVerified = computed(() => {
-  if (!isAWebWidgetInbox.value) {
-    return true;
-  }
-  return chatMetadata.value.hmac_verified;
+  return chatMetadata.value.hmac_verified !== false;
 });
 
 const currentContact = computed(() =>
@@ -80,16 +76,37 @@ const snoozedDisplayText = computed(() => {
   return t('CONVERSATION.HEADER.SNOOZED_UNTIL_NEXT_REPLY');
 });
 
-const inbox = computed(() => {
-  const { inbox_id: inboxId } = props.chat;
-  return store.getters['inboxes/getInbox'](inboxId);
-});
+const hasSlaPolicyId = computed(() => props.chat?.sla_policy_id);
 
-const hasMultipleInboxes = computed(
-  () => store.getters['inboxes/getInboxes'].length > 1
+const isOpen = computed(
+  () => currentChat.value.status === wootConstants.STATUS_TYPE.OPEN
+);
+const isResolved = computed(
+  () => currentChat.value.status === wootConstants.STATUS_TYPE.RESOLVED
 );
 
-const hasSlaPolicyId = computed(() => props.chat?.sla_policy_id);
+const resolveButtonIcon = computed(() =>
+  isResolved.value ? 'i-lucide-refresh-cw' : 'i-lucide-check-circle'
+);
+const resolveButtonTooltip = computed(() =>
+  isResolved.value
+    ? t('CONVERSATION.HEADER.REOPEN_ACTION')
+    : t('CONVERSATION.HEADER.RESOLVE_ACTION')
+);
+
+const toggleStatus = async () => {
+  const status = isResolved.value
+    ? wootConstants.STATUS_TYPE.OPEN
+    : wootConstants.STATUS_TYPE.RESOLVED;
+  try {
+    await store.dispatch('toggleStatus', {
+      conversationId: currentChat.value.id,
+      status,
+    });
+  } catch {
+    // silent
+  }
+};
 </script>
 
 <template>
@@ -134,7 +151,7 @@ const hasSlaPolicyId = computed(() => props.chat?.sla_policy_id);
         <div
           class="flex items-center gap-2 overflow-hidden text-xs conversation--header--actions text-ellipsis whitespace-nowrap"
         >
-          <InboxName v-if="hasMultipleInboxes" :inbox="inbox" class="!mx-0" />
+          <!-- InboxName removed -->
           <span v-if="isSnoozed" class="font-medium text-n-amber-10">
             {{ snoozedDisplayText }}
           </span>
@@ -144,6 +161,14 @@ const hasSlaPolicyId = computed(() => props.chat?.sla_policy_id);
     <div
       class="flex flex-row items-center justify-end flex-shrink-0 gap-1 header-actions-wrap"
     >
+      <ButtonV4
+        v-tooltip="resolveButtonTooltip"
+        size="sm"
+        variant="ghost"
+        color="slate"
+        :icon="resolveButtonIcon"
+        @click="toggleStatus"
+      />
       <MoreActions :conversation-id="currentChat.id" />
     </div>
   </div>

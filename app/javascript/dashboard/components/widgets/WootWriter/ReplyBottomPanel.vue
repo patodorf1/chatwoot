@@ -295,7 +295,7 @@ export default {
 <template>
   <div
     class="flex justify-between"
-    :class="[wrapClass, isWhatsAppLike ? 'p-1.5' : 'p-3']"
+    :class="[wrapClass, isWhatsAppLike ? 'p-1.5' : 'px-3 py-1.5']"
   >
     <div class="left-wrap">
       <NextButton

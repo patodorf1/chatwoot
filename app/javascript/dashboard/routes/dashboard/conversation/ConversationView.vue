@@ -66,6 +66,8 @@ export default {
   data() {
     return {
       showSearchModal: false,
+      chatListWidth: 340,
+      isResizing: false,
     };
   },
   computed: {
@@ -115,6 +117,10 @@ export default {
     }
   },
 
+  beforeUnmount() {
+    document.removeEventListener('mousemove', this.handleResize);
+    document.removeEventListener('mouseup', this.stopResize);
+  },
   mounted() {
     this.$store.dispatch('agents/get');
     this.$store.dispatch('portals/index');
@@ -192,6 +198,30 @@ export default {
     closeSearch() {
       this.showSearchModal = false;
     },
+    startResize() {
+      this.isResizing = true;
+      document.addEventListener('mousemove', this.handleResize);
+      document.addEventListener('mouseup', this.stopResize);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    },
+    handleResize(e) {
+      if (!this.isResizing) return;
+      const MIN_WIDTH = 240;
+      const MAX_WIDTH = 600;
+      const sectionEl = this.$el;
+      if (!sectionEl) return;
+      const sectionLeft = sectionEl.getBoundingClientRect().left;
+      const newWidth = e.clientX - sectionLeft;
+      this.chatListWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
+    },
+    stopResize() {
+      this.isResizing = false;
+      document.removeEventListener('mousemove', this.handleResize);
+      document.removeEventListener('mouseup', this.stopResize);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    },
   },
 };
 </script>
@@ -206,8 +236,18 @@ export default {
       :conversation-type="conversationType"
       :folders-id="foldersId"
       :is-on-expanded-layout="isOnExpandedLayout"
+      :style="showConversationList ? { width: chatListWidth + 'px', minWidth: chatListWidth + 'px', maxWidth: chatListWidth + 'px' } : {}"
       @conversation-load="onConversationLoad"
     />
+    <div
+      v-if="showConversationList && showMessageView"
+      class="relative z-10 flex-shrink-0 w-1 group cursor-col-resize hover:bg-n-brand/20 active:bg-n-brand/30 transition-colors duration-150"
+      @mousedown.prevent="startResize"
+    >
+      <div
+        class="absolute inset-y-0 -left-0.5 w-2 group-hover:bg-n-brand/10"
+      />
+    </div>
     <ConversationBox
       v-if="showMessageView"
       :inbox-id="inboxId"

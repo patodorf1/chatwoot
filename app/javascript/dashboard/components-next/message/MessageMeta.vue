@@ -132,7 +132,7 @@ const statusToShow = computed(() => {
 </script>
 
 <template>
-  <div class="text-xs flex items-center gap-1.5">
+  <div class="text-[8px] flex items-center gap-1.5">
     <div class="inline">
       <time class="inline">{{ readableTime }}</time>
     </div>

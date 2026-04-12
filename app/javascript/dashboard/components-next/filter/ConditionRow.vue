@@ -158,7 +158,7 @@ defineExpose({ validate, resetValidation });
         v-model="queryOperator"
         variant="faded"
         hide-icon
-        class="text-sm"
+        class="text-xs"
         :options="queryOperatorOptions"
       />
       <FilterSelect
@@ -208,7 +208,7 @@ defineExpose({ validate, resetValidation });
         @click.stop="emit('remove')"
       />
     </div>
-    <span v-if="showErrors && validationError" class="text-sm text-n-ruby-11">
+    <span v-if="showErrors && validationError" class="text-xs text-n-ruby-11">
       {{ t(`FILTER.ERRORS.${validationError}`) }}
     </span>
   </li>

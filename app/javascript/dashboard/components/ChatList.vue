@@ -986,9 +986,7 @@ watch(conversationFilters, (newVal, oldVal) => {
       <p
         v-else-if="showEndOfListMessage"
         class="p-4 text-center text-n-slate-11"
-      >
-        {{ $t('CHAT_LIST.EOF') }}
-      </p>
+      />
       <IntersectionObserver
         v-else
         :options="intersectionObserverOptions"

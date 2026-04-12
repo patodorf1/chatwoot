@@ -87,23 +87,6 @@ const actionMenuItems = computed(() => {
     });
   }
 
-  // Snooze
-  items.push({
-    icon: 'i-lucide-alarm-clock-minus',
-    label: t('CONVERSATION.RESOLVE_DROPDOWN.SNOOZE_UNTIL'),
-    action: 'snooze',
-    value: 'snooze',
-  });
-
-  // Mark pending
-  items.push({
-    icon: 'i-lucide-circle-dot-dashed',
-    label: t('CONVERSATION.RESOLVE_DROPDOWN.MARK_PENDING'),
-    action: 'pending',
-    value: 'pending',
-  });
-
-  // Separator (visual only via different section)
   if (!currentChat.value.muted) {
     items.push({
       icon: 'i-lucide-volume-off',

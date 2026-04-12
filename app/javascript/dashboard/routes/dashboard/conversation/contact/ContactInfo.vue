@@ -1,11 +1,8 @@
 <script>
 import { mapGetters } from 'vuex';
 import { useAlert } from 'dashboard/composables';
-import { dynamicTime } from 'shared/helpers/timeHelper';
 import { useAdmin } from 'dashboard/composables/useAdmin';
 import ContactInfoRow from './ContactInfoRow.vue';
-import Avatar from 'next/avatar/Avatar.vue';
-import SocialIcons from './SocialIcons.vue';
 import EditContact from './EditContact.vue';
 import ContactMergeModal from 'dashboard/modules/contact/ContactMergeModal.vue';
 import ComposeConversation from 'dashboard/components-next/NewConversation/ComposeConversation.vue';
@@ -25,9 +22,7 @@ export default {
     NextButton,
     ContactInfoRow,
     EditContact,
-    Avatar,
     ComposeConversation,
-    SocialIcons,
     ContactMergeModal,
     VoiceCallButton,
   },
@@ -35,10 +30,6 @@ export default {
     contact: {
       type: Object,
       default: () => ({}),
-    },
-    showAvatar: {
-      type: Boolean,
-      default: true,
     },
   },
   emits: ['panelClose'],
@@ -91,6 +82,14 @@ export default {
         telegram,
       };
     },
+    hasValidCompany() {
+      const company = this.additionalAttributes.company_name;
+      return (
+        company &&
+        company.trim() !== '' &&
+        company.trim().toLowerCase() !== 'no disponible'
+      );
+    },
     // Delete Modal
     confirmDeleteMessage() {
       return ` ${this.contact.name}?`;
@@ -105,7 +104,6 @@ export default {
     },
   },
   methods: {
-    dynamicTime,
     toggleEditModal() {
       this.showEditModal = !this.showEditModal;
     },
@@ -180,35 +178,14 @@ export default {
 <template>
   <div class="relative items-center w-full p-4">
     <div class="flex flex-col w-full gap-2 text-left rtl:text-right">
-      <div class="flex flex-row justify-between">
-        <Avatar
-          v-if="showAvatar"
-          :src="contact.thumbnail"
-          :name="contact.name"
-          :status="contact.availability_status"
-          :size="48"
-          hide-offline-status
-          rounded-full
-        />
-      </div>
-
       <div class="flex flex-col items-start gap-1.5 min-w-0 w-full">
-        <div v-if="showAvatar" class="flex items-center w-full min-w-0 gap-3">
+        <div class="flex items-center w-full min-w-0 gap-3">
           <h3
             class="flex-shrink max-w-full min-w-0 my-0 text-base capitalize break-words text-n-slate-12"
           >
             {{ contact.name }}
           </h3>
           <div class="flex flex-row items-center gap-2">
-            <span
-              v-if="contact.created_at"
-              v-tooltip.left="
-                `${$t('CONTACT_PANEL.CREATED_AT_LABEL')} ${dynamicTime(
-                  contact.created_at
-                )}`
-              "
-              class="i-lucide-info text-sm text-n-slate-10"
-            />
             <a
               :href="contactProfileLink"
               target="_blank"
@@ -241,26 +218,12 @@ export default {
             show-copy
           />
           <ContactInfoRow
-            v-if="contact.identifier"
-            :value="contact.identifier"
-            icon="contact-identify"
-            emoji="🪪"
-            :title="$t('CONTACT_PANEL.IDENTIFIER')"
-          />
-          <ContactInfoRow
+            v-if="hasValidCompany"
             :value="additionalAttributes.company_name"
             icon="building-bank"
             emoji="🏢"
             :title="$t('CONTACT_PANEL.COMPANY')"
           />
-          <ContactInfoRow
-            v-if="location || additionalAttributes.location"
-            :value="location || additionalAttributes.location"
-            icon="map"
-            emoji="🌍"
-            :title="$t('CONTACT_PANEL.LOCATION')"
-          />
-          <SocialIcons :social-profiles="socialProfiles" />
         </div>
       </div>
       <div class="flex items-center w-full mt-0.5 gap-2">

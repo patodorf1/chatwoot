@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import Auth from 'dashboard/api/auth';
 import { useMapGetter } from 'dashboard/composables/store';
+import { useAccount } from 'dashboard/composables/useAccount';
 import { useI18n } from 'vue-i18n';
 import Avatar from 'next/avatar/Avatar.vue';
 import SidebarProfileMenuStatus from './SidebarProfileMenuStatus.vue';
@@ -26,6 +27,7 @@ defineOptions({
 });
 
 const { t } = useI18n();
+const { accountScopedRoute } = useAccount();
 
 const currentUser = useMapGetter('getCurrentUser');
 const currentUserAvailability = useMapGetter('getCurrentUserAvailability');
@@ -70,6 +72,13 @@ const menuItems = computed(() => {
       label: t('SIDEBAR_ITEMS.PROFILE_SETTINGS'),
       icon: 'i-lucide-user-pen',
       link: { name: 'profile_settings_index' },
+    },
+    {
+      show: true,
+      showOnCustomBrandedInstance: true,
+      label: t('SIDEBAR.SETTINGS'),
+      icon: 'i-lucide-settings',
+      link: accountScopedRoute('general_settings_index'),
     },
     {
       show: true,
@@ -131,9 +140,9 @@ const allowedMenuItems = computed(() => {
   >
     <template #trigger="{ toggle, isOpen }">
       <button
-        class="flex gap-2 items-center p-1 text-left rounded-lg cursor-pointer hover:bg-n-alpha-1"
+        class="flex gap-2 items-center p-1 text-left rounded-lg cursor-pointer hover:bg-white/10"
         :class="[
-          { 'bg-n-alpha-1': isOpen },
+          { 'bg-white/10': isOpen },
           isCollapsed ? 'justify-center' : 'w-full',
         ]"
         :title="isCollapsed ? currentUser.available_name : undefined"
@@ -148,10 +157,10 @@ const allowedMenuItems = computed(() => {
           rounded-full
         />
         <div v-if="!isCollapsed" class="min-w-0">
-          <div class="text-sm font-medium leading-4 truncate text-n-slate-12">
+          <div class="text-sm font-medium leading-4 truncate text-white">
             {{ currentUser.available_name }}
           </div>
-          <div class="text-xs truncate text-n-slate-11">
+          <div class="text-xs truncate text-white/70">
             {{ currentUser.email }}
           </div>
         </div>

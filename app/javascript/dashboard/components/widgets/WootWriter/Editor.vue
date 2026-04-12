@@ -975,7 +975,7 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
 }
 
 .ProseMirror-woot-style {
-  @apply overflow-auto min-h-[5rem] max-h-[7.5rem];
+  @apply overflow-auto min-h-[2.25rem] max-h-[7.5rem];
 
   .ProseMirror p.is-editor-empty:first-child::before,
   .ProseMirror .placeholder::before {

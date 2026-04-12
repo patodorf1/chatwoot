@@ -24,6 +24,15 @@ const slaCardLabelRef = ref(null);
 
 const { getPlainText } = useMessageFormatter();
 
+const offerText = computed(() => {
+  const { customAttributes = {} } = props.conversation;
+  return (
+    customAttributes.posicion_propuesta ||
+    customAttributes.oferta_propuesta ||
+    ''
+  );
+});
+
 const lastNonActivityMessageContent = computed(() => {
   const { lastNonActivityMessage = {}, customAttributes = {} } =
     props.conversation;
@@ -61,8 +70,17 @@ defineExpose({
 <template>
   <div class="flex flex-col w-full gap-1">
     <div class="flex items-center justify-between w-full gap-2 py-1 h-7">
-      <p class="mb-0 text-sm leading-7 text-n-slate-12 line-clamp-1">
-        {{ lastNonActivityMessageContent }}
+      <p
+        v-if="offerText"
+        class="mb-0 text-sm leading-7 text-n-slate-12 line-clamp-1"
+      >
+        {{ offerText }}
+      </p>
+      <p
+        v-else
+        class="mb-0 text-sm leading-7 text-n-slate-11 italic line-clamp-1"
+      >
+        Sin oferta asignada
       </p>
 
       <div

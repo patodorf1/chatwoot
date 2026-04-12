@@ -16,6 +16,15 @@ const { t } = useI18n();
 
 const { getPlainText } = useMessageFormatter();
 
+const offerText = computed(() => {
+  const { customAttributes = {} } = props.conversation;
+  return (
+    customAttributes.posicion_propuesta ||
+    customAttributes.oferta_propuesta ||
+    ''
+  );
+});
+
 const lastNonActivityMessageContent = computed(() => {
   const { lastNonActivityMessage = {}, customAttributes = {} } =
     props.conversation;
@@ -42,8 +51,17 @@ const unreadMessagesCount = computed(() => {
 
 <template>
   <div class="flex items-end w-full gap-2 pb-1">
-    <p class="w-full mb-0 text-sm leading-7 text-n-slate-12 line-clamp-2">
-      {{ lastNonActivityMessageContent }}
+    <p
+      v-if="offerText"
+      class="w-full mb-0 text-sm leading-7 text-n-slate-12 line-clamp-2"
+    >
+      {{ offerText }}
+    </p>
+    <p
+      v-else
+      class="w-full mb-0 text-sm leading-7 text-n-slate-11 italic line-clamp-2"
+    >
+      Sin oferta asignada
     </p>
     <div class="flex items-center flex-shrink-0 gap-2 pb-2">
       <Avatar

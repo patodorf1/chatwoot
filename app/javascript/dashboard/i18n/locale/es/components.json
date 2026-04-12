@@ -4,7 +4,7 @@
     "CURRENT_PAGE_INFO": "{currentPage} de {totalPages} páginas"
   },
   "COMBOBOX": {
-    "PLACEHOLDER": "Selecciona una opción...",
+    "PLACEHOLDER": "Selecciona",
     "EMPTY_SEARCH_RESULTS": "No se encontraron elementos para el término de búsqueda `{searchTerm}`",
     "EMPTY_STATE": "No se encontraron resultados.",
     "SEARCH_PLACEHOLDER": "Buscar...",
