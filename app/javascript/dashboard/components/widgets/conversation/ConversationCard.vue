@@ -124,8 +124,13 @@ const showMetaSection = computed(() => {
 
 const hasSlaPolicyId = computed(() => props.chat?.sla_policy_id);
 
+const posicionPropuesta = computed(() => {
+  const attrs = currentContact.value?.custom_attributes || {};
+  return attrs.posicion_propuesta || '';
+});
+
 const showLabelsSection = computed(() => {
-  return props.chat.labels?.length > 0 || hasSlaPolicyId.value;
+  return props.chat.labels?.length > 0 || hasSlaPolicyId.value || posicionPropuesta.value;
 });
 
 const messagePreviewClass = computed(() => {
@@ -373,15 +378,22 @@ const deleteConversation = () => {
           {{ unreadCount > 9 ? '9+' : unreadCount }}
         </span>
       </div>
-      <CardLabels
-        v-if="showLabelsSection"
-        :conversation-labels="chat.labels"
-        class="mt-0.5 mx-2 mb-0"
-      >
-        <template v-if="hasSlaPolicyId" #before>
-          <SLACardLabel :chat="chat" class="ltr:mr-1 rtl:ml-1" />
-        </template>
-      </CardLabels>
+      <div v-if="showLabelsSection" class="flex items-center gap-1 mt-0.5 mx-2 mb-0 flex-wrap">
+        <span
+          v-if="posicionPropuesta"
+          class="inline-flex items-center px-1.5 py-0 rounded-md text-xxs font-medium bg-n-violet-3 text-n-violet-11 truncate max-w-[180px]"
+        >
+          {{ posicionPropuesta }}
+        </span>
+        <CardLabels
+          :conversation-labels="chat.labels"
+          class="!mb-0"
+        >
+          <template v-if="hasSlaPolicyId" #before>
+            <SLACardLabel :chat="chat" class="ltr:mr-1 rtl:ml-1" />
+          </template>
+        </CardLabels>
+      </div>
     </div>
     <ContextMenu
       v-if="showContextMenu"

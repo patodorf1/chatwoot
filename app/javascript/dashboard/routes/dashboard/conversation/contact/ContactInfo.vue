@@ -90,6 +90,10 @@ export default {
         company.trim().toLowerCase() !== 'no disponible'
       );
     },
+    linkedinUrl() {
+      const profiles = this.additionalAttributes.social_profiles || {};
+      return profiles.linkedin || '';
+    },
     // Delete Modal
     confirmDeleteMessage() {
       return ` ${this.contact.name}?`;
@@ -224,62 +228,18 @@ export default {
             emoji="🏢"
             :title="$t('CONTACT_PANEL.COMPANY')"
           />
+          <div v-if="linkedinUrl" class="flex items-center gap-2">
+            <span class="i-lucide-linkedin size-4 text-n-slate-11" />
+            <a
+              :href="linkedinUrl"
+              target="_blank"
+              rel="noopener nofollow noreferrer"
+              class="text-sm text-link truncate"
+            >
+              {{ linkedinUrl }}
+            </a>
+          </div>
         </div>
-      </div>
-      <div class="flex items-center w-full mt-0.5 gap-2">
-        <ComposeConversation
-          :contact-id="String(contact.id)"
-          is-modal
-          @close="closeComposeConversationModal"
-        >
-          <template #trigger="{ toggle }">
-            <NextButton
-              v-tooltip.top-end="$t('CONTACT_PANEL.NEW_MESSAGE')"
-              icon="i-ph-chat-circle-dots"
-              slate
-              faded
-              sm
-              @click="openComposeConversationModal(toggle)"
-            />
-          </template>
-        </ComposeConversation>
-        <VoiceCallButton
-          :phone="contact.phone_number"
-          :contact-id="contact.id"
-          icon="i-ri-phone-fill"
-          size="sm"
-          :tooltip-label="$t('CONTACT_PANEL.CALL')"
-          slate
-          faded
-        />
-        <NextButton
-          v-tooltip.top-end="$t('EDIT_CONTACT.BUTTON_LABEL')"
-          icon="i-ph-pencil-simple"
-          slate
-          faded
-          sm
-          @click="toggleEditModal"
-        />
-        <NextButton
-          v-tooltip.top-end="$t('CONTACT_PANEL.MERGE_CONTACT')"
-          icon="i-ph-arrows-merge"
-          slate
-          faded
-          sm
-          :disabled="uiFlags.isMerging"
-          @click="openMergeModal"
-        />
-        <NextButton
-          v-if="isAdmin"
-          v-tooltip.top-end="$t('DELETE_CONTACT.BUTTON_LABEL')"
-          icon="i-ph-trash"
-          slate
-          faded
-          sm
-          ruby
-          :disabled="uiFlags.isDeleting"
-          @click="toggleDeleteModal"
-        />
       </div>
       <EditContact
         v-if="showEditModal"
