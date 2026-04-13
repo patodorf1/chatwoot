@@ -395,7 +395,10 @@ const deleteConversation = () => {
         <span
           v-if="recruitmentStatus"
           class="inline-flex items-center px-1.5 py-0 rounded-md text-xxs font-medium truncate max-w-[120px]"
-          :class="[recruitmentStatus.bgClass, recruitmentStatus.textClass]"
+          :style="{
+            backgroundColor: recruitmentStatus.color + '20',
+            color: recruitmentStatus.color,
+          }"
         >
           {{ recruitmentStatus.displayName }}
         </span>
