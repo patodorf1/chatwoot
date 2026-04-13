@@ -121,7 +121,7 @@ const toggleStatus = async () => {
       >
         <div class="flex flex-row items-center max-w-full gap-1 p-0 m-0">
           <span
-            class="text-sm font-medium truncate leading-tight text-n-slate-12"
+            class="text-sm font-normal truncate leading-tight text-n-slate-12"
           >
             {{ currentContact.name }}
           </span>
