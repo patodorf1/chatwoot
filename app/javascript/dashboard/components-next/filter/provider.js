@@ -52,6 +52,9 @@ export function useConversationFilterContext() {
   const conversationAttributes = useMapGetter(
     'attributes/getConversationAttributes'
   );
+  const contactAttributes = useMapGetter(
+    'attributes/getContactAttributes'
+  );
 
   const labels = useMapGetter('labels/getLabels');
   const agents = useMapGetter('agents/getAgents');
@@ -67,13 +70,18 @@ export function useConversationFilterContext() {
   /**
    * @type {import('vue').ComputedRef<FilterType[]>}
    */
-  const customFilterTypes = computed(() =>
-    buildAttributesFilterTypes(
+  const customFilterTypes = computed(() => [
+    ...buildAttributesFilterTypes(
       conversationAttributes.value,
       getOperatorTypes,
       'conversation'
-    )
-  );
+    ),
+    ...buildAttributesFilterTypes(
+      contactAttributes.value,
+      getOperatorTypes,
+      'contact'
+    ),
+  ]);
 
   /**
    * @type {import('vue').ComputedRef<FilterType[]>}

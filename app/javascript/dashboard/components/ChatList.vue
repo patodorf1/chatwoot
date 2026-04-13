@@ -99,6 +99,7 @@ const chatsOnView = ref([]);
 const foldersQuery = ref({});
 const showAddFoldersModal = ref(false);
 const showDeleteFoldersModal = ref(false);
+const localSearchQuery = ref('');
 const isContextMenuOpen = ref(false);
 const appliedFilter = ref([]);
 const advancedFilterTypes = ref(
@@ -873,6 +874,19 @@ watch(activeFolder, (newVal, oldVal) => {
   resetAndFetchData();
 });
 
+const filteredChatsOnView = computed(() => {
+  if (!localSearchQuery.value) return chatsOnView.value;
+  const q = localSearchQuery.value.toLowerCase();
+  return chatsOnView.value.filter(chat => {
+    const name = (chat.meta?.sender?.name || '').toLowerCase();
+    return name.includes(q);
+  });
+});
+
+const onSearchQuery = query => {
+  localSearchQuery.value = query;
+};
+
 watch(chatLists, () => {
   chatsOnView.value = conversationList.value;
 });
@@ -907,6 +921,7 @@ watch(conversationFilters, (newVal, oldVal) => {
       @filters-modal="onToggleAdvanceFiltersModal"
       @reset-filters="resetAndFetchData"
       @basic-filter-change="onBasicFilterChange"
+      @search-query="onSearchQuery"
     />
 
     <TeleportWithDirection
@@ -966,7 +981,7 @@ watch(conversationFilters, (newVal, oldVal) => {
       <Virtualizer
         ref="virtualListRef"
         v-slot="{ item, index }"
-        :data="conversationList"
+        :data="filteredChatsOnView"
       >
         <ConversationItem
           :source="item"

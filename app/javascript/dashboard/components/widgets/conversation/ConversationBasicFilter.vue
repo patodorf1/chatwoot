@@ -165,18 +165,7 @@ const handleSortChange = value => {
           @update:model-value="handleStatusChange"
         />
       </div>
-      <div class="flex items-center justify-between last:mt-4 gap-2">
-        <span class="text-sm truncate text-n-slate-12">
-          {{ $t('CHAT_LIST.CHAT_SORT.ORDER_BY') }}
-        </span>
-        <SelectMenu
-          :model-value="chatSortFilter"
-          :options="chatSortOptions"
-          :label="activeChatSortLabel"
-          :sub-menu-position="isOnExpandedLayout ? 'left' : 'right'"
-          @update:model-value="handleSortChange"
-        />
-      </div>
+      <!-- Sort removed -->
     </div>
   </div>
 </template>

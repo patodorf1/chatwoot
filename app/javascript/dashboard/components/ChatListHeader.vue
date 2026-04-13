@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { formatNumber } from '@chatwoot/utils';
 
 import ConversationBasicFilter from './widgets/conversation/ConversationBasicFilter.vue';
@@ -22,7 +22,23 @@ const emit = defineEmits([
   'resetFilters',
   'basicFilterChange',
   'filtersModal',
+  'searchQuery',
 ]);
+
+const searchQuery = ref('');
+const showSearch = ref(false);
+
+const toggleSearch = () => {
+  showSearch.value = !showSearch.value;
+  if (!showSearch.value) {
+    searchQuery.value = '';
+    emit('searchQuery', '');
+  }
+};
+
+const onSearchInput = () => {
+  emit('searchQuery', searchQuery.value);
+};
 
 const onBasicFilterChange = (value, type) => {
   emit('basicFilterChange', value, type);
@@ -135,10 +151,29 @@ const formattedAllCount = computed(() => formatNumber(allCount.value));
           :class="{ 'ltr:right-0 rtl:left-0': isOnExpandedLayout }"
         />
       </div>
+      <NextButton
+        v-tooltip.right="'Buscar'"
+        icon="i-lucide-search"
+        slate
+        xs
+        faded
+        :class="{ 'bg-n-alpha-2': showSearch }"
+        @click="toggleSearch"
+      />
       <ConversationBasicFilter
         v-if="!hasAppliedFiltersOrActiveFolders && !hideStatusFilter"
         :is-on-expanded-layout="isOnExpandedLayout"
         @change-filter="onBasicFilterChange"
+      />
+    </div>
+    <div v-if="showSearch" class="px-3 pb-2">
+      <input
+        ref="searchInput"
+        v-model="searchQuery"
+        type="text"
+        class="w-full h-7 px-2 text-xs rounded-lg border border-n-weak bg-n-background text-n-slate-12 placeholder:text-n-slate-9 focus:outline-none focus:border-n-brand"
+        placeholder="Buscar por nombre..."
+        @input="onSearchInput"
       />
     </div>
   </div>
