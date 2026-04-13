@@ -99,14 +99,14 @@ export function useConversationFilterContext() {
     return [
       // 1. Posición Propuesta
       ...(posicionPropuesta ? [posicionPropuesta] : []),
-      // 2. Estado
+      // 2. Resuelto/Abierto (conversation status)
       {
         attributeKey: CONVERSATION_ATTRIBUTES.STATUS,
         value: CONVERSATION_ATTRIBUTES.STATUS,
-        attributeName: t('FILTER.ATTRIBUTES.STATUS'),
-        label: t('FILTER.ATTRIBUTES.STATUS'),
+        attributeName: 'Resuelto/Abierto',
+        label: 'Resuelto/Abierto',
         inputType: 'multiSelect',
-        options: ['open', 'resolved', 'pending', 'snoozed', 'all'].map(id => ({
+        options: ['open', 'resolved'].map(id => ({
           id,
           name: t(`CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.${id}.TEXT`),
         })),
@@ -129,12 +129,12 @@ export function useConversationFilterContext() {
         filterOperators: presenceOperators.value,
         attributeModel: 'standard',
       },
-      // 4. Etiquetas
+      // 4. Estado (recruitment status via labels)
       {
         attributeKey: CONVERSATION_ATTRIBUTES.LABELS,
         value: CONVERSATION_ATTRIBUTES.LABELS,
-        attributeName: t('FILTER.ATTRIBUTES.LABELS'),
-        label: t('FILTER.ATTRIBUTES.LABELS'),
+        attributeName: 'Estado',
+        label: 'Estado',
         inputType: 'multiSelect',
         options: labels.value.map(label => ({
           id: label.title,

@@ -267,23 +267,6 @@ const menuItems = computed(() => {
               }),
           })),
         },
-        {
-          name: 'Labels',
-          label: t('SIDEBAR.LABELS'),
-          icon: 'i-lucide-tag',
-          activeOn: ['conversations_through_label'],
-          children: labels.value.map(label => ({
-            name: `${label.title}-${label.id}`,
-            label: label.title,
-            icon: h('span', {
-              class: `size-[8px] rounded-sm`,
-              style: { backgroundColor: label.color },
-            }),
-            to: accountScopedRoute('label_conversations', {
-              label: label.title,
-            }),
-          })),
-        },
       ],
     },
     {

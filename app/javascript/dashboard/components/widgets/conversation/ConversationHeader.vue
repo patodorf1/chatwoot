@@ -212,11 +212,6 @@ const selectRecruitmentStatus = async status => {
           }"
           @click="toggleStatusDropdown"
         />
-        <span
-          v-if="currentRecruitmentStatus"
-          class="absolute -top-0.5 -right-0.5 size-2.5 rounded-full border border-white"
-          :style="{ backgroundColor: currentRecruitmentStatus.color }"
-        />
         <div
           v-if="showStatusDropdown"
           v-on-clickaway="closeStatusDropdown"
