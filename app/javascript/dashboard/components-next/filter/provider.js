@@ -86,77 +86,57 @@ export function useConversationFilterContext() {
   /**
    * @type {import('vue').ComputedRef<FilterType[]>}
    */
-  const filterTypes = computed(() => [
-    {
-      attributeKey: CONVERSATION_ATTRIBUTES.STATUS,
-      value: CONVERSATION_ATTRIBUTES.STATUS,
-      attributeName: t('FILTER.ATTRIBUTES.STATUS'),
-      label: t('FILTER.ATTRIBUTES.STATUS'),
-      inputType: 'multiSelect',
-      options: ['open', 'resolved', 'pending', 'snoozed', 'all'].map(id => {
-        return {
+  // Helper to find a custom attribute filter by key
+  const findCustomFilter = key =>
+    customFilterTypes.value.find(f => f.attributeKey === key);
+
+  const filterTypes = computed(() => {
+    const posicionPropuesta = findCustomFilter('posicion_propuesta');
+    const tecnologiaPrincipal = findCustomFilter('tecnologia_principal');
+    const empresaEmpleadora = findCustomFilter('empresa_empleadora');
+    const puestoActual = findCustomFilter('puesto_actual');
+
+    return [
+      // 1. Posición Propuesta
+      ...(posicionPropuesta ? [posicionPropuesta] : []),
+      // 2. Estado
+      {
+        attributeKey: CONVERSATION_ATTRIBUTES.STATUS,
+        value: CONVERSATION_ATTRIBUTES.STATUS,
+        attributeName: t('FILTER.ATTRIBUTES.STATUS'),
+        label: t('FILTER.ATTRIBUTES.STATUS'),
+        inputType: 'multiSelect',
+        options: ['open', 'resolved', 'pending', 'snoozed', 'all'].map(id => ({
           id,
           name: t(`CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.${id}.TEXT`),
-        };
-      }),
-      dataType: 'text',
-      filterOperators: equalityOperators.value,
-      attributeModel: 'standard',
-    },
-    {
-      attributeKey: CONVERSATION_ATTRIBUTES.ASSIGNEE_ID,
-      value: CONVERSATION_ATTRIBUTES.ASSIGNEE_ID,
-      attributeName: t('FILTER.ATTRIBUTES.ASSIGNEE_NAME'),
-      label: t('FILTER.ATTRIBUTES.ASSIGNEE_NAME'),
-      inputType: 'searchSelect',
-      options: agents.value.map(agent => {
-        return {
+        })),
+        dataType: 'text',
+        filterOperators: equalityOperators.value,
+        attributeModel: 'standard',
+      },
+      // 3. Recruiter (Assignee)
+      {
+        attributeKey: CONVERSATION_ATTRIBUTES.ASSIGNEE_ID,
+        value: CONVERSATION_ATTRIBUTES.ASSIGNEE_ID,
+        attributeName: 'Recruiter',
+        label: 'Recruiter',
+        inputType: 'searchSelect',
+        options: agents.value.map(agent => ({
           id: agent.id,
           name: agent.name,
-        };
-      }),
-      dataType: 'text',
-      filterOperators: presenceOperators.value,
-      attributeModel: 'standard',
-    },
-    {
-      attributeKey: CONVERSATION_ATTRIBUTES.INBOX_ID,
-      value: CONVERSATION_ATTRIBUTES.INBOX_ID,
-      attributeName: t('FILTER.ATTRIBUTES.INBOX_NAME'),
-      label: t('FILTER.ATTRIBUTES.INBOX_NAME'),
-      inputType: 'searchSelect',
-      options: inboxes.value.map(inbox => {
-        return {
-          ...inbox,
-          icon: useChannelIcon(inbox).value,
-        };
-      }),
-      dataType: 'text',
-      filterOperators: presenceOperators.value,
-      attributeModel: 'standard',
-    },
-    {
-      attributeKey: CONVERSATION_ATTRIBUTES.CAMPAIGN_ID,
-      value: CONVERSATION_ATTRIBUTES.CAMPAIGN_ID,
-      attributeName: t('FILTER.ATTRIBUTES.CAMPAIGN_NAME'),
-      label: t('FILTER.ATTRIBUTES.CAMPAIGN_NAME'),
-      inputType: 'searchSelect',
-      options: campaigns.value.map(campaign => ({
-        id: campaign.id,
-        name: campaign.title,
-      })),
-      dataType: 'number',
-      filterOperators: presenceOperators.value,
-      attributeModel: 'standard',
-    },
-    {
-      attributeKey: CONVERSATION_ATTRIBUTES.LABELS,
-      value: CONVERSATION_ATTRIBUTES.LABELS,
-      attributeName: t('FILTER.ATTRIBUTES.LABELS'),
-      label: t('FILTER.ATTRIBUTES.LABELS'),
-      inputType: 'multiSelect',
-      options: labels.value.map(label => {
-        return {
+        })),
+        dataType: 'text',
+        filterOperators: presenceOperators.value,
+        attributeModel: 'standard',
+      },
+      // 4. Etiquetas
+      {
+        attributeKey: CONVERSATION_ATTRIBUTES.LABELS,
+        value: CONVERSATION_ATTRIBUTES.LABELS,
+        attributeName: t('FILTER.ATTRIBUTES.LABELS'),
+        label: t('FILTER.ATTRIBUTES.LABELS'),
+        inputType: 'multiSelect',
+        options: labels.value.map(label => ({
           id: label.title,
           name: label.title,
           icon: h('span', {
@@ -167,14 +147,19 @@ export function useConversationFilterContext() {
               width: '6px',
             },
           }),
-        };
-      }),
-      dataType: 'text',
-      filterOperators: presenceOperators.value,
-      attributeModel: 'standard',
-    },
-    ...customFilterTypes.value,
-  ]);
+        })),
+        dataType: 'text',
+        filterOperators: presenceOperators.value,
+        attributeModel: 'standard',
+      },
+      // 5. Tecnología Principal
+      ...(tecnologiaPrincipal ? [tecnologiaPrincipal] : []),
+      // 6. Empresa Empleadora
+      ...(empresaEmpleadora ? [empresaEmpleadora] : []),
+      // 7. Puesto Actual
+      ...(puestoActual ? [puestoActual] : []),
+    ].filter(Boolean);
+  });
 
   return { filterTypes };
 }

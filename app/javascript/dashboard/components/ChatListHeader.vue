@@ -166,13 +166,13 @@ const formattedAllCount = computed(() => formatNumber(allCount.value));
         @change-filter="onBasicFilterChange"
       />
     </div>
-    <div v-if="showSearch" class="px-3 pb-2">
+    <div v-if="showSearch" class="px-3 pb-1">
       <input
         ref="searchInput"
         v-model="searchQuery"
         type="text"
-        class="w-full h-7 px-2 text-xs rounded-lg border border-n-weak bg-n-background text-n-slate-12 placeholder:text-n-slate-9 focus:outline-none focus:border-n-brand"
-        placeholder="Buscar por nombre..."
+        class="w-full h-6 px-2 text-xxs rounded-md border border-n-weak bg-n-background text-n-slate-12 placeholder:text-n-slate-9 focus:outline-none focus:border-n-brand"
+        placeholder="Buscar"
         @input="onSearchInput"
       />
     </div>
