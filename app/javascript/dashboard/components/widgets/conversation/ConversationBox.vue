@@ -97,6 +97,8 @@ export default {
       'border-l rtl:border-l-0 rtl:border-r border-n-weak': !isOnExpandedLayout,
     }"
   >
+    <!-- Overlay to reduce wallpaper contrast -->
+    <div class="absolute inset-0 bg-white/40 pointer-events-none" />
     <ConversationHeader
       v-if="currentChat.id"
       :chat="currentChat"

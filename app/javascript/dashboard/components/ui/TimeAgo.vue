@@ -7,6 +7,7 @@ import {
   dynamicTime,
   dateFormat,
   shortTimestamp,
+  whatsAppTimestamp,
 } from 'shared/helpers/timeHelper';
 
 export default {
@@ -37,6 +38,9 @@ export default {
     };
   },
   computed: {
+    whatsAppTime() {
+      return whatsAppTimestamp(this.lastActivityTimestamp);
+    },
     lastActivityTime() {
       return shortTimestamp(this.lastActivityAtTimeAgo);
     },
@@ -127,6 +131,6 @@ export default {
     }"
     class="ml-auto leading-4 text-xxs text-n-slate-10 hover:text-n-slate-11"
   >
-    <span>{{ `${createdAtTime} • ${lastActivityTime}` }}</span>
+    <span>{{ whatsAppTime }}</span>
   </div>
 </template>

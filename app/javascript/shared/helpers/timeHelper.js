@@ -1,6 +1,8 @@
 import {
   format,
   isSameYear,
+  isSameDay,
+  isYesterday,
   fromUnixTime,
   formatDistanceToNow,
   differenceInDays,
@@ -91,6 +93,42 @@ export const shortTimestamp = (time, withAgo = false) => {
     .replace(' year ago', `y${suffix}`)
     .replace(' years ago', `y${suffix}`);
   return convertToShortTime;
+};
+
+/**
+ * WhatsApp-style timestamp for conversation cards.
+ * Today → time (e.g., "11:48")
+ * Yesterday → "Ayer"
+ * This week (2-6 days) → day name (e.g., "viernes")
+ * Older → dd/mm (e.g., "05/04")
+ * @param {number} time - Unix timestamp in seconds.
+ * @returns {string} Formatted time string.
+ */
+export const whatsAppTimestamp = time => {
+  if (!time) return '';
+  const now = new Date();
+  const date = fromUnixTime(time);
+  const days = differenceInDays(now, date);
+
+  if (isSameDay(now, date)) {
+    return format(date, 'H:mm');
+  }
+  if (isYesterday(date)) {
+    return 'Ayer';
+  }
+  if (days < 7) {
+    const dayNames = [
+      'domingo',
+      'lunes',
+      'martes',
+      'miércoles',
+      'jueves',
+      'viernes',
+      'sábado',
+    ];
+    return dayNames[date.getDay()];
+  }
+  return format(date, 'dd/MM');
 };
 
 /**
