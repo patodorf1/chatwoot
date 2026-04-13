@@ -88,18 +88,6 @@ const closeMobileSidebar = () => {
               @click="handleBreadcrumbClick"
             />
             <div class="flex items-center gap-2">
-              <Button
-                :label="
-                  !isContactBlocked
-                    ? $t('CONTACTS_LAYOUT.HEADER.BLOCK_CONTACT')
-                    : $t('CONTACTS_LAYOUT.HEADER.UNBLOCK_CONTACT')
-                "
-                size="sm"
-                slate
-                :is-loading="isUpdating"
-                :disabled="isUpdating"
-                @click="toggleBlock"
-              />
               <VoiceCallButton
                 :phone="selectedContact?.phoneNumber"
                 :contact-id="contactId"

@@ -296,35 +296,6 @@ defineExpose({
         </template>
       </div>
     </div>
-    <div class="flex flex-col items-start gap-2">
-      <span class="py-1 text-sm font-medium text-n-slate-12">
-        {{ t('CONTACTS_LAYOUT.CARD.SOCIAL_MEDIA.TITLE') }}
-      </span>
-      <div class="flex flex-wrap gap-2">
-        <div
-          v-for="item in socialProfilesForm"
-          :key="item.key"
-          class="flex items-center h-8 gap-2 px-2 rounded-lg"
-          :class="{
-            'bg-n-alpha-2 dark:bg-n-solid-2': isDetailsView,
-            'bg-n-alpha-2 dark:bg-n-solid-3': !isDetailsView,
-          }"
-        >
-          <Icon
-            :icon="item.icon"
-            class="flex-shrink-0 text-n-slate-11 size-4"
-          />
-          <input
-            v-model="
-              state.additionalAttributes.socialProfiles[item.key.toLowerCase()]
-            "
-            class="w-auto min-w-[100px] text-sm bg-transparent outline-none reset-base text-n-slate-12 dark:text-n-slate-12 placeholder:text-n-slate-10 dark:placeholder:text-n-slate-10"
-            :placeholder="item.placeholder"
-            :size="item.placeholder.length"
-            @input="emit('update', state)"
-          />
-        </div>
-      </div>
-    </div>
+    <!-- Social links section removed -->
   </div>
 </template>
