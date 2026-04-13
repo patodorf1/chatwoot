@@ -68,14 +68,12 @@ export function useConversationLabels() {
   };
 
   /**
-   * Adds a label to the current conversation
-   * @param {Object} value - The label object to be added
-   * @param {string} value.title - The title of the label to be added
+   * Sets a single label on the conversation (replaces any existing labels)
+   * @param {Object} value - The label object to be set
+   * @param {string} value.title - The title of the label to be set
    */
   const addLabelToConversation = value => {
-    const result = activeLabels.value.map(item => item.title);
-    result.push(value.title);
-    onUpdateLabels(result);
+    onUpdateLabels([value.title]);
   };
 
   /**

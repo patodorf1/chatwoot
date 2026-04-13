@@ -144,7 +144,7 @@ const closeComposeConversationModal = () => {
       <div class="mt-3">
         <ContactDetailsItem
           compact
-          :title="$t('CONVERSATION_SIDEBAR.ACCORDION.CONVERSATION_LABELS')"
+          title="Estado"
         />
         <ConversationLabels :conversation-id="conversationId" />
       </div>

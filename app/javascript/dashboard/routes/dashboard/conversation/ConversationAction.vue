@@ -133,7 +133,7 @@ export default {
     </div>
     <ContactDetailsItem
       compact
-      :title="$t('CONVERSATION_SIDEBAR.ACCORDION.CONVERSATION_LABELS')"
+      title="Estado"
     />
     <ConversationLabels :conversation-id="conversationId" />
   </div>

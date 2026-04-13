@@ -99,37 +99,7 @@ export function useConversationFilterContext() {
     return [
       // 1. Posición Propuesta
       ...(posicionPropuesta ? [posicionPropuesta] : []),
-      // 2. Resuelto/Abierto (conversation status)
-      {
-        attributeKey: CONVERSATION_ATTRIBUTES.STATUS,
-        value: CONVERSATION_ATTRIBUTES.STATUS,
-        attributeName: 'Resuelto/Abierto',
-        label: 'Resuelto/Abierto',
-        inputType: 'multiSelect',
-        options: ['open', 'resolved'].map(id => ({
-          id,
-          name: t(`CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.${id}.TEXT`),
-        })),
-        dataType: 'text',
-        filterOperators: equalityOperators.value,
-        attributeModel: 'standard',
-      },
-      // 3. Recruiter (Assignee)
-      {
-        attributeKey: CONVERSATION_ATTRIBUTES.ASSIGNEE_ID,
-        value: CONVERSATION_ATTRIBUTES.ASSIGNEE_ID,
-        attributeName: 'Recruiter',
-        label: 'Recruiter',
-        inputType: 'searchSelect',
-        options: agents.value.map(agent => ({
-          id: agent.id,
-          name: agent.name,
-        })),
-        dataType: 'text',
-        filterOperators: presenceOperators.value,
-        attributeModel: 'standard',
-      },
-      // 4. Estado (recruitment status via labels)
+      // 2. Estado (recruitment status via labels)
       {
         attributeKey: CONVERSATION_ATTRIBUTES.LABELS,
         value: CONVERSATION_ATTRIBUTES.LABELS,
@@ -152,12 +122,23 @@ export function useConversationFilterContext() {
         filterOperators: presenceOperators.value,
         attributeModel: 'standard',
       },
-      // 5. Tecnología Principal
+      // 3. Resuelto/Abierto (conversation status)
+      {
+        attributeKey: CONVERSATION_ATTRIBUTES.STATUS,
+        value: CONVERSATION_ATTRIBUTES.STATUS,
+        attributeName: 'Resuelto/Abierto',
+        label: 'Resuelto/Abierto',
+        inputType: 'multiSelect',
+        options: ['open', 'resolved'].map(id => ({
+          id,
+          name: t(`CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.${id}.TEXT`),
+        })),
+        dataType: 'text',
+        filterOperators: equalityOperators.value,
+        attributeModel: 'standard',
+      },
+      // 4. Tecnología Principal
       ...(tecnologiaPrincipal ? [tecnologiaPrincipal] : []),
-      // 6. Empresa Empleadora
-      ...(empresaEmpleadora ? [empresaEmpleadora] : []),
-      // 7. Puesto Actual
-      ...(puestoActual ? [puestoActual] : []),
     ].filter(Boolean);
   });
 

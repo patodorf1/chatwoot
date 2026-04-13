@@ -119,22 +119,17 @@ const closeStatusDropdown = () => {
 
 const selectRecruitmentStatus = async status => {
   const conversationId = currentChat.value.id;
-  const currentLabels = currentChat.value.labels || [];
-  // Remove any existing recruitment status labels
-  const otherLabels = currentLabels.filter(l => !isRecruitmentStatusLabel(l));
-  // Add the new status (or clear if same status clicked again)
+  // Single-select: clicking same status clears it, otherwise replaces
   const isSameStatus =
     currentRecruitmentStatus.value?.key === status.key;
-  const newLabels = isSameStatus
-    ? otherLabels
-    : [...otherLabels, status.title];
+  const newLabels = isSameStatus ? [] : [status.title];
 
   try {
     await store.dispatch('conversationLabels/update', {
       conversationId,
       labels: newLabels,
     });
-    // Also update labels on the conversation object so the card reflects the change immediately
+    // Update conversation object so the card reflects the change immediately
     const conversation = store.getters.getSelectedChat;
     if (conversation) {
       conversation.labels = newLabels;
@@ -181,16 +176,6 @@ const selectRecruitmentStatus = async status => {
         <div
           class="flex items-center gap-1.5 overflow-hidden text-xs conversation--header--actions text-ellipsis whitespace-nowrap"
         >
-          <span
-            v-if="currentRecruitmentStatus"
-            class="inline-flex items-center px-1.5 py-0 rounded-md text-xxs font-medium"
-            :style="{
-              backgroundColor: currentRecruitmentStatus.color + '20',
-              color: currentRecruitmentStatus.color,
-            }"
-          >
-            {{ currentRecruitmentStatus.displayName }}
-          </span>
           <span v-if="isSnoozed" class="font-medium text-n-amber-10">
             {{ snoozedDisplayText }}
           </span>
