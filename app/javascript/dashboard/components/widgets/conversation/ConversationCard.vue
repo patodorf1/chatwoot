@@ -397,7 +397,7 @@ const deleteConversation = () => {
           class="inline-flex items-center px-1.5 py-0 rounded-md text-xxs font-medium truncate max-w-[120px]"
           :class="[recruitmentStatus.bgClass, recruitmentStatus.textClass]"
         >
-          {{ recruitmentStatus.title }}
+          {{ recruitmentStatus.displayName }}
         </span>
         <CardLabels
           :conversation-labels="nonStatusLabels"

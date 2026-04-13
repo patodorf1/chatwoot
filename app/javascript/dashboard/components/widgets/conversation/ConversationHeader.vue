@@ -227,7 +227,7 @@ const selectRecruitmentStatus = async status => {
               class="size-2.5 rounded-full flex-shrink-0"
               :style="{ backgroundColor: status.color }"
             />
-            {{ status.title }}
+            {{ status.displayName }}
           </button>
         </div>
       </div>
