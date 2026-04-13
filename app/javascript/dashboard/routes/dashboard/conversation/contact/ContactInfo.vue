@@ -91,6 +91,10 @@ export default {
       );
     },
     linkedinUrl() {
+      // First check custom_attributes.linkedin_url (from LinkedIn outreach flow)
+      const customAttrs = this.contact.custom_attributes || {};
+      if (customAttrs.linkedin_url) return customAttrs.linkedin_url;
+      // Fallback to social_profiles.linkedin
       const profiles = this.additionalAttributes.social_profiles || {};
       return profiles.linkedin || '';
     },
