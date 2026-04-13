@@ -211,6 +211,24 @@ const reportRoutes = computed(() => newReportRoutes());
 const menuItems = computed(() => {
   return [
     {
+      name: 'Channels',
+      label: t('SIDEBAR.CHANNELS'),
+      icon: 'i-lucide-mailbox',
+      children: sortedInboxes.value.map(inbox => ({
+        name: `${inbox.name}-${inbox.id}`,
+        label: inbox.name,
+        icon: h(ChannelIcon, { inbox, class: 'size-[16px]' }),
+        activeOn: ['conversation_through_inbox'],
+        to: accountScopedRoute('inbox_dashboard', { inbox_id: inbox.id }),
+        component: leafProps =>
+          h(ChannelLeaf, {
+            label: leafProps.label,
+            active: leafProps.active,
+            inbox,
+          }),
+      })),
+    },
+    {
       name: 'Conversation',
       label: t('SIDEBAR.CONVERSATIONS'),
       icon: 'i-lucide-message-circle',
@@ -247,24 +265,6 @@ const menuItems = computed(() => {
             name: `${team.name}-${team.id}`,
             label: team.name,
             to: accountScopedRoute('team_conversations', { teamId: team.id }),
-          })),
-        },
-        {
-          name: 'Channels',
-          label: t('SIDEBAR.CHANNELS'),
-          icon: 'i-lucide-mailbox',
-          activeOn: ['conversation_through_inbox'],
-          children: sortedInboxes.value.map(inbox => ({
-            name: `${inbox.name}-${inbox.id}`,
-            label: inbox.name,
-            icon: h(ChannelIcon, { inbox, class: 'size-[16px]' }),
-            to: accountScopedRoute('inbox_dashboard', { inbox_id: inbox.id }),
-            component: leafProps =>
-              h(ChannelLeaf, {
-                label: leafProps.label,
-                active: leafProps.active,
-                inbox,
-              }),
           })),
         },
       ],
