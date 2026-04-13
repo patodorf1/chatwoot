@@ -179,9 +179,18 @@ const selectRecruitmentStatus = async status => {
         </div>
 
         <div
-          class="flex items-center gap-2 overflow-hidden text-xs conversation--header--actions text-ellipsis whitespace-nowrap"
+          class="flex items-center gap-1.5 overflow-hidden text-xs conversation--header--actions text-ellipsis whitespace-nowrap"
         >
-          <!-- InboxName removed -->
+          <span
+            v-if="currentRecruitmentStatus"
+            class="inline-flex items-center px-1.5 py-0 rounded-md text-xxs font-medium"
+            :style="{
+              backgroundColor: currentRecruitmentStatus.color + '20',
+              color: currentRecruitmentStatus.color,
+            }"
+          >
+            {{ currentRecruitmentStatus.displayName }}
+          </span>
           <span v-if="isSnoozed" class="font-medium text-n-amber-10">
             {{ snoozedDisplayText }}
           </span>
