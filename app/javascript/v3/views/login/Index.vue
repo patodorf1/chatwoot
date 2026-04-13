@@ -223,12 +223,6 @@ export default {
     class="flex flex-col w-full min-h-screen py-20 bg-n-brand/5 dark:bg-n-background sm:px-6 lg:px-8"
   >
     <section class="max-w-5xl mx-auto">
-      <img
-        v-if="globalConfig.logo"
-        :src="globalConfig.logo"
-        :alt="globalConfig.installationName || 'Logo'"
-        class="h-10 mx-auto"
-      />
       <h2 class="mt-6 text-3xl font-medium text-center text-n-slate-12">
         {{ replaceInstallationName($t('LOGIN.TITLE')) }}
       </h2>
