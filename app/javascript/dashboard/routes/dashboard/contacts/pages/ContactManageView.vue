@@ -81,9 +81,20 @@ const fetchContactNotes = () => {
   if (contactId) store.dispatch('contactNotes/get', { contactId });
 };
 
-const fetchContactConversations = () => {
+const fetchContactConversations = async () => {
   const { contactId } = route.params;
-  if (contactId) store.dispatch('contactConversations/get', contactId);
+  if (!contactId) return;
+  await store.dispatch('contactConversations/get', contactId);
+  // Auto-redirect to the most recent open conversation if one exists
+  const conversations =
+    store.getters['contactConversations/getContactConversation'](contactId);
+  const openConversation = conversations.find(c => c.status === 'open');
+  if (openConversation) {
+    const { accountId } = route.params;
+    router.replace(
+      `/app/accounts/${accountId}/conversations/${openConversation.id}`
+    );
+  }
 };
 
 const fetchAttributes = () => {
