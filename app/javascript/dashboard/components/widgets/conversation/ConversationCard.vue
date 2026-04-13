@@ -14,6 +14,7 @@ import PriorityMark from './PriorityMark.vue';
 import SLACardLabel from './components/SLACardLabel.vue';
 import ContextMenu from 'dashboard/components/ui/ContextMenu.vue';
 import VoiceCallStatus from './VoiceCallStatus.vue';
+import { getRecruitmentStatus, isRecruitmentStatusLabel } from 'dashboard/helper/recruitmentStatus';
 
 const props = defineProps({
   activeLabel: { type: String, default: '' },
@@ -129,8 +130,14 @@ const posicionPropuesta = computed(() => {
   return attrs.posicion_propuesta || '';
 });
 
+const recruitmentStatus = computed(() => getRecruitmentStatus(props.chat.labels));
+
+const nonStatusLabels = computed(() => {
+  return (props.chat.labels || []).filter(l => !isRecruitmentStatusLabel(l));
+});
+
 const showLabelsSection = computed(() => {
-  return props.chat.labels?.length > 0 || hasSlaPolicyId.value || posicionPropuesta.value;
+  return nonStatusLabels.value.length > 0 || hasSlaPolicyId.value || posicionPropuesta.value || recruitmentStatus.value;
 });
 
 const messagePreviewClass = computed(() => {
@@ -385,8 +392,15 @@ const deleteConversation = () => {
         >
           {{ posicionPropuesta }}
         </span>
+        <span
+          v-if="recruitmentStatus"
+          class="inline-flex items-center px-1.5 py-0 rounded-md text-xxs font-medium truncate max-w-[120px]"
+          :class="[recruitmentStatus.bgClass, recruitmentStatus.textClass]"
+        >
+          {{ recruitmentStatus.title }}
+        </span>
         <CardLabels
-          :conversation-labels="chat.labels"
+          :conversation-labels="nonStatusLabels"
           class="!mb-0"
         >
           <template v-if="hasSlaPolicyId" #before>
