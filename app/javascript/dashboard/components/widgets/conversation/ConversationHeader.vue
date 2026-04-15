@@ -41,6 +41,10 @@ const currentContact = computed(() =>
   store.getters['contacts/getContact'](props.chat.meta.sender.id)
 );
 
+const posicionPropuesta = computed(
+  () => currentContact.value?.custom_attributes?.posicion_propuesta || ''
+);
+
 const isSnoozed = computed(
   () => currentChat.value.status === wootConstants.STATUS_TYPE.SNOOZED
 );
@@ -164,11 +168,17 @@ const selectRecruitmentStatus = async status => {
       <div
         class="flex flex-col items-start min-w-0 ml-2 overflow-hidden rtl:ml-0 rtl:mr-2"
       >
-        <div class="flex flex-row items-center max-w-full gap-1 p-0 m-0">
+        <div class="flex flex-row items-center max-w-full gap-1.5 p-0 m-0">
           <span
-            class="text-sm font-normal truncate leading-tight text-n-slate-12"
+            class="text-xs font-normal truncate leading-tight text-n-slate-12"
           >
             {{ currentContact.name }}
+          </span>
+          <span
+            v-if="posicionPropuesta"
+            class="text-xs font-normal truncate leading-tight text-n-slate-10"
+          >
+            · {{ posicionPropuesta }}
           </span>
           <!-- Identity verification warning removed -->
         </div>
