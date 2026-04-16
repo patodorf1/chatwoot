@@ -25,6 +25,9 @@ const hasContactAttributes = computed(
   () => contactAttributes.value?.length > 0
 );
 
+// Internal attributes that should not be visible or editable in the UI
+const HIDDEN_ATTRIBUTES = ['airtable_record_id', 'supabase_id'];
+
 const processContactAttributes = (
   attributes,
   customAttributes,
@@ -36,6 +39,7 @@ const processContactAttributes = (
 
   return attributes.reduce((result, attribute) => {
     const { attributeKey } = attribute;
+    if (HIDDEN_ATTRIBUTES.includes(attributeKey)) return result;
     const meetsCondition = filterCondition(attributeKey, customAttributes);
 
     if (meetsCondition) {

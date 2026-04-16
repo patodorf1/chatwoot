@@ -78,13 +78,16 @@ const toggleButtonText = computed(() =>
     : t('CUSTOM_ATTRIBUTES.SHOW_LESS')
 );
 
+// Internal attributes that should not be visible or editable in the UI
+const HIDDEN_ATTRIBUTES = ['airtable_record_id', 'supabase_id'];
+
 const filteredCustomAttributes = computed(() => {
   const allowed = props.allowedAttributeKeys;
   const filtered = allowed.length
     ? attributes.value.filter(attr => allowed.includes(attr.attribute_key))
     : attributes.value;
 
-  return filtered.map(attribute => {
+  return filtered.filter(attr => !HIDDEN_ATTRIBUTES.includes(attr.attribute_key)).map(attribute => {
     const hasValue = attribute.attribute_key in customAttributes.value;
 
     return {
