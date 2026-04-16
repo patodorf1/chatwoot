@@ -48,6 +48,10 @@ class Inboxes extends CacheEnabledApiClient {
       template,
     });
   }
+
+  getRateLimitStats(inboxId) {
+    return axios.get(`${this.url}/${inboxId}/rate_limit_stats`);
+  }
 }
 
 export default new Inboxes();

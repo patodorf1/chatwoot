@@ -71,6 +71,19 @@ class Api::V1::Accounts::InboxesController < Api::V1::Accounts::BaseController
     render status: :ok, json: { message: I18n.t('messages.inbox_deletetion_response') }
   end
 
+  def rate_limit_stats
+    render json: { sent_today: 0, daily_limit: 0, next_available_in_seconds: 0 } and return unless @inbox.channel_type == 'Channel::Api'
+
+    limiter = Api::RateLimiter.new(@inbox.channel)
+    render json: {
+      sent_today: limiter.sent_today,
+      daily_limit: @inbox.channel.daily_message_limit,
+      message_delay_seconds: @inbox.channel.message_delay_seconds,
+      jitter_percent: @inbox.channel.jitter_percent,
+      next_available_in_seconds: limiter.next_available_in_seconds
+    }
+  end
+
   private
 
   def fetch_inbox

@@ -297,6 +297,10 @@ export const actions = {
       throwErrorMessage(error);
     }
   },
+  fetchRateLimitStats: async (_ctx, inboxId) => {
+    const response = await InboxesAPI.getRateLimitStats(inboxId);
+    return { data: response.data };
+  },
   updateInboxIMAP: async ({ commit }, { id, ...inboxParams }) => {
     commit(types.default.SET_INBOXES_UI_FLAG, { isUpdatingIMAP: true });
     try {

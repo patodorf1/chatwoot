@@ -121,8 +121,31 @@ class WebhookListener < BaseListener
     return unless inbox.channel_type == 'Channel::Api'
     return if inbox.channel.webhook_url.blank?
 
-    WebhookJob.perform_later(inbox.channel.webhook_url, payload, :api_inbox_webhook,
-                             delivery_id: SecureRandom.uuid)
+    decision = rate_limit_decision(payload, inbox)
+    log_rate_limit_decision(decision, payload, inbox)
+
+    job = WebhookJob
+    job = job.set(wait: decision[:wait_seconds].seconds) if decision[:wait_seconds].to_i.positive?
+    job.perform_later(inbox.channel.webhook_url, payload, :api_inbox_webhook,
+                      delivery_id: SecureRandom.uuid)
+  end
+
+  def rate_limit_decision(payload, inbox)
+    return { action: :now, wait_seconds: 0 } unless payload[:event].to_s == 'message_created'
+    return { action: :now, wait_seconds: 0 } unless payload[:message_type].to_s == 'outgoing'
+
+    automated = payload.dig(:content_attributes, :automated) == true ||
+                payload.dig(:additional_attributes, :automated) == true
+
+    Api::RateLimiter.new(inbox.channel).enqueue_decision(message_automated: automated)
+  end
+
+  def log_rate_limit_decision(decision, payload, inbox)
+    return if decision[:action] == :now && decision[:wait_seconds].to_i.zero?
+
+    Rails.logger.info(
+      "[RateLimiter] inbox=#{inbox.id} message=#{payload[:id]} action=#{decision[:action]} wait=#{decision[:wait_seconds]}s"
+    )
   end
 
   def deliver_webhook_payloads(payload, inbox)

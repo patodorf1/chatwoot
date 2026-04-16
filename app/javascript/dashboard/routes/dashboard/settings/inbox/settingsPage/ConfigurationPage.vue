@@ -38,6 +38,12 @@ export default {
       isSyncingTemplates: false,
       allowedDomains: '',
       isUpdatingAllowedDomains: false,
+      dailyMessageLimit: 0,
+      messageDelaySeconds: 0,
+      jitterPercent: 30,
+      rateLimitStats: null,
+      rateLimitStatsInterval: null,
+      isUpdatingRateLimits: false,
     };
   },
   validations: {
@@ -53,6 +59,14 @@ export default {
     isForwardingEnabled() {
       return !!this.inbox.forwarding_enabled;
     },
+    nextAvailableText() {
+      const seconds = this.rateLimitStats?.next_available_in_seconds || 0;
+      if (seconds <= 0) return '';
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      if (m <= 0) return `${s} seg`;
+      return `${m} min ${s} seg`;
+    },
   },
   watch: {
     inbox() {
@@ -61,11 +75,62 @@ export default {
   },
   mounted() {
     this.setDefaults();
+    if (this.isAPIInbox) {
+      this.fetchRateLimitStats();
+      this.rateLimitStatsInterval = setInterval(this.fetchRateLimitStats, 30000);
+    }
+  },
+  beforeUnmount() {
+    if (this.rateLimitStatsInterval) {
+      clearInterval(this.rateLimitStatsInterval);
+    }
   },
   methods: {
     setDefaults() {
       this.hmacMandatory = this.inbox.hmac_mandatory || false;
       this.allowedDomains = this.inbox.allowed_domains || '';
+      const attrs = this.inbox.additional_attributes || {};
+      this.dailyMessageLimit = Number(attrs.daily_message_limit) || 0;
+      this.messageDelaySeconds = Number(attrs.message_delay_seconds) || 0;
+      this.jitterPercent = attrs.jitter_percent != null ? Number(attrs.jitter_percent) : 30;
+    },
+    async fetchRateLimitStats() {
+      try {
+        const { data } = await this.$store.dispatch(
+          'inboxes/fetchRateLimitStats',
+          this.inbox.id
+        );
+        this.rateLimitStats = data;
+        if (data.daily_limit != null) this.dailyMessageLimit = data.daily_limit;
+        if (data.message_delay_seconds != null) this.messageDelaySeconds = data.message_delay_seconds;
+        if (data.jitter_percent != null) this.jitterPercent = data.jitter_percent;
+      } catch (error) {
+        // silent — limits are optional
+      }
+    },
+    async updateRateLimits() {
+      this.isUpdatingRateLimits = true;
+      try {
+        const payload = {
+          id: this.inbox.id,
+          formData: false,
+          channel: {
+            additional_attributes: {
+              ...(this.inbox.additional_attributes || {}),
+              daily_message_limit: Number(this.dailyMessageLimit) || 0,
+              message_delay_seconds: Number(this.messageDelaySeconds) || 0,
+              jitter_percent: Number(this.jitterPercent) || 0,
+            },
+          },
+        };
+        await this.$store.dispatch('inboxes/updateInbox', payload);
+        useAlert(this.$t('INBOX_MGMT.EDIT.API.SUCCESS_MESSAGE'));
+        this.fetchRateLimitStats();
+      } catch (error) {
+        useAlert(this.$t('INBOX_MGMT.EDIT.API.ERROR_MESSAGE'));
+      } finally {
+        this.isUpdatingRateLimits = false;
+      }
     },
     handleHmacFlag() {
       this.updateInbox();
@@ -294,6 +359,79 @@ export default {
         <label for="hmacMandatory" class="text-body-main text-n-slate-12">
           {{ $t('INBOX_MGMT.EDIT.ENABLE_HMAC.LABEL') }}
         </label>
+      </div>
+    </SettingsFieldSection>
+    <SettingsFieldSection
+      label="Límites de envío automatizado"
+      help-text="Aplica solo a mensajes salientes marcados con content_attributes.automated=true (ej. disparados desde n8n/Airtable). Los mensajes manuales del recruiter no se ven afectados."
+    >
+      <div class="grid gap-3 max-w-2xl">
+        <div class="grid grid-cols-[1fr_auto] items-center gap-3">
+          <label for="dailyMessageLimit" class="text-sm text-n-slate-12">
+            Máximo diario automático
+            <span class="block text-xs text-n-slate-11">
+              Tope de mensajes automatizados por día. 0 = sin límite.
+            </span>
+          </label>
+          <input
+            id="dailyMessageLimit"
+            v-model.number="dailyMessageLimit"
+            type="number"
+            min="0"
+            class="w-24 px-2 py-1 text-sm border border-n-weak rounded"
+          />
+        </div>
+        <div class="grid grid-cols-[1fr_auto] items-center gap-3">
+          <label for="messageDelaySeconds" class="text-sm text-n-slate-12">
+            Delay entre mensajes (seg)
+            <span class="block text-xs text-n-slate-11">
+              Tiempo mínimo entre envíos consecutivos. 0 = sin delay.
+            </span>
+          </label>
+          <input
+            id="messageDelaySeconds"
+            v-model.number="messageDelaySeconds"
+            type="number"
+            min="0"
+            class="w-24 px-2 py-1 text-sm border border-n-weak rounded"
+          />
+        </div>
+        <div class="grid grid-cols-[1fr_auto] items-center gap-3">
+          <label for="jitterPercent" class="text-sm text-n-slate-12">
+            Variación aleatoria (%)
+            <span class="block text-xs text-n-slate-11">
+              Jitter aplicado al delay para evitar patrones detectables. Range 0-100.
+            </span>
+          </label>
+          <input
+            id="jitterPercent"
+            v-model.number="jitterPercent"
+            type="number"
+            min="0"
+            max="100"
+            class="w-24 px-2 py-1 text-sm border border-n-weak rounded"
+          />
+        </div>
+        <div class="flex items-center justify-between mt-2 pt-3 border-t border-n-weak">
+          <div v-if="rateLimitStats" class="text-xs text-n-slate-11 space-y-0.5">
+            <div>
+              <span class="font-medium text-n-slate-12">Enviados hoy:</span>
+              {{ rateLimitStats.sent_today }}<span v-if="rateLimitStats.daily_limit > 0">
+                / {{ rateLimitStats.daily_limit }}</span>
+            </div>
+            <div v-if="nextAvailableText">
+              <span class="font-medium text-n-slate-12">Próximo envío en:</span>
+              {{ nextAvailableText }}
+            </div>
+          </div>
+          <div v-else />
+          <NextButton
+            label="Guardar límites"
+            size="sm"
+            :is-loading="isUpdatingRateLimits"
+            @click="updateRateLimits"
+          />
+        </div>
       </div>
     </SettingsFieldSection>
   </div>
