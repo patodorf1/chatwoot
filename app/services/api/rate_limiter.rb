@@ -96,7 +96,7 @@ class Api::RateLimiter
   def record_send(wait_seconds:)
     Redis::Alfred.incr(counter_key)
     Redis::Alfred.expire(counter_key, COUNTER_TTL.to_i)
-    Redis::Alfred.setex(last_sent_key, LAST_SENT_TTL.to_i, (Time.current.to_i + wait_seconds).to_s)
+    Redis::Alfred.setex(last_sent_key, (Time.current.to_i + wait_seconds).to_s, LAST_SENT_TTL.to_i)
   end
 
   def seconds_to_next_day

@@ -57,12 +57,24 @@ class Channel::Api < ApplicationRecord
   end
 
   def ensure_valid_rate_limit_attributes
+    %w[daily_message_limit message_delay_seconds jitter_percent].each do |key|
+      value = additional_attributes[key]
+      next if value.blank?
+
+      unless value.is_a?(Numeric) || value.to_s.match?(/\A\d+\z/)
+        errors.add(key.to_sym, "#{key} must be a non-negative integer")
+        next
+      end
+
+      # Cast to integer to normalize floats like 50.7 → 50
+      additional_attributes[key] = value.to_i
+    end
+
     %w[daily_message_limit message_delay_seconds].each do |key|
       value = additional_attributes[key]
       next if value.blank?
-      next if value.to_i >= 0
 
-      errors.add(key.to_sym, "#{key} must be zero or greater")
+      errors.add(key.to_sym, "#{key} must be zero or greater") if value.to_i.negative?
     end
 
     jitter = additional_attributes['jitter_percent']
