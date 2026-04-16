@@ -38,6 +38,10 @@ class InboxPolicy < ApplicationPolicy
     @account_user.administrator?
   end
 
+  def rate_limit_stats?
+    true
+  end
+
   def create?
     @account_user.administrator?
   end
