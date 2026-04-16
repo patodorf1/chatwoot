@@ -296,6 +296,7 @@
       "SEARCH_PLACEHOLDER": "Search...",
       "MESSAGE_BUTTON": "Message",
       "SEND_MESSAGE": "Send message",
+      "GO_TO_CONVERSATION": "Go to conversation",
       "BLOCK_CONTACT": "Block contact",
       "UNBLOCK_CONTACT": "Unblock contact",
       "BREADCRUMB": {

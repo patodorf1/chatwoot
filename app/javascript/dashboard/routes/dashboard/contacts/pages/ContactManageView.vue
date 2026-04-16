@@ -81,20 +81,22 @@ const fetchContactNotes = () => {
   if (contactId) store.dispatch('contactNotes/get', { contactId });
 };
 
+const contactConversations = computed(() => {
+  const { contactId } = route.params;
+  return store.getters['contactConversations/getContactConversation'](
+    contactId
+  );
+});
+
+const lastConversationId = computed(() => {
+  if (!contactConversations.value?.length) return null;
+  return contactConversations.value[0]?.id;
+});
+
 const fetchContactConversations = async () => {
   const { contactId } = route.params;
   if (!contactId) return;
   await store.dispatch('contactConversations/get', contactId);
-  // Auto-redirect to the most recent open conversation if one exists
-  const conversations =
-    store.getters['contactConversations/getContactConversation'](contactId);
-  const openConversation = conversations.find(c => c.status === 'open');
-  if (openConversation) {
-    const { accountId } = route.params;
-    router.replace(
-      `/app/accounts/${accountId}/conversations/${openConversation.id}`
-    );
-  }
 };
 
 const fetchAttributes = () => {
@@ -143,6 +145,7 @@ onMounted(() => {
     <ContactsDetailsLayout
       :button-label="$t('CONTACTS_LAYOUT.HEADER.SEND_MESSAGE')"
       :selected-contact="selectedContact"
+      :last-conversation-id="lastConversationId"
       is-detail-view
       :show-pagination-footer="false"
       :is-updating="isUpdatingContact"

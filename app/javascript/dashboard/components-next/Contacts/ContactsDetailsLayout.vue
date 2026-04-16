@@ -1,7 +1,7 @@
 <script setup>
 import { computed, useSlots, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { vOnClickOutside } from '@vueuse/components';
 
 import Button from 'dashboard/components-next/button/Button.vue';
@@ -18,6 +18,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  lastConversationId: {
+    type: [Number, String],
+    default: null,
+  },
 });
 
 const emit = defineEmits(['goToContactsList', 'toggleBlock']);
@@ -25,6 +29,7 @@ const emit = defineEmits(['goToContactsList', 'toggleBlock']);
 const { t } = useI18n();
 const slots = useSlots();
 const route = useRoute();
+const router = useRouter();
 
 const isContactSidebarOpen = ref(false);
 
@@ -94,7 +99,14 @@ const closeMobileSidebar = () => {
                 :label="$t('CONTACT_PANEL.CALL')"
                 size="sm"
               />
-              <ComposeConversation :contact-id="contactId">
+              <Button
+                v-if="lastConversationId"
+                :label="t('CONTACTS_LAYOUT.HEADER.GO_TO_CONVERSATION')"
+                icon="i-lucide-message-circle"
+                size="sm"
+                @click="router.push(`/app/accounts/${route.params.accountId}/conversations/${lastConversationId}`)"
+              />
+              <ComposeConversation v-else :contact-id="contactId">
                 <template #trigger="{ toggle }">
                   <Button
                     :label="$t('CONTACTS_LAYOUT.HEADER.SEND_MESSAGE')"
