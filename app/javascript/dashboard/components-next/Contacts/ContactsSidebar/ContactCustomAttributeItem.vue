@@ -75,8 +75,8 @@ const CurrentAttributeComponent = computed(() => {
 
 <template>
   <div
-    class="grid grid-cols-[140px,1fr] group/attribute items-center w-full gap-2"
-    :class="isEditingView ? 'min-h-10' : 'min-h-11'"
+    class="grid grid-cols-[140px,1fr] group/attribute items-center w-full gap-1.5"
+    :class="isEditingView ? 'min-h-8' : 'min-h-9'"
   >
     <div class="flex items-center justify-between truncate">
       <span class="text-sm font-medium truncate text-n-slate-12">

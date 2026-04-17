@@ -109,11 +109,12 @@ const filteredUnusedAttributes = computed(() => {
 const unusedAttributesCount = computed(() => unusedAttributes.value?.length);
 const hasNoUnusedAttributes = computed(() => unusedAttributesCount.value === 0);
 const hasNoUsedAttributes = computed(() => usedAttributes.value.length === 0);
+const showUnused = ref(false);
 </script>
 
 <template>
-  <div v-if="hasContactAttributes" class="flex flex-col gap-6 px-6 py-6">
-    <div v-if="!hasNoUsedAttributes" class="flex flex-col gap-2">
+  <div v-if="hasContactAttributes" class="flex flex-col gap-3 px-6 py-4">
+    <div v-if="!hasNoUsedAttributes" class="flex flex-col gap-1">
       <ContactCustomAttributeItem
         v-for="attribute in usedAttributes"
         :key="attribute.id"
@@ -121,17 +122,23 @@ const hasNoUsedAttributes = computed(() => usedAttributes.value.length === 0);
         :attribute="attribute"
       />
     </div>
-    <div v-if="!hasNoUnusedAttributes" class="flex items-center gap-3">
-      <div class="flex-1 h-[1px] bg-n-slate-5" />
-      <span class="text-sm font-medium text-n-slate-10">{{
+    <button
+      v-if="!hasNoUnusedAttributes"
+      class="flex items-center gap-2 py-1 text-xs font-medium text-n-slate-10 hover:text-n-slate-12 transition-colors"
+      @click="showUnused = !showUnused"
+    >
+      <span
+        class="size-3.5 transition-transform"
+        :class="showUnused ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'"
+      />
+      {{
         t('CONTACTS_LAYOUT.SIDEBAR.ATTRIBUTES.UNUSED_ATTRIBUTES', {
           count: unusedAttributesCount,
         })
-      }}</span>
-      <div class="flex-1 h-[1px] bg-n-slate-5" />
-    </div>
-    <div class="flex flex-col gap-3">
-      <div v-if="!hasNoUnusedAttributes" class="relative">
+      }}
+    </button>
+    <div v-if="showUnused" class="flex flex-col gap-2">
+      <div class="relative">
         <span class="absolute i-lucide-search size-3.5 top-2 left-3" />
         <input
           v-model="searchQuery"
@@ -143,14 +150,14 @@ const hasNoUsedAttributes = computed(() => usedAttributes.value.length === 0);
         />
       </div>
       <div
-        v-if="filteredUnusedAttributes.length === 0 && !hasNoUnusedAttributes"
-        class="flex items-center justify-start h-11"
+        v-if="filteredUnusedAttributes.length === 0"
+        class="flex items-center justify-start h-8"
       >
         <p class="text-sm text-n-slate-11">
           {{ t('CONTACTS_LAYOUT.SIDEBAR.ATTRIBUTES.NO_ATTRIBUTES') }}
         </p>
       </div>
-      <div v-if="!hasNoUnusedAttributes" class="flex flex-col gap-2">
+      <div v-else class="flex flex-col gap-1">
         <ContactCustomAttributeItem
           v-for="attribute in filteredUnusedAttributes"
           :key="attribute.id"
