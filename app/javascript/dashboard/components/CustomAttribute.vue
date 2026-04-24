@@ -219,11 +219,6 @@ export default {
             "
           >
             {{ label }}
-            <HelperTextPopup
-              v-if="description"
-              :message="description"
-              class="mt-0.5"
-            />
           </span>
           <NextButton
             v-if="showActions && hasValue"

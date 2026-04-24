@@ -257,6 +257,12 @@ const tailwindConfig = {
     // eslint-disable-next-line
     require('@tailwindcss/typography'),
     iconsPlugin({
+      customize(content, props, collection) {
+        if (collection === 'lucide') {
+          return content.replace(/stroke-width="2"/g, 'stroke-width="1.5"');
+        }
+        return content;
+      },
       collections: {
         woot: { icons },
         ...getIconCollections([

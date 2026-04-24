@@ -290,20 +290,6 @@ export default {
     class="w-full px-8 pt-6 pb-8 contact--form"
     @submit.prevent="handleSubmit"
   >
-    <div class="flex flex-col mb-4 items-start gap-1 w-full">
-      <label class="mb-0.5 text-sm font-medium text-n-slate-12">
-        {{ $t('CONTACT_FORM.FORM.AVATAR.LABEL') }}
-      </label>
-      <Avatar
-        :src="avatarUrl"
-        :size="72"
-        :name="contact.name"
-        allow-upload
-        rounded-full
-        @upload="handleImageUpload"
-        @delete="handleAvatarDelete"
-      />
-    </div>
     <div>
       <div class="w-full">
         <label :class="{ error: v$.name.$error }">
@@ -329,17 +315,6 @@ export default {
           </span>
         </label>
       </div>
-    </div>
-    <div class="w-full">
-      <label :class="{ error: v$.description.$error }">
-        {{ $t('CONTACT_FORM.FORM.BIO.LABEL') }}
-        <textarea
-          v-model="description"
-          type="text"
-          :placeholder="$t('CONTACT_FORM.FORM.BIO.PLACEHOLDER')"
-          @input="v$.description.$touch"
-        />
-      </label>
     </div>
     <div>
       <div class="w-full">
@@ -401,21 +376,17 @@ export default {
     />
 
     <div class="w-full">
-      <label>{{ $t('CONTACTS_PAGE.LIST.TABLE_HEADER.SOCIAL_PROFILES') }}</label>
-      <div
-        v-for="socialProfile in socialProfileKeys"
-        :key="socialProfile.key"
-        class="flex items-stretch w-full mb-4"
-      >
+      <div class="flex items-stretch w-full mb-4">
         <span
           class="flex items-center h-10 px-2 text-sm border-solid border-y ltr:border-l rtl:border-r ltr:rounded-l-md rtl:rounded-r-md bg-n-solid-3 text-n-slate-11 border-n-weak"
         >
-          {{ socialProfile.prefixURL }}
+          https://linkedin.com/
         </span>
         <input
-          v-model="socialProfileUserNames[socialProfile.key]"
+          v-model="socialProfileUserNames.linkedin"
           class="input-group-field ltr:!rounded-l-none rtl:!rounded-r-none !mb-0"
           type="text"
+          placeholder="LinkedIn"
         />
       </div>
     </div>

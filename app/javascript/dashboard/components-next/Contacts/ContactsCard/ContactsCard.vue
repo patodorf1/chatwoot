@@ -115,8 +115,9 @@ const handleAvatarHover = isHovered => {
       :class="{
         'outline-n-weak !bg-n-slate-3 dark:!bg-n-solid-3': isSelected,
       }"
+      class="[&>div]:!py-2 [&>div]:!px-4"
     >
-      <div class="flex items-center justify-start flex-1 gap-4">
+      <div class="flex items-center justify-start flex-1 gap-3">
         <div
           class="relative"
           @mouseenter="handleAvatarHover(true)"
@@ -125,7 +126,7 @@ const handleAvatarHover = isHovered => {
           <Avatar
             :name="name"
             :src="thumbnail"
-            :size="48"
+            :size="32"
             :status="availabilityStatus"
             hide-offline-status
             rounded-full
@@ -144,42 +145,42 @@ const handleAvatarHover = isHovered => {
             </template>
           </Avatar>
         </div>
-        <div class="flex flex-col gap-0.5 flex-1">
-          <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span class="text-base font-medium truncate text-n-slate-12">
+        <div class="flex flex-col flex-1">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+            <span class="text-sm font-medium truncate text-n-slate-12">
               {{ name }}
             </span>
             <span class="inline-flex items-center gap-1">
               <span
                 v-if="additionalAttributes?.companyName"
-                class="i-ph-building-light size-4 text-n-slate-10 mb-0.5"
+                class="i-ph-building-light size-3 text-n-slate-10"
               />
               <span
                 v-if="additionalAttributes?.companyName"
-                class="text-sm truncate text-n-slate-11"
+                class="text-xs truncate text-n-slate-11"
               >
                 {{ additionalAttributes.companyName }}
               </span>
             </span>
           </div>
           <div
-            class="flex flex-wrap items-center justify-start gap-x-3 gap-y-1"
+            class="flex flex-wrap items-center justify-start gap-x-2 gap-y-0.5"
           >
             <div v-if="email" class="truncate max-w-72" :title="email">
-              <span class="text-sm text-n-slate-11">
+              <span class="text-xs text-n-slate-11">
                 {{ email }}
               </span>
             </div>
             <div v-if="email" class="w-px h-3 truncate bg-n-slate-6" />
-            <span v-if="phoneNumber" class="text-sm truncate text-n-slate-11">
+            <span v-if="phoneNumber" class="text-xs truncate text-n-slate-11">
               {{ phoneNumber }}
             </span>
             <div v-if="phoneNumber" class="w-px h-3 truncate bg-n-slate-6" />
             <span
               v-if="countryDetails"
-              class="inline-flex items-center gap-2 text-sm truncate text-n-slate-11"
+              class="inline-flex items-center gap-1.5 text-xs truncate text-n-slate-11"
             >
-              <Flag :country="countryDetails.countryCode" class="size-3.5" />
+              <Flag :country="countryDetails.countryCode" class="size-3" />
               {{ formattedLocation }}
             </span>
             <div v-if="countryDetails" class="w-px h-3 truncate bg-n-slate-6" />
