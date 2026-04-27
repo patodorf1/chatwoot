@@ -126,32 +126,32 @@ const handleAvatarDelete = async () => {
 </script>
 
 <template>
-  <div class="flex flex-col items-start gap-8 pb-6">
-    <div class="flex flex-col items-start gap-3">
+  <div class="flex flex-col items-start gap-4 pb-4">
+    <div class="flex flex-col items-start gap-2">
       <Avatar
         :src="avatarSrc || ''"
         :name="selectedContact?.name || ''"
-        :size="72"
+        :size="56"
         allow-upload
         @upload="handleAvatarUpload"
         @delete="handleAvatarDelete"
       />
-      <div class="flex flex-col gap-1">
-        <h3 class="text-base font-medium text-n-slate-12">
+      <div class="flex flex-col gap-0.5">
+        <h3 class="text-sm font-medium text-n-slate-12">
           {{ selectedContact?.name }}
         </h3>
-        <div class="flex flex-col gap-1.5">
+        <div class="flex flex-col gap-1">
           <span
             v-if="selectedContact?.identifier"
-            class="inline-flex items-center gap-1 text-sm text-n-slate-11"
+            class="inline-flex items-center gap-1 text-xs text-n-slate-11"
           >
-            <span class="i-ph-user-gear text-n-slate-10 size-4" />
+            <span class="i-ph-user-gear text-n-slate-10 size-3.5" />
             {{ selectedContact?.identifier }}
           </span>
-          <span class="inline-flex items-center gap-1 text-sm text-n-slate-11">
+          <span class="inline-flex items-center gap-1 text-xs text-n-slate-11">
             <span
               v-if="selectedContact?.identifier"
-              class="i-ph-activity text-n-slate-10 size-4"
+              class="i-ph-activity text-n-slate-10 size-3.5"
             />
             {{ $t('CONTACTS_LAYOUT.DETAILS.CREATED_AT', { date: createdAt }) }}
             •
@@ -168,7 +168,7 @@ const handleAvatarDelete = async () => {
         :href="linkedinUrl"
         target="_blank"
         rel="noopener nofollow noreferrer"
-        class="inline-flex items-center gap-1.5 text-sm text-n-slate-11 hover:text-n-slate-12"
+        class="inline-flex items-center gap-1.5 text-xs text-n-slate-11 hover:text-n-slate-12"
       >
         <svg class="size-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
         LinkedIn
@@ -192,19 +192,12 @@ const handleAvatarDelete = async () => {
     </div>
     <Policy :permissions="['administrator']">
       <div
-        class="flex flex-col items-start w-full gap-4 pt-6 border-t border-n-strong"
+        class="flex flex-col items-start w-full pt-4 border-t border-n-strong"
       >
-        <div class="flex flex-col gap-2">
-          <h6 class="text-base font-medium text-n-slate-12">
-            {{ t('CONTACTS_LAYOUT.DETAILS.DELETE_CONTACT') }}
-          </h6>
-          <span class="text-sm text-n-slate-11">
-            {{ t('CONTACTS_LAYOUT.DETAILS.DELETE_CONTACT_DESCRIPTION') }}
-          </span>
-        </div>
         <Button
           :label="t('CONTACTS_LAYOUT.DETAILS.DELETE_CONTACT')"
           color="ruby"
+          size="sm"
           @click="openConfirmDeleteContactDialog"
         />
       </div>

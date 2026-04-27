@@ -443,12 +443,12 @@ const menuItems = computed(() => {
         </template>
       </div>
       <div
-        class="flex gap-2"
-        :class="isEffectivelyCollapsed ? 'flex-col items-center' : 'px-2'"
+        class="flex gap-2 items-center justify-center"
+        :class="isEffectivelyCollapsed ? 'flex-col' : 'px-2'"
       >
         <RouterLink
           :to="{ name: 'search' }"
-          class="flex items-center justify-center size-8 rounded-lg transition-all duration-100 ease-out hover:bg-[#34353f]/10"
+          class="flex items-center justify-center size-8 rounded-lg border border-[#34353f]/15 bg-transparent transition-all duration-100 ease-out hover:bg-[#34353f]/10"
           :title="t('COMBOBOX.SEARCH_PLACEHOLDER')"
         >
           <span class="i-lucide-search size-4 text-[#6a6779]" />
@@ -459,11 +459,8 @@ const menuItems = computed(() => {
               icon="i-lucide-pen-line"
               color="slate"
               size="sm"
-              class="dark:hover:!bg-n-slate-9/30"
+              class="!size-8 !bg-transparent !text-[#6a6779] !border !border-[#34353f]/15 hover:!bg-[#34353f]/10 dark:hover:!bg-n-slate-9/30"
               :class="[
-                isEffectivelyCollapsed
-                  ? '!size-8 !bg-transparent !text-[#6a6779] hover:!bg-[#34353f]/10'
-                  : '!h-7 !outline-n-weak !text-n-slate-11',
                 { '!bg-n-alpha-2 dark:!bg-n-slate-9/30': isOpen },
               ]"
               @click="onComposeOpen(toggle)"

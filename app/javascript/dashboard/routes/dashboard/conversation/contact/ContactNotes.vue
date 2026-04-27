@@ -130,9 +130,6 @@ watch(
         @delete="onDelete"
       />
     </div>
-    <p v-else class="px-6 py-6 text-sm leading-6 text-center text-n-slate-11">
-      {{ t('CONTACTS_LAYOUT.SIDEBAR.NOTES.CONVERSATION_EMPTY_STATE') }}
-    </p>
 
     <woot-modal
       v-model:show="shouldShowCreateModal"

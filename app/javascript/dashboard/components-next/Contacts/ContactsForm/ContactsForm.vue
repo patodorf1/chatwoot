@@ -246,12 +246,12 @@ defineExpose({
 </script>
 
 <template>
-  <div class="flex flex-col gap-6">
-    <div class="flex flex-col items-start gap-2">
-      <span class="py-1 text-sm font-medium text-n-slate-12">
+  <div class="flex flex-col gap-3 text-xs [&_input]:!text-xs [&_button]:!text-xs">
+    <div class="flex flex-col items-start gap-1.5">
+      <span class="py-0.5 text-xs font-medium text-n-slate-12">
         {{ t('CONTACTS_LAYOUT.CARD.EDIT_DETAILS_FORM.TITLE') }}
       </span>
-      <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
         <template v-for="item in editDetailsForm" :key="item.key">
           <ComboBox
             v-if="item.key === 'COUNTRY'"
