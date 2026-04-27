@@ -198,6 +198,14 @@ const tailwindConfig = {
     fontSize: {
       ...defaultTheme.fontSize,
       xxs: '0.625rem',
+      // WeRecruit: scale down one notch globally for a more compact UI
+      xs: ['0.6875rem', { lineHeight: '0.9rem' }], // 11px (was 12px)
+      sm: ['0.75rem', { lineHeight: '1rem' }],     // 12px (was 14px)
+      base: ['0.8125rem', { lineHeight: '1.15rem' }], // 13px (was 16px)
+      lg: ['0.9375rem', { lineHeight: '1.35rem' }],   // 15px (was 18px)
+      xl: ['1.0625rem', { lineHeight: '1.5rem' }],    // 17px (was 20px)
+      '2xl': ['1.25rem', { lineHeight: '1.75rem' }],  // 20px (was 24px)
+      '3xl': ['1.5rem', { lineHeight: '2rem' }],      // 24px (was 30px)
     },
     colors: {
       transparent: 'transparent',
