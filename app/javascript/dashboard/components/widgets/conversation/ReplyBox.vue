@@ -209,15 +209,8 @@ export default {
         }
         return this.$t('CONVERSATION.FOOTER.MESSAGING_RESTRICTED');
       }
-      if (
-        (this.isAWhatsAppChannel || this.isAPIInbox) &&
-        !this.isPrivate
-      ) {
-        return '';
-      }
-      return this.isPrivate
-        ? this.$t('CONVERSATION.FOOTER.PRIVATE_MSG_INPUT')
-        : this.$t('CONVERSATION.FOOTER.MSG_INPUT');
+      // Always hide the "Shift+enter..." help text inside the editor
+      return '';
     },
     isMessageLengthReachingThreshold() {
       return this.message.length > this.maxLength - 50;
