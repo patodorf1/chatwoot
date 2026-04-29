@@ -131,6 +131,7 @@ const closeComposeConversationModal = () => {
         attribute-from="conversation_contact_panel"
         :contact-id="contact.id"
         :allowed-attribute-keys="[
+          'como_continua',
           'posicion_propuesta',
           'puesto_actual',
           'tecnologia_principal',

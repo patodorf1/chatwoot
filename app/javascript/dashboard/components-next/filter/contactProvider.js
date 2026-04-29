@@ -7,6 +7,7 @@ import {
   CONTACT_ATTRIBUTES,
 } from './helper/filterHelper.js';
 import countries from 'shared/constants/countries.js';
+import { RECRUITMENT_STATUSES } from 'dashboard/helper/recruitmentStatus';
 
 /**
  * @typedef {Object} FilterOption
@@ -193,7 +194,9 @@ export function useContactFilterContext() {
       inputType: 'multiSelect',
       options: labels.value?.map(label => ({
         id: label.title,
-        name: label.title,
+        name:
+          RECRUITMENT_STATUSES.find(s => s.title === label.title)?.displayName ||
+          label.title,
       })),
       dataType: 'text',
       filterOperators: equalityOperators.value,

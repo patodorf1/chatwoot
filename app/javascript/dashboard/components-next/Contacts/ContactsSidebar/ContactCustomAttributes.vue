@@ -28,6 +28,13 @@ const hasContactAttributes = computed(
 // Internal attributes that should not be visible or editable in the UI
 const HIDDEN_ATTRIBUTES = ['airtable_record_id', 'supabase_id'];
 
+// Default attribute order when user has no custom UI ordering set.
+// Place pipeline-critical attributes at the top of the contact sidebar.
+const DEFAULT_ATTRIBUTE_ORDER = [
+  'como_continua',
+  'tecnologia_principal',
+];
+
 const processContactAttributes = (
   attributes,
   customAttributes,
@@ -60,12 +67,12 @@ const sortAttributesOrder = computed(
 );
 
 const sortByUISettings = attributes => {
-  // Get saved order from UI settings
-  // Same as conversation panel contact attribute order
-  const order = sortAttributesOrder.value;
-
-  // If no order defined, return original array
-  if (!order?.length) return attributes;
+  // Get saved order from UI settings, fall back to hardcoded default order
+  // so pipeline-critical attributes (Cómo continúa?, Tecnología Principal)
+  // appear at the top of the sidebar.
+  const order = sortAttributesOrder.value?.length
+    ? sortAttributesOrder.value
+    : DEFAULT_ATTRIBUTE_ORDER;
 
   const orderMap = new Map(order.map((key, index) => [key, index]));
 

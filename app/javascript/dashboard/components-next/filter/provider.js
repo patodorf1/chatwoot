@@ -7,6 +7,7 @@ import {
   buildAttributesFilterTypes,
   CONVERSATION_ATTRIBUTES,
 } from './helper/filterHelper';
+import { RECRUITMENT_STATUSES } from 'dashboard/helper/recruitmentStatus';
 
 /**
  * @typedef {Object} FilterOption
@@ -108,7 +109,9 @@ export function useConversationFilterContext() {
         inputType: 'multiSelect',
         options: labels.value.map(label => ({
           id: label.title,
-          name: label.title,
+          name:
+            RECRUITMENT_STATUSES.find(s => s.title === label.title)?.displayName ||
+            label.title,
           icon: h('span', {
             class: `rounded-full`,
             style: {

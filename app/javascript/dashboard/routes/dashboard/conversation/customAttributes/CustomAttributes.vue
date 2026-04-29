@@ -83,9 +83,15 @@ const HIDDEN_ATTRIBUTES = ['airtable_record_id', 'supabase_id'];
 
 const filteredCustomAttributes = computed(() => {
   const allowed = props.allowedAttributeKeys;
-  const filtered = allowed.length
-    ? attributes.value.filter(attr => allowed.includes(attr.attribute_key))
-    : attributes.value;
+  let filtered;
+  if (allowed.length) {
+    // Preserve the order specified in allowedAttributeKeys (curated by caller)
+    filtered = allowed
+      .map(key => attributes.value.find(attr => attr.attribute_key === key))
+      .filter(Boolean);
+  } else {
+    filtered = attributes.value;
+  }
 
   return filtered.filter(attr => !HIDDEN_ATTRIBUTES.includes(attr.attribute_key)).map(attribute => {
     const hasValue = attribute.attribute_key in customAttributes.value;
