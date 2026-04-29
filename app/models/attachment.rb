@@ -42,6 +42,32 @@ class Attachment < ApplicationRecord
   enum file_type: { :image => 0, :audio => 1, :video => 2, :file => 3, :location => 4, :fallback => 5, :share => 6, :story_mention => 7,
                     :contact => 8, :ig_reel => 9, :ig_post => 10, :ig_story => 11, :embed => 12 }
 
+  # Re-detect file_type from blob.content_type after the blob is committed.
+  # Some integrations (e.g. GoWA → Channel::Api) upload attachments with a
+  # generic content_type ("application/octet-stream") which causes the builder
+  # to classify them as `file`. ActiveStorage later analyzes the blob and sets
+  # the proper content_type (audio/opus, video/mp4, image/jpeg, etc.) but the
+  # already-persisted file_type stays wrong, breaking inline previews/players.
+  after_create_commit :auto_correct_file_type_from_blob
+
+  def auto_correct_file_type_from_blob
+    return unless file_type == 'file'
+    return unless file.attached?
+
+    blob_content_type = file.blob.content_type
+    return if blob_content_type.blank?
+
+    new_type = if blob_content_type.start_with?('audio/')
+                 :audio
+               elsif blob_content_type.start_with?('video/')
+                 :video
+               elsif blob_content_type.start_with?('image/')
+                 :image
+               end
+
+    update_column(:file_type, Attachment.file_types[new_type]) if new_type
+  end
+
   def push_event_data
     return unless file_type
 
