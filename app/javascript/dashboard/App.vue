@@ -61,18 +61,23 @@ export default {
       currentUser: 'getCurrentUser',
       authUIFlags: 'getAuthUIFlags',
       accountUIFlags: 'accounts/getUIFlags',
-      conversationStats: 'conversationStats/getStats',
+      allConversations: 'getAllConversations',
     }),
     hideOnOnboardingView() {
       return !isOnOnboardingView(this.$route);
     },
-    // Show the count of conversations assigned to the current agent
-    // (the "Mías" tab) in the tab title, favicon and OS badge.
-    // We intentionally exclude unassigned/all so historical bulk-imported
-    // conversations don't permanently pin the badge to "99+".
+    // Conversations assigned to the current agent that have unread messages.
+    // This is the "Mías + sin leer" intersection; counts neither resolved
+    // chats nor read ones, so the badge only flags actionable threads.
     unreadConversationCount() {
-      const stats = this.conversationStats || {};
-      return stats.mineCount || 0;
+      const userId = this.currentUser?.id;
+      if (!userId) return 0;
+      return (this.allConversations || []).filter(
+        c =>
+          c.meta?.assignee?.id === userId &&
+          c.status === 'open' &&
+          (c.unread_count || 0) > 0
+      ).length;
     },
   },
 

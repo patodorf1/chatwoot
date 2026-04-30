@@ -82,8 +82,9 @@ export const initFaviconSwitcher = () => {
   });
 };
 
-// Public: surfaces the unread conversation count across the OS surfaces a
-// browser exposes (tab title, favicon, PWA/taskbar badge).
+// Public: surfaces the unread conversation count in the tab title and the
+// OS PWA app badge. The favicon image itself is left untouched (the brand
+// favicon stays visible) — only the OS-level badge gets the number.
 export const setUnreadBadge = count => {
   captureOriginalTitle();
   const safeCount = Number.isFinite(count) && count > 0 ? Math.floor(count) : 0;
@@ -93,11 +94,7 @@ export const setUnreadBadge = count => {
     ? `(${safeCount > 99 ? '99+' : safeCount}) ${originalDocumentTitle}`
     : originalDocumentTitle;
 
-  // 2) Favicon with number badge drawn via canvas
-  badgeFaviconUrl = buildBadgeFavicon(safeCount);
-  swapFavicons(badgeFaviconUrl);
-
-  // 3) PWA / OS taskbar app badge (Chrome desktop, Edge, etc.)
+  // 2) PWA / OS taskbar app badge (Chrome desktop, Edge, etc.)
   if ('setAppBadge' in navigator) {
     if (safeCount > 0) {
       navigator.setAppBadge(safeCount).catch(() => {});
