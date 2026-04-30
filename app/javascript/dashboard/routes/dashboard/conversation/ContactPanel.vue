@@ -132,9 +132,16 @@ const closeComposeConversationModal = () => {
         :contact-id="contact.id"
         :allowed-attribute-keys="[
           'como_continua',
+          'respondio_por',
+          'pais',
+          'tecnologia_principal',
           'posicion_propuesta',
           'puesto_actual',
-          'tecnologia_principal',
+          'rem_local',
+          'rem_usd',
+          'respuestas_screening',
+          'motivo_desestimacion',
+          'generar_informe',
         ]"
         :empty-state-message="
           $t('CONVERSATION_CUSTOM_ATTRIBUTES.NO_RECORDS_FOUND')
