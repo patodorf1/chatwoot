@@ -145,7 +145,7 @@ watch(
           solid
           blue
           xs
-          :label="t('CONTACTS_LAYOUT.SIDEBAR.NOTES.SAVE')"
+          label="Subir"
           :is-loading="isCreatingNote"
           :disabled="!contactId || isCreatingNote"
           @click="onAdd"
