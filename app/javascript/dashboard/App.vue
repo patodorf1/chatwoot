@@ -66,11 +66,13 @@ export default {
     hideOnOnboardingView() {
       return !isOnOnboardingView(this.$route);
     },
-    // Show the count of conversations that need the agent's attention
-    // (assigned-to-me + unassigned) in the tab title, favicon and OS badge.
+    // Show the count of conversations assigned to the current agent
+    // (the "Mías" tab) in the tab title, favicon and OS badge.
+    // We intentionally exclude unassigned/all so historical bulk-imported
+    // conversations don't permanently pin the badge to "99+".
     unreadConversationCount() {
       const stats = this.conversationStats || {};
-      return (stats.mineCount || 0) + (stats.unAssignedCount || 0);
+      return stats.mineCount || 0;
     },
   },
 
