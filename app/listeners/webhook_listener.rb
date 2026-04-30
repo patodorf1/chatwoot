@@ -66,6 +66,15 @@ class WebhookListener < BaseListener
     deliver_account_webhooks(payload, account)
   end
 
+  def note_created(event)
+    note = event.data[:note]
+    account = event.data[:account] || note&.account
+    return unless note && account
+
+    payload = note.push_event_data.merge(event: __method__.to_s)
+    deliver_account_webhooks(payload, account)
+  end
+
   def inbox_created(event)
     inbox, account = extract_inbox_and_account(event)
     inbox_webhook_data = Inbox::EventDataPresenter.new(inbox).push_data

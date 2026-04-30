@@ -39,10 +39,14 @@ export const actions = {
     }
   },
 
-  async create({ commit }, { contactId, content }) {
+  async create({ commit }, { contactId, content, attachments = [] }) {
     commit(types.SET_CONTACT_NOTES_UI_FLAG, { isCreating: true });
     try {
-      const { data } = await ContactNotesAPI.create(contactId, content);
+      const { data } = await ContactNotesAPI.create(
+        contactId,
+        content,
+        attachments
+      );
       commit(types.ADD_CONTACT_NOTE, { contactId, data });
     } catch (error) {
       throw new Error(error);

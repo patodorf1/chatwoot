@@ -15,8 +15,20 @@ class ContactNotes extends ApiClient {
     return super.get();
   }
 
-  create(contactId, content) {
+  create(contactId, content, attachments = []) {
     this.contactId = contactId;
+
+    // If files are attached, send as multipart so Rails ActiveStorage can
+    // pick them up under params[:attachments][].
+    if (attachments && attachments.length) {
+      const formData = new FormData();
+      formData.append('note[content]', content || '');
+      attachments.forEach(file => formData.append('attachments[]', file));
+      return axios.post(this.url, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    }
+
     return super.create({ content });
   }
 

@@ -89,6 +89,30 @@ onMounted(() => {
         'line-clamp-4': collapsible && !isExpanded && needsCollapse,
       }"
     />
+    <ul
+      v-if="note.attachments && note.attachments.length"
+      class="flex flex-col gap-1 m-0 p-0 list-none"
+    >
+      <li
+        v-for="att in note.attachments"
+        :key="att.id"
+        class="flex items-center gap-2 px-2 py-1 rounded-md bg-n-alpha-black2 hover:bg-n-alpha-black3 transition-colors"
+      >
+        <span class="i-lucide-paperclip size-3.5 text-n-slate-11 flex-shrink-0" />
+        <a
+          :href="att.url"
+          target="_blank"
+          rel="noopener nofollow noreferrer"
+          class="text-xs text-n-slate-12 hover:text-blue-600 truncate flex-1"
+          :title="att.filename"
+        >
+          {{ att.filename }}
+        </a>
+        <span class="text-xxs text-n-slate-10 flex-shrink-0">
+          {{ Math.round((att.byteSize || att.byte_size || 0) / 1024) }} KB
+        </span>
+      </li>
+    </ul>
     <p v-if="collapsible && needsCollapse">
       <Button
         variant="faded"

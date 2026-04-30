@@ -22,6 +22,8 @@ const isFetchingNotes = computed(() => uiFlags.value.isFetching);
 const isCreatingNote = computed(() => uiFlags.value.isCreating);
 const contactId = computed(() => props.contactId);
 const noteContent = ref('');
+const noteAttachments = ref([]);
+const fileInputRef = ref(null);
 const shouldShowCreateModal = ref(false);
 const notes = computed(() => {
   if (!contactId.value) {
@@ -43,24 +45,37 @@ const openCreateModal = () => {
   }
 
   noteContent.value = '';
+  noteAttachments.value = [];
   shouldShowCreateModal.value = true;
 };
 
 const closeCreateModal = () => {
   shouldShowCreateModal.value = false;
   noteContent.value = '';
+  noteAttachments.value = [];
+};
+
+const onPickFiles = event => {
+  const files = Array.from(event.target.files || []);
+  if (!files.length) return;
+  noteAttachments.value = [...noteAttachments.value, ...files];
+  // Reset the input so picking the same file again still triggers change
+  if (fileInputRef.value) fileInputRef.value.value = '';
+};
+
+const removeAttachment = index => {
+  noteAttachments.value = noteAttachments.value.filter((_, i) => i !== index);
 };
 
 const onAdd = async () => {
-  if (!contactId.value || !noteContent.value || isCreatingNote.value) {
-    return;
-  }
+  if (!contactId.value || isCreatingNote.value) return;
+  if (!noteContent.value && noteAttachments.value.length === 0) return;
 
   await store.dispatch('contactNotes/create', {
     content: noteContent.value,
     contactId: contactId.value,
+    attachments: noteAttachments.value,
   });
-  noteContent.value = '';
   closeCreateModal();
 };
 
@@ -147,13 +162,52 @@ watch(
           :placeholder="t('CONTACTS_LAYOUT.SIDEBAR.NOTES.PLACEHOLDER')"
           class="[&>div]:!border-transparent [&>div]:px-4 [&>div]:py-4"
         />
-        <div class="flex items-center justify-end gap-3">
+        <div
+          v-if="noteAttachments.length"
+          class="flex flex-col gap-1 px-4"
+        >
+          <div
+            v-for="(file, index) in noteAttachments"
+            :key="`${file.name}-${index}`"
+            class="flex items-center gap-2 px-2 py-1 rounded-md bg-n-alpha-black2"
+          >
+            <span class="i-lucide-paperclip size-3.5 text-n-slate-11" />
+            <span class="text-xs text-n-slate-12 truncate flex-1">
+              {{ file.name }}
+            </span>
+            <span class="text-xxs text-n-slate-10">
+              {{ Math.round(file.size / 1024) }} KB
+            </span>
+            <button
+              type="button"
+              class="text-n-slate-10 hover:text-ruby-600"
+              @click="removeAttachment(index)"
+            >
+              <span class="i-lucide-x size-3.5" />
+            </button>
+          </div>
+        </div>
+        <input
+          ref="fileInputRef"
+          type="file"
+          multiple
+          class="hidden"
+          @change="onPickFiles"
+        />
+        <div class="flex items-center justify-between gap-3 px-4">
+          <NextButton
+            ghost
+            slate
+            icon="i-lucide-paperclip"
+            :label="$t('CONTACTS_LAYOUT.SIDEBAR.NOTES.ATTACH_FILE') || 'Adjuntar archivo'"
+            @click="() => fileInputRef?.click()"
+          />
           <NextButton
             solid
             blue
             :label="t('CONTACTS_LAYOUT.SIDEBAR.NOTES.SAVE')"
             :is-loading="isCreatingNote"
-            :disabled="!noteContent || isCreatingNote"
+            :disabled="(!noteContent && noteAttachments.length === 0) || isCreatingNote"
             @click="onAdd"
           />
         </div>
