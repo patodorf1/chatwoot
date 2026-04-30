@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n';
 import { useKeyboardEvents } from 'dashboard/composables/useKeyboardEvents';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 
-import Editor from 'dashboard/components-next/Editor/Editor.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import ContactNoteItem from 'next/Contacts/ContactsSidebar/components/ContactNoteItem.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
@@ -97,13 +96,8 @@ watch(
 
 <template>
   <div class="flex flex-col gap-3 px-4 py-3">
-    <!-- Inline note creator: editor + attach + save, no modal -->
-    <div class="flex flex-col gap-2 rounded-lg border border-n-weak bg-n-alpha-black1 p-2">
-      <Editor
-        v-model="noteContent"
-        :placeholder="t('CONTACTS_LAYOUT.SIDEBAR.NOTES.PLACEHOLDER')"
-        class="[&>div]:!border-transparent [&>div]:px-2 [&>div]:py-1 [&_.ProseMirror]:min-h-[40px] text-xs"
-      />
+    <!-- Compact attachment uploader: paperclip + save, no editor -->
+    <div class="flex flex-col gap-2">
       <div
         v-if="noteAttachments.length"
         class="flex flex-col gap-1"
@@ -147,12 +141,13 @@ watch(
           @click="() => fileInputRef?.click()"
         />
         <NextButton
+          v-if="noteAttachments.length"
           solid
           blue
           xs
           :label="t('CONTACTS_LAYOUT.SIDEBAR.NOTES.SAVE')"
           :is-loading="isCreatingNote"
-          :disabled="!contactId || (!noteContent && noteAttachments.length === 0) || isCreatingNote"
+          :disabled="!contactId || isCreatingNote"
           @click="onAdd"
         />
       </div>
