@@ -71,7 +71,10 @@ class WebhookListener < BaseListener
     account = event.data[:account] || note&.account
     return unless note && account
 
-    payload = note.push_event_data.merge(event: __method__.to_s)
+    payload = note.push_event_data.merge(
+      event: __method__.to_s,
+      contact: note.contact&.webhook_data
+    )
     deliver_account_webhooks(payload, account)
   end
 
