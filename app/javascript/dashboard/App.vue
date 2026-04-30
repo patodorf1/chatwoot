@@ -19,6 +19,7 @@ import {
 } from './helper/pushHelper';
 import ReconnectService from 'dashboard/helper/ReconnectService';
 import { useUISettings } from 'dashboard/composables/useUISettings';
+import { setUnreadBadge } from './helper/AudioAlerts/faviconHelper';
 
 export default {
   name: 'App',
@@ -60,9 +61,16 @@ export default {
       currentUser: 'getCurrentUser',
       authUIFlags: 'getAuthUIFlags',
       accountUIFlags: 'accounts/getUIFlags',
+      conversationStats: 'conversationStats/getStats',
     }),
     hideOnOnboardingView() {
       return !isOnOnboardingView(this.$route);
+    },
+    // Show the count of conversations that need the agent's attention
+    // (assigned-to-me + unassigned) in the tab title, favicon and OS badge.
+    unreadConversationCount() {
+      const stats = this.conversationStats || {};
+      return (stats.mineCount || 0) + (stats.unAssignedCount || 0);
     },
   },
 
@@ -73,6 +81,12 @@ export default {
         if (this.currentAccountId) {
           this.initializeAccount();
         }
+      },
+    },
+    unreadConversationCount: {
+      immediate: true,
+      handler(count) {
+        setUnreadBadge(count);
       },
     },
   },
