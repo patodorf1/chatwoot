@@ -136,18 +136,17 @@ watch(
           slate
           xs
           icon="i-lucide-paperclip"
-          label="Adjuntar archivo"
+          label="CV"
           :disabled="!contactId"
           @click="() => fileInputRef?.click()"
         />
         <NextButton
-          v-if="noteAttachments.length"
           solid
           blue
           xs
           label="Subir"
           :is-loading="isCreatingNote"
-          :disabled="!contactId || isCreatingNote"
+          :disabled="!contactId || noteAttachments.length === 0 || isCreatingNote"
           @click="onAdd"
         />
       </div>
