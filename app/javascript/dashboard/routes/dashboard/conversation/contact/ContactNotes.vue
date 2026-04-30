@@ -199,7 +199,7 @@ watch(
             ghost
             slate
             icon="i-lucide-paperclip"
-            :label="$t('CONTACTS_LAYOUT.SIDEBAR.NOTES.ATTACH_FILE') || 'Adjuntar archivo'"
+            label="Adjuntar archivo"
             @click="() => fileInputRef?.click()"
           />
           <NextButton
