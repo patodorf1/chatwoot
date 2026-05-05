@@ -64,6 +64,7 @@ class Message < ApplicationRecord
 
   before_validation :ensure_content_type
   before_validation :prevent_message_flooding
+  before_validation :strip_trailing_whitespace
   before_save :ensure_processed_message_content
   before_save :ensure_in_reply_to
 
@@ -307,6 +308,17 @@ class Message < ApplicationRecord
 
   def ensure_content_type
     self.content_type ||= Message.content_types[:text]
+  end
+
+  # Trim trailing whitespace/newlines on outgoing text messages.
+  # Tiptap/ProseMirror serializes empty paragraphs as trailing "\n\n", which
+  # gets forwarded to WhatsApp/etc. as visible blank lines below the message.
+  def strip_trailing_whitespace
+    return unless message_type == 'outgoing'
+    return unless content_type.to_s == 'text' || content_type.nil?
+    return if content.blank?
+
+    self.content = content.sub(/[\s ]+\z/, '')
   end
 
   def execute_after_create_commit_callbacks
