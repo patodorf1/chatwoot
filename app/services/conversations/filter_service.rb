@@ -28,11 +28,23 @@ class Conversations::FilterService < FilterService
       :taggings, :inbox, { assignee: { avatar_attachment: [:blob] } }, { contact: { avatar_attachment: [:blob] } }, :team, :messages, :contact_inbox
     )
 
+    # When filtering by contact-level custom attributes the WHERE clause
+    # references the `contacts` table. `includes` alone resolves with a
+    # separate query, so the SQL fails / hangs. Add an explicit join when
+    # any payload entry targets a contact_attribute.
+    conversations = conversations.joins(:contact) if filters_contact_attributes?
+
     Conversations::PermissionFilterService.new(
       conversations,
       @user,
       @account
     ).perform
+  end
+
+  def filters_contact_attributes?
+    return false if @params[:payload].blank?
+
+    @params[:payload].any? { |q| q['custom_attribute_type'] == 'contact_attribute' }
   end
 
   def current_page

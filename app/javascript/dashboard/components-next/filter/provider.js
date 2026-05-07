@@ -100,12 +100,27 @@ export function useConversationFilterContext() {
     return [
       // 1. Posición Propuesta
       ...(posicionPropuesta ? [posicionPropuesta] : []),
-      // 2. Estado (recruitment status via labels)
+      // 2. Estado (conversation status: open, resolved, pending, snoozed)
+      {
+        attributeKey: CONVERSATION_ATTRIBUTES.STATUS,
+        value: CONVERSATION_ATTRIBUTES.STATUS,
+        attributeName: 'Estado',
+        label: 'Estado',
+        inputType: 'multiSelect',
+        options: ['open', 'resolved', 'pending', 'snoozed'].map(id => ({
+          id,
+          name: t(`CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.${id}.TEXT`),
+        })),
+        dataType: 'text',
+        filterOperators: equalityOperators.value,
+        attributeModel: 'standard',
+      },
+      // 3. Etiqueta (recruitment labels)
       {
         attributeKey: CONVERSATION_ATTRIBUTES.LABELS,
         value: CONVERSATION_ATTRIBUTES.LABELS,
-        attributeName: 'Estado',
-        label: 'Estado',
+        attributeName: 'Etiqueta',
+        label: 'Etiqueta',
         inputType: 'multiSelect',
         options: labels.value.map(label => ({
           id: label.title,
@@ -123,21 +138,6 @@ export function useConversationFilterContext() {
         })),
         dataType: 'text',
         filterOperators: presenceOperators.value,
-        attributeModel: 'standard',
-      },
-      // 3. Resuelto/Abierto (conversation status)
-      {
-        attributeKey: CONVERSATION_ATTRIBUTES.STATUS,
-        value: CONVERSATION_ATTRIBUTES.STATUS,
-        attributeName: 'Resuelto/Abierto',
-        label: 'Resuelto/Abierto',
-        inputType: 'multiSelect',
-        options: ['open', 'resolved'].map(id => ({
-          id,
-          name: t(`CHAT_LIST.CHAT_STATUS_FILTER_ITEMS.${id}.TEXT`),
-        })),
-        dataType: 'text',
-        filterOperators: equalityOperators.value,
         attributeModel: 'standard',
       },
       // 4. Tecnología Principal
