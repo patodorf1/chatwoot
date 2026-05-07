@@ -41,8 +41,19 @@ module Filters::FilterHelper
   end
 
   def handle_nil_filter(query_hash, current_index)
-    attribute_type = "#{filter_config[:entity].downcase}_attribute"
-    custom_attribute_query(query_hash, attribute_type, current_index)
+    # Try the entity's own custom attributes first (conversation_attribute for
+    # the conversations filter). If the attribute isn't defined at that level,
+    # fall back to contact_attribute so filters on contact-level keys (e.g.
+    # "Posicion Propuesta") resolve from the conversations list.
+    attribute_type = query_hash['custom_attribute_type'].presence ||
+                     "#{filter_config[:entity].downcase}_attribute"
+    query = custom_attribute_query(query_hash, attribute_type, current_index)
+
+    if query.blank? && filter_config[:entity] == 'Conversation' && attribute_type != 'contact_attribute'
+      query = custom_attribute_query(query_hash, 'contact_attribute', current_index)
+    end
+
+    query
   end
 
   def handle_additional_attributes(query_hash, filter_operator_value, data_type)

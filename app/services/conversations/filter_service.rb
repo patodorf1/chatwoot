@@ -44,7 +44,16 @@ class Conversations::FilterService < FilterService
   def filters_contact_attributes?
     return false if @params[:payload].blank?
 
-    @params[:payload].any? { |q| q['custom_attribute_type'] == 'contact_attribute' }
+    payload_keys = @params[:payload].map { |q| q['attribute_key'] }.compact
+    return false if payload_keys.empty?
+
+    # Anything explicitly tagged contact_attribute, or any payload key that is
+    # actually defined as a contact custom attribute in this account.
+    return true if @params[:payload].any? { |q| q['custom_attribute_type'] == 'contact_attribute' }
+
+    @account.custom_attribute_definitions
+            .where(attribute_model: 'contact_attribute', attribute_key: payload_keys)
+            .exists?
   end
 
   def current_page
