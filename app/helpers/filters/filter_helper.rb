@@ -57,10 +57,13 @@ module Filters::FilterHelper
     return nil if attribute_key.blank?
     return nil unless defined?(@account) && @account
 
-    @account.custom_attribute_definitions
-            .where(attribute_key: attribute_key)
-            .order(Arel.sql("CASE attribute_model WHEN 'conversation_attribute' THEN 0 ELSE 1 END"))
-            .pick(:attribute_model)
+    # attribute_model is an enum stored as integer (0=conversation, 1=contact).
+    # Prefer conversation_attribute when both exist for the same key.
+    definitions = @account.custom_attribute_definitions.where(attribute_key: attribute_key)
+    return 'conversation_attribute' if definitions.exists?(attribute_model: :conversation_attribute)
+    return 'contact_attribute' if definitions.exists?(attribute_model: :contact_attribute)
+
+    nil
   end
 
   def handle_additional_attributes(query_hash, filter_operator_value, data_type)
