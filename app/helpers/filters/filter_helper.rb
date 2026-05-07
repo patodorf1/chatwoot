@@ -41,19 +41,26 @@ module Filters::FilterHelper
   end
 
   def handle_nil_filter(query_hash, current_index)
-    # Try the entity's own custom attributes first (conversation_attribute for
-    # the conversations filter). If the attribute isn't defined at that level,
-    # fall back to contact_attribute so filters on contact-level keys (e.g.
-    # "Posicion Propuesta") resolve from the conversations list.
+    # Resolve the actual model the attribute belongs to (conversation vs
+    # contact). The frontend doesn't always send custom_attribute_type, so we
+    # look up the definition directly. This lets filters on contact-level
+    # custom attributes (e.g. "Posicion Propuesta") work from the
+    # conversations filter without raising InvalidAttribute.
     attribute_type = query_hash['custom_attribute_type'].presence ||
+                     resolve_custom_attribute_model(query_hash['attribute_key']) ||
                      "#{filter_config[:entity].downcase}_attribute"
-    query = custom_attribute_query(query_hash, attribute_type, current_index)
 
-    if query.blank? && filter_config[:entity] == 'Conversation' && attribute_type != 'contact_attribute'
-      query = custom_attribute_query(query_hash, 'contact_attribute', current_index)
-    end
+    custom_attribute_query(query_hash, attribute_type, current_index)
+  end
 
-    query
+  def resolve_custom_attribute_model(attribute_key)
+    return nil if attribute_key.blank?
+    return nil unless defined?(@account) && @account
+
+    @account.custom_attribute_definitions
+            .where(attribute_key: attribute_key)
+            .order(Arel.sql("CASE attribute_model WHEN 'conversation_attribute' THEN 0 ELSE 1 END"))
+            .pick(:attribute_model)
   end
 
   def handle_additional_attributes(query_hash, filter_operator_value, data_type)
