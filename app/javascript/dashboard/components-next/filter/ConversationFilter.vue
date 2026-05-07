@@ -146,27 +146,43 @@ const outsideClickHandler = [
         />
       </template>
     </ul>
-    <div class="flex gap-2 justify-between">
-      <Button sm ghost blue @click="addFilter">
-        {{ $t('FILTER.ADD_NEW_FILTER') }}
-      </Button>
-      <div class="flex gap-2">
-        <Button sm faded slate @click="resetFilter">
-          {{ t('FILTER.CLEAR_BUTTON_LABEL') }}
-        </Button>
+    <div class="flex gap-1.5 justify-between items-center">
+      <Button
+        xs
+        ghost
+        blue
+        icon="i-lucide-plus"
+        :title="$t('FILTER.ADD_NEW_FILTER')"
+        @click="addFilter"
+      />
+      <div class="flex gap-1.5">
+        <Button
+          xs
+          faded
+          slate
+          icon="i-lucide-eraser"
+          :title="t('FILTER.CLEAR_BUTTON_LABEL')"
+          @click="resetFilter"
+        />
         <Button
           v-if="isFolderView"
-          sm
+          xs
           solid
           blue
+          icon="i-lucide-check"
+          :title="t('FILTER.UPDATE_BUTTON_LABEL')"
           :disabled="!folderNameLocal"
           @click="updateSavedCustomViews"
-        >
-          {{ t('FILTER.UPDATE_BUTTON_LABEL') }}
-        </Button>
-        <Button v-else sm solid blue @click="validateAndSubmit">
-          {{ t('FILTER.SUBMIT_BUTTON_LABEL') }}
-        </Button>
+        />
+        <Button
+          v-else
+          xs
+          solid
+          blue
+          icon="i-lucide-check"
+          :title="t('FILTER.SUBMIT_BUTTON_LABEL')"
+          @click="validateAndSubmit"
+        />
       </div>
     </div>
   </div>
