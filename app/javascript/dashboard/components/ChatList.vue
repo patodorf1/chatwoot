@@ -539,9 +539,9 @@ function onToggleAdvanceFiltersModal() {
     return;
   }
 
-  if (!hasAppliedFilters.value && !hasActiveFolders.value) {
-    initializeExistingFilterToModal();
-  }
+  // Open the filter modal blank by default. Previously we prefilled it with
+  // the current status + inbox/team/label, which always rendered a second
+  // (often unwanted) row. Folders and active filters still hydrate normally.
   if (hasActiveFolders.value) {
     initializeFolderToFilterModal(activeFolder.value);
   }

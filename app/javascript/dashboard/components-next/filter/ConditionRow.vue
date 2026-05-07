@@ -195,7 +195,7 @@ defineExpose({ validate, resetValidation });
           v-else
           v-model="values"
           :type="inputFieldType"
-          class="[&>input]:h-8 [&>input]:py-1.5 [&>input]:outline-offset-0"
+          class="flex-1 min-w-[200px] [&>input]:h-8 [&>input]:py-1.5 [&>input]:text-xs [&>input]:outline-offset-0"
           :placeholder="t('FILTER.INPUT_PLACEHOLDER')"
         />
       </template>
