@@ -424,6 +424,10 @@ function fetchSavedFilteredConversations(payload) {
 function onApplyFilter(payload) {
   payload = useSnakeCase(payload);
   resetBulkActions();
+  // Custom filters span any conversation status; force the status tab to
+  // "Todas" so the recruiter doesn't see an empty list when matches are
+  // resolved/pending while the default tab is "Abiertas".
+  activeStatus.value = wootConstants.STATUS_TYPE.ALL;
   foldersQuery.value = filterQueryGenerator(payload);
   store.dispatch('conversationPage/reset');
   store.dispatch('emptyAllConversations');
