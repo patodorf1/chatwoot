@@ -19,6 +19,10 @@
       "unassigned": "Sin asignar",
       "all": "Todos"
     },
+    "STATUS_TABS": {
+      "OPEN": "Abiertas",
+      "ALL": "Todas"
+    },
     "CHAT_STATUS_FILTER_ITEMS": {
       "open": {
         "TEXT": "Abiertas"

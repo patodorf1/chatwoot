@@ -205,6 +205,24 @@ const assigneeTabItems = computed(() => {
   }));
 });
 
+// Simple status tabs (Abiertas / Todas) — useful for inboxes that hide the
+// full status filter (WhatsApp / API) so the recruiter can still toggle
+// between the active conversation set and the historical one.
+const statusTabItems = computed(() => [
+  {
+    key: wootConstants.STATUS_TYPE.OPEN,
+    name: t('CHAT_LIST.STATUS_TABS.OPEN'),
+  },
+  {
+    key: wootConstants.STATUS_TYPE.ALL,
+    name: t('CHAT_LIST.STATUS_TABS.ALL'),
+  },
+]);
+
+const onStatusTabChange = newStatus => {
+  onBasicFilterChange(newStatus, 'status');
+};
+
 const showAssigneeInConversationCard = computed(() => {
   return (
     hasAppliedFiltersOrActiveFolders.value ||
@@ -951,6 +969,12 @@ watch(conversationFilters, (newVal, oldVal) => {
       :active-tab="activeAssigneeTab"
       is-compact
       @chat-tab-change="updateAssigneeTab"
+    />
+    <ChatTypeTabs
+      :items="statusTabItems"
+      :active-tab="activeStatus"
+      is-compact
+      @chat-tab-change="onStatusTabChange"
     />
 
     <p
