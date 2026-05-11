@@ -12,6 +12,10 @@ const props = defineProps({
     type: String,
     default: wootConstants.ASSIGNEE_TYPE.ME,
   },
+  showBadge: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits(['chatTabChange']);
@@ -58,6 +62,7 @@ useKeyboardEvents(keyboardEvents);
       :index="index"
       :name="item.name"
       :count="item.count"
+      :show-badge="showBadge"
       is-compact
     />
   </woot-tabs>

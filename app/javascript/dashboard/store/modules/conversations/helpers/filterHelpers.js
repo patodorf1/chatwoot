@@ -81,12 +81,19 @@ const getValueFromConversation = (conversation, attributeKey) => {
     case 'referer':
       return conversation.additional_attributes?.[attributeKey];
     default:
-      // Check if it's a custom attribute
+      // Check if it's a custom attribute on the conversation itself, falling
+      // back to the contact (sender) attributes. The backend filter accepts
+      // contact-level custom attribute keys, so the frontend matcher must
+      // resolve them the same way or it will drop matching conversations.
       if (
         conversation.custom_attributes &&
-        conversation.custom_attributes[attributeKey]
+        conversation.custom_attributes[attributeKey] !== undefined
       ) {
         return conversation.custom_attributes[attributeKey];
+      }
+      const senderCustomAttrs = conversation.meta?.sender?.custom_attributes;
+      if (senderCustomAttrs && senderCustomAttrs[attributeKey] !== undefined) {
+        return senderCustomAttrs[attributeKey];
       }
       return null;
   }

@@ -977,6 +977,7 @@ watch(conversationFilters, (newVal, oldVal) => {
     <ChatTypeTabs
       :items="statusTabItems"
       :active-tab="activeStatus"
+      :show-badge="false"
       is-compact
       @chat-tab-change="onStatusTabChange"
     />
