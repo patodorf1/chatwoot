@@ -32,6 +32,7 @@ const HIDDEN_ATTRIBUTES = ['airtable_record_id', 'supabase_id'];
 // Place pipeline-critical attributes at the top of the contact sidebar.
 const DEFAULT_ATTRIBUTE_ORDER = [
   'como_continua',
+  'origen',
   'tecnologia_principal',
 ];
 
