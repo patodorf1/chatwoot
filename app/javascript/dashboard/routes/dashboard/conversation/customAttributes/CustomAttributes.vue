@@ -81,6 +81,10 @@ const toggleButtonText = computed(() =>
 // Internal attributes that should not be visible or editable in the UI
 const HIDDEN_ATTRIBUTES = ['airtable_record_id', 'supabase_id'];
 
+// Attributes pinned to the top of the conversation sidebar, ignoring any
+// user-defined drag order. Keeps pipeline-critical fields anchored.
+const PINNED_ATTRIBUTES = ['como_continua', 'origen', 'tecnologia_principal'];
+
 const filteredCustomAttributes = computed(() => {
   const allowed = props.allowedAttributeKeys;
   let filtered;
@@ -118,21 +122,23 @@ const combinedElements = computed(() => {
     ...filteredCustomAttributes.value,
   ];
 
-  // If no saved order exists, return in default order
-  if (!savedOrder.length) return allElements;
-
+  // Pinned attributes always come first, in PINNED_ATTRIBUTES order.
+  // Then static elements / saved order, then anything else.
   return allElements.sort((a, b) => {
-    // Find positions of elements in saved order
+    const aPinned = PINNED_ATTRIBUTES.indexOf(a.key);
+    const bPinned = PINNED_ATTRIBUTES.indexOf(b.key);
+
+    if (aPinned !== -1 && bPinned !== -1) return aPinned - bPinned;
+    if (aPinned !== -1) return -1;
+    if (bPinned !== -1) return 1;
+
+    if (!savedOrder.length) return 0;
+
     const aPosition = savedOrder.indexOf(a.key);
     const bPosition = savedOrder.indexOf(b.key);
-
-    // Handle cases where elements are not in saved order:
-    // - New elements (not in saved order) go to the end
-    // - If both elements are new, maintain their relative order
     if (aPosition === -1 && bPosition === -1) return 0;
     if (aPosition === -1) return 1;
     if (bPosition === -1) return -1;
-
     return aPosition - bPosition;
   });
 });
