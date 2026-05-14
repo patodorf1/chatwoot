@@ -140,6 +140,22 @@
     "BADGES": {
       "PRE_CHAT": "Pre-chat",
       "RESOLUTION": "Resolution"
-    }
+    },
+    "PINNED_HEADING": "Candidate status",
+    "UNSET": "Unassigned",
+    "ADD_VALUE": "Add",
+    "TYPE_VALUE": "Type a value…",
+    "CLEAR": "Clear value",
+    "DRAG": "Reorder attribute",
+    "CONFIRM_DELETE": "Delete this attribute value?",
+    "EMPTY": "No attributes to show.",
+    "GROUPS": {
+      "TRAYECTORIA": "Career",
+      "COMPENSACION": "Compensation",
+      "SCREENING": "Screening",
+      "ESTADO": "Status",
+      "OTROS": "More"
+    },
+    "ROW_DELETE": "Delete attribute"
   }
 }

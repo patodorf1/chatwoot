@@ -1,268 +1,153 @@
-<script>
-import { mapGetters } from 'vuex';
-import { useAlert } from 'dashboard/composables';
-import { useAdmin } from 'dashboard/composables/useAdmin';
-import ContactInfoRow from './ContactInfoRow.vue';
-import EditContact from './EditContact.vue';
-import ContactMergeModal from 'dashboard/modules/contact/ContactMergeModal.vue';
-import ComposeConversation from 'dashboard/components-next/NewConversation/ComposeConversation.vue';
-import { BUS_EVENTS } from 'shared/constants/busEvents';
-import NextButton from 'dashboard/components-next/button/Button.vue';
-import VoiceCallButton from 'dashboard/components-next/Contacts/VoiceCallButton.vue';
+<!--
+  ContactInfo.vue  —  header colapsable.
+  Drop-in para: app/javascript/dashboard/routes/dashboard/conversation/ContactInfo.vue
 
-import {
-  isAConversationRoute,
-  isAInboxViewRoute,
-  getConversationDashboardRoute,
-} from '../../../../helper/routeHelpers';
-import { emitter } from 'shared/helpers/mitt';
+  Comportamiento:
+  ─ Colapsado por defecto: avatar + nombre + atajos a WhatsApp / Email / LinkedIn.
+  ─ Expandido: añade líneas de email, teléfono, LinkedIn con copy-on-hover.
+  ─ Sin <style>; solo Tailwind + tokens n-*.
+-->
+<script setup>
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import Thumbnail from 'dashboard/components/widgets/Thumbnail.vue';
 
-export default {
-  components: {
-    NextButton,
-    ContactInfoRow,
-    EditContact,
-    ComposeConversation,
-    ContactMergeModal,
-    VoiceCallButton,
-  },
-  props: {
-    contact: {
-      type: Object,
-      default: () => ({}),
-    },
-  },
-  emits: ['panelClose'],
-  setup() {
-    const { isAdmin } = useAdmin();
-    return {
-      isAdmin,
-    };
-  },
-  data() {
-    return {
-      showEditModal: false,
-      showDeleteModal: false,
-    };
-  },
-  computed: {
-    ...mapGetters({ uiFlags: 'contacts/getUIFlags' }),
-    contactProfileLink() {
-      return `/app/accounts/${this.$route.params.accountId}/contacts/${this.contact.id}`;
-    },
-    additionalAttributes() {
-      return this.contact.additional_attributes || {};
-    },
-    location() {
-      const {
-        country = '',
-        city = '',
-        country_code: countryCode,
-      } = this.additionalAttributes;
-      const cityAndCountry = [city, country].filter(item => !!item).join(', ');
+const props = defineProps({
+  contact: { type: Object, required: true },
+  expanded: { type: Boolean, default: false },
+});
 
-      if (!cityAndCountry) {
-        return '';
-      }
-      return this.findCountryFlag(countryCode, cityAndCountry);
-    },
-    socialProfiles() {
-      const {
-        social_profiles: socialProfiles,
-        screen_name: twitterScreenName,
-        social_telegram_user_name: telegramUsername,
-      } = this.additionalAttributes;
+const emit = defineEmits(['toggle']);
 
-      const telegram = socialProfiles?.telegram || telegramUsername || '';
-      const twitter = socialProfiles?.twitter || twitterScreenName || '';
+const { t } = useI18n();
 
-      return {
-        ...(socialProfiles || {}),
-        twitter,
-        telegram,
-      };
-    },
-    hasValidCompany() {
-      const company = this.additionalAttributes.company_name;
-      return (
-        company &&
-        company.trim() !== '' &&
-        company.trim().toLowerCase() !== 'no disponible'
-      );
-    },
-    linkedinUrl() {
-      // First check custom_attributes.linkedin_url (from LinkedIn outreach flow)
-      const customAttrs = this.contact.custom_attributes || {};
-      if (customAttrs.linkedin_url) return customAttrs.linkedin_url;
-      // Fallback to social_profiles.linkedin
-      const profiles = this.additionalAttributes.social_profiles || {};
-      return profiles.linkedin || '';
-    },
-    // Delete Modal
-    confirmDeleteMessage() {
-      return ` ${this.contact.name}?`;
-    },
-  },
-  watch: {
-    'contact.id': {
-      handler(id) {
-        this.$store.dispatch('contacts/fetchContactableInbox', id);
-      },
-      immediate: true,
-    },
-  },
-  methods: {
-    toggleEditModal() {
-      this.showEditModal = !this.showEditModal;
-    },
-    openComposeConversationModal(toggleFn) {
-      toggleFn();
-      // Flag to prevent triggering drag n drop,
-      // When compose modal is active
-      emitter.emit(BUS_EVENTS.NEW_CONVERSATION_MODAL, true);
-    },
-    closeComposeConversationModal() {
-      // Flag to enable drag n drop,
-      // When compose modal is closed
-      emitter.emit(BUS_EVENTS.NEW_CONVERSATION_MODAL, false);
-    },
-    toggleDeleteModal() {
-      this.showDeleteModal = !this.showDeleteModal;
-    },
-    confirmDeletion() {
-      this.deleteContact(this.contact);
-      this.closeDelete();
-    },
-    closeDelete() {
-      this.showDeleteModal = false;
-      this.showEditModal = false;
-    },
-    findCountryFlag(countryCode, cityAndCountry) {
-      try {
-        if (!countryCode) {
-          return `${cityAndCountry} 🌎`;
-        }
+const linkedin = computed(() => {
+  const social = props.contact.additional_attributes?.social_profiles || {};
+  return social.linkedin || null;
+});
 
-        const code = countryCode?.toLowerCase();
-        return `${cityAndCountry} <span class="fi fi-${code} size-3.5"></span>`;
-      } catch (error) {
-        return '';
-      }
-    },
-    async deleteContact({ id }) {
-      try {
-        await this.$store.dispatch('contacts/delete', id);
-        this.$emit('panelClose');
-        useAlert(this.$t('DELETE_CONTACT.API.SUCCESS_MESSAGE'));
+const phone     = computed(() => props.contact.phone_number || null);
+const email     = computed(() => props.contact.email || null);
 
-        if (isAConversationRoute(this.$route.name)) {
-          this.$router.push({
-            name: getConversationDashboardRoute(this.$route.name),
-          });
-        } else if (isAInboxViewRoute(this.$route.name)) {
-          this.$router.push({
-            name: 'inbox_view',
-          });
-        } else if (this.$route.name !== 'contacts_dashboard') {
-          this.$router.push({
-            name: 'contacts_dashboard',
-          });
-        }
-      } catch (error) {
-        useAlert(
-          error.message
-            ? error.message
-            : this.$t('DELETE_CONTACT.API.ERROR_MESSAGE')
-        );
-      }
-    },
-    openMergeModal() {
-      this.$refs.mergeModal?.open();
-    },
-  },
+const copyToClipboard = (value) => {
+  if (!value) return;
+  navigator.clipboard?.writeText(value);
 };
 </script>
 
 <template>
-  <div class="relative items-center w-full p-4">
-    <div class="flex flex-col w-full gap-2 text-left rtl:text-right">
-      <div class="flex flex-col items-start gap-1.5 min-w-0 w-full">
-        <div class="flex items-center w-full min-w-0 gap-3">
-          <h3
-            class="flex-shrink max-w-full min-w-0 my-0 text-base capitalize break-words text-n-slate-12"
+  <section
+    class="px-4 py-3 border-b border-n-slate-3 bg-n-background"
+  >
+    <div class="flex items-center gap-2.5">
+      <Thumbnail
+        :src="contact.thumbnail"
+        :username="contact.name"
+        size="36px"
+        class="shrink-0"
+      />
+
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-1.5">
+          <router-link
+            :to="`/app/accounts/${contact.account_id}/contacts/${contact.id}`"
+            class="font-display font-semibold text-sm text-n-slate-12 truncate
+                   hover:underline decoration-dotted underline-offset-2"
           >
             {{ contact.name }}
-          </h3>
-          <div class="flex flex-row items-center gap-2">
-            <a
-              :href="contactProfileLink"
-              target="_blank"
-              rel="noopener nofollow noreferrer"
-              class="leading-3"
-            >
-              <span class="i-lucide-external-link text-sm text-n-slate-10" />
-            </a>
-          </div>
+          </router-link>
+          <span class="i-lucide-external-link size-3 text-n-slate-10 shrink-0" />
         </div>
 
-        <p v-if="additionalAttributes.description" class="break-words mb-0.5">
-          {{ additionalAttributes.description }}
-        </p>
-        <div class="flex flex-col items-start w-full gap-2">
-          <ContactInfoRow
-            :href="contact.email ? `mailto:${contact.email}` : ''"
-            :value="contact.email"
-            icon="mail"
-            emoji="✉️"
-            :title="$t('CONTACT_PANEL.EMAIL_ADDRESS')"
-            show-copy
-          />
-          <ContactInfoRow
-            :href="contact.phone_number ? `tel:${contact.phone_number}` : ''"
-            :value="contact.phone_number"
-            icon="call"
-            emoji="📞"
-            :title="$t('CONTACT_PANEL.PHONE_NUMBER')"
-            show-copy
-          />
-          <ContactInfoRow
-            v-if="hasValidCompany"
-            :value="additionalAttributes.company_name"
-            icon="building-bank"
-            emoji="🏢"
-            :title="$t('CONTACT_PANEL.COMPANY')"
-          />
-          <div v-if="linkedinUrl" class="flex items-center gap-2">
-            <svg class="size-4 text-n-slate-11 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
-            <a
-              :href="linkedinUrl"
-              target="_blank"
-              rel="noopener nofollow noreferrer"
-              class="text-xs text-link truncate"
-            >
-              LinkedIn
-            </a>
-          </div>
+        <!-- Compact contact strip -->
+        <div class="flex items-center gap-2 text-xs text-n-slate-11 mt-0.5">
+          <a
+            v-if="phone"
+            :href="`https://wa.me/${phone.replace(/[^0-9]/g, '')}`"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center gap-1 hover:text-n-slate-12 transition-colors"
+          >
+            <span class="i-lucide-phone size-3" />
+            <span>{{ t('CONTACT.PANEL.WHATSAPP') }}</span>
+          </a>
+          <span v-if="phone && (email || linkedin)" class="text-n-slate-8">·</span>
+          <a
+            v-if="email"
+            :href="`mailto:${email}`"
+            class="inline-flex items-center gap-1 hover:text-n-slate-12 transition-colors min-w-0"
+          >
+            <span class="i-lucide-mail size-3" />
+            <span class="truncate">{{ t('CONTACT.PANEL.EMAIL') }}</span>
+          </a>
+          <span v-if="email && linkedin" class="text-n-slate-8">·</span>
+          <a
+            v-if="linkedin"
+            :href="linkedin"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center gap-1 hover:text-n-slate-12 transition-colors"
+          >
+            <span class="i-lucide-linkedin size-3" />
+            <span>LinkedIn</span>
+          </a>
         </div>
       </div>
-      <EditContact
-        v-if="showEditModal"
-        :show="showEditModal"
-        :contact="contact"
-        @cancel="toggleEditModal"
-      />
-      <ContactMergeModal ref="mergeModal" :primary-contact="contact" />
+
+      <button
+        class="size-6 grid place-items-center rounded text-n-slate-11
+               hover:bg-n-slate-3 transition-colors"
+        :aria-label="t(expanded ? 'CONTACT.PANEL.COLLAPSE' : 'CONTACT.PANEL.EXPAND')"
+        :aria-expanded="expanded"
+        @click="emit('toggle')"
+      >
+        <span
+          class="size-3 transition-transform"
+          :class="expanded ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+        />
+      </button>
     </div>
-    <woot-delete-modal
-      v-if="showDeleteModal"
-      v-model:show="showDeleteModal"
-      :on-close="closeDelete"
-      :on-confirm="confirmDeletion"
-      :title="$t('DELETE_CONTACT.CONFIRM.TITLE')"
-      :message="$t('DELETE_CONTACT.CONFIRM.MESSAGE')"
-      :message-value="confirmDeleteMessage"
-      :confirm-text="$t('DELETE_CONTACT.CONFIRM.YES')"
-      :reject-text="$t('DELETE_CONTACT.CONFIRM.NO')"
-    />
-  </div>
+
+    <!-- Expanded details -->
+    <div
+      v-if="expanded"
+      class="mt-3 grid grid-cols-[16px_1fr_auto] gap-x-2 gap-y-1.5 text-xs"
+    >
+      <span class="i-lucide-mail size-3 text-n-slate-10 mt-0.5" />
+      <span v-if="email" class="text-n-slate-12 truncate">{{ email }}</span>
+      <span v-else class="text-n-slate-10 italic">{{ t('CONTACT.PANEL.NO_EMAIL') }}</span>
+      <button
+        v-if="email"
+        class="text-n-slate-10 hover:text-n-slate-12"
+        :aria-label="t('CONTACT.PANEL.COPY')"
+        @click="copyToClipboard(email)"
+      >
+        <span class="i-lucide-copy size-3" />
+      </button>
+      <span v-else />
+
+      <template v-if="phone">
+        <span class="i-lucide-phone size-3 text-n-slate-10 mt-0.5" />
+        <span class="text-n-slate-12 truncate">{{ phone }}</span>
+        <button
+          class="text-n-slate-10 hover:text-n-slate-12"
+          :aria-label="t('CONTACT.PANEL.COPY')"
+          @click="copyToClipboard(phone)"
+        >
+          <span class="i-lucide-copy size-3" />
+        </button>
+      </template>
+
+      <template v-if="linkedin">
+        <span class="i-lucide-linkedin size-3 text-n-slate-10 mt-0.5" />
+        <a
+          :href="linkedin"
+          target="_blank"
+          rel="noopener"
+          class="text-n-slate-12 truncate hover:underline decoration-dotted underline-offset-2"
+        >{{ linkedin.replace(/^https?:\/\//, '') }}</a>
+        <span />
+      </template>
+    </div>
+  </section>
 </template>
