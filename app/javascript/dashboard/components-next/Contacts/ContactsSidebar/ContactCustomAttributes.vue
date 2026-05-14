@@ -68,18 +68,19 @@ const sortAttributesOrder = computed(
 );
 
 const sortByUISettings = attributes => {
-  // Get saved order from UI settings, fall back to hardcoded default order
-  // so pipeline-critical attributes (Cómo continúa?, Tecnología Principal)
-  // appear at the top of the sidebar.
-  const order = sortAttributesOrder.value?.length
-    ? sortAttributesOrder.value
-    : DEFAULT_ATTRIBUTE_ORDER;
+  // Pipeline-critical attributes (Cómo continúa?, Origen, Tecnología Principal)
+  // ALWAYS come first, in the order defined in DEFAULT_ATTRIBUTE_ORDER, even
+  // when the user has dragged attributes into a custom order — keeps those
+  // recruiter-essential fields anchored at the top of the sidebar.
+  const userOrder = sortAttributesOrder.value?.length
+    ? sortAttributesOrder.value.filter(k => !DEFAULT_ATTRIBUTE_ORDER.includes(k))
+    : [];
 
-  const orderMap = new Map(order.map((key, index) => [key, index]));
+  const combinedOrder = [...DEFAULT_ATTRIBUTE_ORDER, ...userOrder];
+  const orderMap = new Map(combinedOrder.map((key, index) => [key, index]));
 
-  // Sort attributes based on their position in saved order
+  // Sort attributes based on their position in combined order.
   return [...attributes].sort((a, b) => {
-    // Get positions, use Infinity if not found in order (pushes to end)
     const aPos = orderMap.get(a.attributeKey) ?? Infinity;
     const bPos = orderMap.get(b.attributeKey) ?? Infinity;
     return aPos - bPos;
