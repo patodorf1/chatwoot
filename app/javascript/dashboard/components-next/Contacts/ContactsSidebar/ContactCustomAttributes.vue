@@ -86,11 +86,16 @@ const sortByUISettings = attributes => {
   });
 };
 
+// Attributes that should always be visible in the "used" section, even
+// when the contact hasn't initialized them yet — keeps the pipeline-critical
+// fields (Cómo continúa?, Origen, Tecnología) discoverable.
+const ALWAYS_VISIBLE_ATTRIBUTES = new Set(DEFAULT_ATTRIBUTE_ORDER);
+
 const usedAttributes = computed(() => {
   const attributes = processContactAttributes(
     contactAttributes.value,
     props.selectedContact?.customAttributes,
-    (key, custom) => key in custom
+    (key, custom) => key in custom || ALWAYS_VISIBLE_ATTRIBUTES.has(key)
   );
 
   return sortByUISettings(attributes);
@@ -100,7 +105,8 @@ const unusedAttributes = computed(() => {
   const attributes = processContactAttributes(
     contactAttributes.value,
     props.selectedContact?.customAttributes,
-    (key, custom) => !(key in custom)
+    (key, custom) =>
+      !(key in custom) && !ALWAYS_VISIBLE_ATTRIBUTES.has(key)
   );
 
   return sortByUISettings(attributes);
