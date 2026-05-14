@@ -10,7 +10,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import Thumbnail from 'dashboard/components/widgets/Thumbnail.vue';
+import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 
 const props = defineProps({
   contact: { type: Object, required: true },
@@ -40,10 +40,10 @@ const copyToClipboard = (value) => {
     class="px-4 py-3 border-b border-n-slate-3 bg-n-background"
   >
     <div class="flex items-center gap-2.5">
-      <Thumbnail
+      <Avatar
         :src="contact.thumbnail"
-        :username="contact.name"
-        size="36px"
+        :name="contact.name"
+        :size="36"
         class="shrink-0"
       />
 
