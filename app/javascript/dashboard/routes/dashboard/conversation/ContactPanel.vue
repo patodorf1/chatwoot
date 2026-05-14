@@ -132,9 +132,10 @@ const closeComposeConversationModal = () => {
         :contact-id="contact.id"
         :allowed-attribute-keys="[
           'como_continua',
+          'origen',
+          'tecnologia_principal',
           'respondio_por',
           'pais',
-          'tecnologia_principal',
           'posicion_propuesta',
           'puesto_actual',
           'rem_local',
