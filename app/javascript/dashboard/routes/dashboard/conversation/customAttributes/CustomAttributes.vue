@@ -50,6 +50,7 @@ const conversationAttrs = computed(() =>
 );
 
 const decorate = (def) => ({
+  key: def.attribute_key,
   definition: def,
   value: contactAttrs.value[def.attribute_key] ?? conversationAttrs.value[def.attribute_key],
 });
@@ -188,7 +189,7 @@ const toggleGroup = (id) => {
     >
       <draggable
         :model-value="group.items"
-        :item-key="(item) => item.definition.attribute_key"
+        item-key="key"
         handle=".js-attr-drag"
         :animation="150"
         ghost-class="opacity-40"

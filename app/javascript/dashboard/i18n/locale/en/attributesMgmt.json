@@ -141,21 +141,22 @@
       "PRE_CHAT": "Pre-chat",
       "RESOLUTION": "Resolution"
     },
-    "PINNED_HEADING": "Candidate status",
-    "UNSET": "Unassigned",
-    "ADD_VALUE": "Add",
-    "TYPE_VALUE": "Type a value…",
-    "CLEAR": "Clear value",
-    "DRAG": "Reorder attribute",
-    "CONFIRM_DELETE": "Delete this attribute value?",
-    "EMPTY": "No attributes to show.",
+    "PINNED_HEADING": "Estado del candidato",
+    "UNSET": "Sin asignar",
+    "ADD_VALUE": "Agregar",
+    "TYPE_VALUE": "Escribí un valor…",
+    "CLEAR": "Limpiar",
+    "DRAG": "Reordenar atributo",
+    "CONFIRM_DELETE": "¿Eliminar este valor?",
+    "EMPTY": "No hay atributos para mostrar.",
     "GROUPS": {
-      "TRAYECTORIA": "Career",
-      "COMPENSACION": "Compensation",
+      "TRAYECTORIA": "Trayectoria",
+      "COMPENSACION": "Compensación",
       "SCREENING": "Screening",
-      "ESTADO": "Status",
-      "OTROS": "More"
+      "ESTADO": "Estado",
+      "CONTACTO": "Contacto",
+      "OTROS": "Otros"
     },
-    "ROW_DELETE": "Delete attribute"
+    "ROW_DELETE": "Eliminar atributo"
   }
 }
