@@ -1,216 +1,356 @@
-<!--
-  CustomAttributes.vue  —  pinned status strip + grupos plegables.
-  Drop-in para: app/javascript/dashboard/.../customAttributes/CustomAttributes.vue
-
-  Convenciones del fork respetadas:
-  ─ PINNED_ATTRIBUTES y HIDDEN_ATTRIBUTES viven acá como constantes locales
-    (también recibidas como props para que ContactPanel.vue pueda overridear).
-  ─ allowedAttributeKeys whitelist en ContactPanel.vue, recibido vía prop.
-  ─ Toda la lógica de dispatch para updates queda en este componente
-    (los CustomAttribute hijos sólo emiten `update`/`delete`).
-  ─ vuedraggable se mantiene — ahora un dragger por grupo. Lo Pinned no es
-    draggable (orden fijo por contrato del fork).
--->
 <script setup>
-import { computed, ref } from 'vue';
-import { useStore } from 'vuex';
+import { computed, onMounted, ref } from 'vue';
+import Draggable from 'vuedraggable';
+import { useToggle } from '@vueuse/core';
+import { useRoute } from 'vue-router';
+import { useStore, useStoreGetters } from 'dashboard/composables/store';
+import { useAlert } from 'dashboard/composables';
 import { useI18n } from 'vue-i18n';
-import draggable from 'vuedraggable';
-
-import CustomAttributeRow from 'dashboard/components/CustomAttributeRow.vue';
-import AttributeGroup from './AttributeGroup.vue';
+import { useUISettings } from 'dashboard/composables/useUISettings';
+import { copyTextToClipboard } from 'shared/helpers/clipboard';
+import CustomAttribute from 'dashboard/components/CustomAttribute.vue';
+import NextButton from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
-  contactId: { type: [Number, String], required: true },
-  conversationId: { type: [Number, String], required: true },
-  allAttributes: { type: Array, required: true },
-  allowedKeys: { type: Array, default: () => [] },
-  pinnedKeys: { type: Array, default: () => ['como_continua', 'origen', 'tecnologia_principal'] },
-  hiddenKeys: { type: Array, default: () => ['airtable_record_id', 'supabase_id'] },
-  groups: { type: Array, default: () => [] },
-  loading: { type: Boolean, default: false },
+  attributeType: {
+    type: String,
+    default: 'conversation_attribute',
+  },
+  contactId: { type: Number, default: null },
+  attributeFrom: {
+    type: String,
+    required: true,
+  },
+  emptyStateMessage: {
+    type: String,
+    default: '',
+  },
+  // Combine static elements with custom attributes components
+  // To allow for custom ordering
+  staticElements: {
+    type: Array,
+    default: () => [],
+  },
+  // Optional list of attribute keys to show. If empty, all attributes are shown.
+  allowedAttributeKeys: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const store = useStore();
+const getters = useStoreGetters();
+const route = useRoute();
 const { t } = useI18n();
+const { uiSettings, updateUISettings } = useUISettings();
 
-// ── Helpers ───────────────────────────────────────────────────────────────
-const isAllowed = (key) =>
-  props.allowedKeys.length === 0 || props.allowedKeys.includes(key);
-const isHidden  = (key) => props.hiddenKeys.includes(key);
-const isPinned  = (key) => props.pinnedKeys.includes(key);
+const dragging = ref(false);
 
-// Para cada atributo, devolvemos { definition, value }. La definición viene
-// del store (custom_attribute_definitions). El valor del propio contacto.
-const contactAttrs = computed(() =>
-  store.getters['contacts/getContact'](props.contactId)?.custom_attributes || {}
-);
-const conversationAttrs = computed(() =>
-  store.getters['getSelectedChat']?.custom_attributes || {}
+const [showAllAttributes, toggleShowAllAttributes] = useToggle(false);
+
+const currentChat = computed(() => getters.getSelectedChat.value);
+const attributes = computed(() =>
+  getters['attributes/getAttributesByModel'].value(props.attributeType)
 );
 
-const decorate = (def) => ({
-  key: def.attribute_key,
-  definition: def,
-  value: contactAttrs.value[def.attribute_key] ?? conversationAttrs.value[def.attribute_key],
+const contactIdentifier = computed(
+  () =>
+    currentChat.value.meta?.sender?.id ||
+    route.params.contactId ||
+    props.contactId
+);
+
+const contact = computed(() =>
+  getters['contacts/getContact'].value(contactIdentifier.value)
+);
+
+const customAttributes = computed(() => {
+  if (props.attributeType === 'conversation_attribute')
+    return currentChat.value.custom_attributes || {};
+  return contact.value.custom_attributes || {};
 });
 
-// Visible attributes only (whitelist + not hidden).
-const visibleAttrs = computed(() =>
-  props.allAttributes
-    .filter((d) => !isHidden(d.attribute_key) && isAllowed(d.attribute_key))
+const conversationId = computed(() => currentChat.value.id);
+
+const toggleButtonText = computed(() =>
+  !showAllAttributes.value
+    ? t('CUSTOM_ATTRIBUTES.SHOW_MORE')
+    : t('CUSTOM_ATTRIBUTES.SHOW_LESS')
 );
 
-// Pinned in the order declared in pinnedKeys.
-const pinnedAttrs = computed(() =>
-  props.pinnedKeys
-    .map((key) => visibleAttrs.value.find((d) => d.attribute_key === key))
-    .filter(Boolean)
-    .map(decorate)
-);
+// Internal attributes that should not be visible or editable in the UI
+const HIDDEN_ATTRIBUTES = ['airtable_record_id', 'supabase_id'];
 
-// Group buckets respetando el orden declarado en props.groups; las claves no
-// asignadas caen en "otros" al final.
-const groupedAttrs = computed(() => {
-  const claimed = new Set(props.pinnedKeys);
-  const buckets = props.groups.map((g) => ({ id: g.id, items: [] }));
+// Attributes pinned to the top of the conversation sidebar, ignoring any
+// user-defined drag order. Keeps pipeline-critical fields anchored.
+const PINNED_ATTRIBUTES = ['como_continua', 'origen', 'tecnologia_principal'];
 
-  props.groups.forEach((g, i) => {
-    g.keys.forEach((key) => {
-      if (claimed.has(key)) return;
-      const def = visibleAttrs.value.find((d) => d.attribute_key === key);
-      if (!def) return;
-      buckets[i].items.push(decorate(def));
-      claimed.add(key);
-    });
+const filteredCustomAttributes = computed(() => {
+  const allowed = props.allowedAttributeKeys;
+  let filtered;
+  if (allowed.length) {
+    // Preserve the order specified in allowedAttributeKeys (curated by caller)
+    filtered = allowed
+      .map(key => attributes.value.find(attr => attr.attribute_key === key))
+      .filter(Boolean);
+  } else {
+    filtered = attributes.value;
+  }
+
+  return filtered.filter(attr => !HIDDEN_ATTRIBUTES.includes(attr.attribute_key)).map(attribute => {
+    const hasValue = attribute.attribute_key in customAttributes.value;
+
+    return {
+      ...attribute,
+      type: 'custom_attribute',
+      key: attribute.attribute_key,
+      value: hasValue ? customAttributes.value[attribute.attribute_key] : '',
+    };
   });
-
-  const others = visibleAttrs.value
-    .filter((d) => !claimed.has(d.attribute_key))
-    .map(decorate);
-  if (others.length) buckets.push({ id: 'otros', items: others });
-
-  return buckets.filter((b) => b.items.length > 0);
 });
 
-// ── Updates (todo el dispatch vive acá) ───────────────────────────────────
-const updateAttribute = async (def, newValue) => {
-  const payload = {
-    [def.attribute_key]: newValue,
-  };
-  if (def.attribute_model === 'conversation_attribute') {
-    await store.dispatch('updateCustomAttributes', {
-      conversationId: props.conversationId,
-      customAttributes: { ...conversationAttrs.value, ...payload },
-    });
-  } else {
-    await store.dispatch('contacts/update', {
-      id: props.contactId,
-      custom_attributes: { ...contactAttrs.value, ...payload },
-    });
+// Order key name for UI settings
+const orderKey = computed(
+  () => `conversation_elements_order_${props.attributeFrom}`
+);
+
+const combinedElements = computed(() => {
+  // Get saved order from UI settings
+  const savedOrder = uiSettings.value[orderKey.value] ?? [];
+  const allElements = [
+    ...props.staticElements,
+    ...filteredCustomAttributes.value,
+  ];
+
+  // Pinned attributes always come first, in PINNED_ATTRIBUTES order.
+  // Then static elements / saved order, then anything else.
+  return allElements.sort((a, b) => {
+    const aPinned = PINNED_ATTRIBUTES.indexOf(a.key);
+    const bPinned = PINNED_ATTRIBUTES.indexOf(b.key);
+
+    if (aPinned !== -1 && bPinned !== -1) return aPinned - bPinned;
+    if (aPinned !== -1) return -1;
+    if (bPinned !== -1) return 1;
+
+    if (!savedOrder.length) return 0;
+
+    const aPosition = savedOrder.indexOf(a.key);
+    const bPosition = savedOrder.indexOf(b.key);
+    if (aPosition === -1 && bPosition === -1) return 0;
+    if (aPosition === -1) return 1;
+    if (bPosition === -1) return -1;
+    return aPosition - bPosition;
+  });
+});
+
+const displayedElements = computed(() => {
+  if (showAllAttributes.value || combinedElements.value.length <= 5) {
+    return combinedElements.value;
   }
+
+  // Show first 5 elements in the order they appear
+  return combinedElements.value.slice(0, 5);
+});
+
+// Reorder elements with static elements position preserved
+// There is case where all the static elements will not be available (API, Email channels, etc).
+// In that case, we need to preserve the order of the static elements and
+// insert them in the correct position.
+const reorderElementsWithStaticPreservation = (
+  savedOrder = [],
+  currentOrder = []
+) => {
+  const finalOrder = [...currentOrder];
+  const visibleKeys = new Set(currentOrder);
+
+  // Process hidden static elements from saved order
+  savedOrder
+    // Find static elements that aren't currently visible
+    .filter(key => key.startsWith('static-') && !visibleKeys.has(key))
+    .forEach(staticKey => {
+      // Find next visible element after this static element in saved order
+      const nextVisible = savedOrder
+        .slice(savedOrder.indexOf(staticKey))
+        .find(key => visibleKeys.has(key));
+
+      // If next visible element found, insert before it; otherwise add to end
+      if (nextVisible) {
+        finalOrder.splice(finalOrder.indexOf(nextVisible), 0, staticKey);
+      } else {
+        finalOrder.push(staticKey);
+      }
+    });
+
+  return finalOrder;
 };
 
-const deleteAttribute = async (def) => {
-  if (!window.confirm(t('ATTRIBUTES_MGMT.CONFIRM_DELETE'))) return;
-  if (def.attribute_model === 'conversation_attribute') {
-    const next = { ...conversationAttrs.value };
-    delete next[def.attribute_key];
-    await store.dispatch('updateCustomAttributes', {
-      conversationId: props.conversationId,
-      customAttributes: next,
-    });
-  } else {
-    const next = { ...contactAttrs.value };
-    delete next[def.attribute_key];
-    await store.dispatch('contacts/update', {
-      id: props.contactId,
-      custom_attributes: next,
-    });
-  }
-};
+const onDragEnd = () => {
+  dragging.value = false;
+  // Get the saved and current saved order
+  const savedOrder = uiSettings.value[orderKey.value] ?? [];
+  const currentOrder = combinedElements.value.map(({ key }) => key);
 
-// Reorder dentro de un grupo. Persiste localmente — el backend no maneja
-// orden de custom attributes; lo guardamos en localStorage por contacto.
-const onReorder = (groupId, newList) => {
-  const key = `wri.attrOrder.${props.contactId}.${groupId}`;
-  localStorage.setItem(
-    key,
-    JSON.stringify(newList.map((x) => x.definition.attribute_key))
+  const finalOrder = reorderElementsWithStaticPreservation(
+    savedOrder,
+    currentOrder
   );
+
+  updateUISettings({
+    [orderKey.value]: finalOrder,
+  });
 };
 
-// ── UI state ──────────────────────────────────────────────────────────────
-const expandedGroups = ref(new Set());
-const toggleGroup = (id) => {
-  if (expandedGroups.value.has(id)) expandedGroups.value.delete(id);
-  else expandedGroups.value.add(id);
-  expandedGroups.value = new Set(expandedGroups.value);
+const initializeSettings = () => {
+  const currentOrder = uiSettings.value[orderKey.value];
+  if (!currentOrder) {
+    const initialOrder = combinedElements.value.map(element => element.key);
+    updateUISettings({
+      [orderKey.value]: initialOrder,
+    });
+  }
+
+  showAllAttributes.value =
+    uiSettings.value[`show_all_attributes_${props.attributeFrom}`] || false;
 };
+
+const onClickToggle = () => {
+  toggleShowAllAttributes();
+  updateUISettings({
+    [`show_all_attributes_${props.attributeFrom}`]: showAllAttributes.value,
+  });
+};
+
+const onUpdate = async (key, value) => {
+  const updatedAttributes = { ...customAttributes.value, [key]: value };
+  try {
+    if (props.attributeType === 'conversation_attribute') {
+      await store.dispatch('updateCustomAttributes', {
+        conversationId: conversationId.value,
+        customAttributes: updatedAttributes,
+      });
+    } else {
+      store.dispatch('contacts/update', {
+        id: props.contactId,
+        customAttributes: updatedAttributes,
+      });
+    }
+    useAlert(t('CUSTOM_ATTRIBUTES.FORM.UPDATE.SUCCESS'));
+  } catch (error) {
+    const errorMessage =
+      error?.response?.message || t('CUSTOM_ATTRIBUTES.FORM.UPDATE.ERROR');
+    useAlert(errorMessage);
+  }
+};
+
+const onDelete = async key => {
+  try {
+    const { [key]: remove, ...updatedAttributes } = customAttributes.value;
+    if (props.attributeType === 'conversation_attribute') {
+      await store.dispatch('updateCustomAttributes', {
+        conversationId: conversationId.value,
+        customAttributes: updatedAttributes,
+      });
+    } else {
+      store.dispatch('contacts/deleteCustomAttributes', {
+        id: props.contactId,
+        customAttributes: [key],
+      });
+    }
+    useAlert(t('CUSTOM_ATTRIBUTES.FORM.DELETE.SUCCESS'));
+  } catch (error) {
+    const errorMessage =
+      error?.response?.message || t('CUSTOM_ATTRIBUTES.FORM.DELETE.ERROR');
+    useAlert(errorMessage);
+  }
+};
+
+const onCopy = async attributeValue => {
+  await copyTextToClipboard(attributeValue);
+  useAlert(t('CUSTOM_ATTRIBUTES.COPY_SUCCESSFUL'));
+};
+
+onMounted(() => {
+  initializeSettings();
+});
+
+const evenClass = [
+  '[&>*:nth-child(odd)]:!bg-n-surface-1 [&>*:nth-child(even)]:!bg-n-slate-1',
+  'dark:[&>*:nth-child(odd)]:!bg-n-surface-2 dark:[&>*:nth-child(even)]:!bg-n-surface-1',
+];
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <!-- ─── Pinned status strip ─────────────────────────────────────────── -->
-    <section
-      v-if="pinnedAttrs.length"
-      class="px-4 py-3 bg-n-slate-12 text-white"
+  <div class="conversation--details">
+    <Draggable
+      :list="displayedElements"
+      :disabled="!showAllAttributes"
+      animation="200"
+      ghost-class="ghost"
+      handle=".drag-handle"
+      item-key="key"
+      class="last:rounded-b-lg"
+      :class="evenClass"
+      @start="dragging = true"
+      @end="onDragEnd"
     >
-      <p
-        class="text-[10px] font-semibold tracking-[0.1em] uppercase
-               text-n-teal-9 mb-2 font-display"
-      >
-        {{ t('ATTRIBUTES_MGMT.PINNED_HEADING') }}
-      </p>
+      <template #item="{ element }">
+        <div
+          class="drag-handle relative border-b border-n-weak/50 dark:border-n-weak/90"
+          :class="{
+            'cursor-grab': showAllAttributes,
+            'last:border-transparent dark:last:border-transparent':
+              combinedElements.length <= 5,
+          }"
+        >
+          <template v-if="element.type === 'static_attribute'">
+            <slot name="staticItem" :element="element" />
+          </template>
 
-      <div class="flex flex-col gap-1.5">
-        <CustomAttributeRow
-          v-for="attr in pinnedAttrs"
-          :key="attr.definition.attribute_key"
-          :definition="attr.definition"
-          :value="attr.value"
-          variant="pinned"
-          @update="(v) => updateAttribute(attr.definition, v)"
-          @delete="deleteAttribute(attr.definition)"
-        />
-      </div>
-    </section>
-
-    <!-- ─── Collapsible groups ──────────────────────────────────────────── -->
-    <AttributeGroup
-      v-for="group in groupedAttrs"
-      :key="group.id"
-      :title="t(`ATTRIBUTES_MGMT.GROUPS.${group.id.toUpperCase()}`)"
-      :filled-count="group.items.filter((a) => a.value !== null && a.value !== '' && a.value !== undefined && a.value !== false).length"
-      :total-count="group.items.length"
-      :collapsed="!expandedGroups.has(group.id)"
-      @toggle="toggleGroup(group.id)"
-    >
-      <draggable
-        :model-value="group.items"
-        item-key="key"
-        handle=".js-attr-drag"
-        :animation="150"
-        ghost-class="opacity-40"
-        @update:model-value="(list) => onReorder(group.id, list)"
-      >
-        <template #item="{ element }">
-          <CustomAttributeRow
-            :definition="element.definition"
-            :value="element.value"
-            variant="row"
-            @update="(v) => updateAttribute(element.definition, v)"
-            @delete="deleteAttribute(element.definition)"
-          />
-        </template>
-      </draggable>
-    </AttributeGroup>
+          <template v-else>
+            <CustomAttribute
+              :key="element.id"
+              :attribute-key="element.attribute_key"
+              :attribute-type="element.attribute_display_type"
+              :values="element.attribute_values"
+              :label="element.attribute_display_name"
+              :description="element.attribute_description"
+              :value="element.value"
+              show-actions
+              :attribute-regex="element.regex_pattern"
+              :regex-cue="element.regex_cue"
+              :contact-id="contactId"
+              @update="onUpdate"
+              @delete="onDelete"
+              @copy="onCopy"
+            />
+          </template>
+        </div>
+      </template>
+    </Draggable>
 
     <p
-      v-if="!loading && pinnedAttrs.length === 0 && groupedAttrs.length === 0"
-      class="px-4 py-6 text-xs text-n-slate-10 text-center"
+      v-if="!displayedElements.length && emptyStateMessage"
+      class="p-3 text-center"
     >
-      {{ t('ATTRIBUTES_MGMT.EMPTY') }}
+      {{ emptyStateMessage }}
     </p>
+    <!-- Show more and show less buttons show it if the combinedElements length is greater than 5 -->
+    <div v-if="combinedElements.length > 5" class="flex items-center px-2 py-2">
+      <NextButton
+        ghost
+        xs
+        :icon="
+          showAllAttributes ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'
+        "
+        :label="toggleButtonText"
+        @click="onClickToggle"
+      />
+    </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.ghost {
+  @apply opacity-50 bg-n-slate-3 dark:bg-n-slate-9;
+}
+</style>

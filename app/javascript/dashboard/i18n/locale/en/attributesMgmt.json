@@ -140,23 +140,6 @@
     "BADGES": {
       "PRE_CHAT": "Pre-chat",
       "RESOLUTION": "Resolution"
-    },
-    "PINNED_HEADING": "Estado del candidato",
-    "UNSET": "Sin asignar",
-    "ADD_VALUE": "Agregar",
-    "TYPE_VALUE": "Escribí un valor…",
-    "CLEAR": "Limpiar",
-    "DRAG": "Reordenar atributo",
-    "CONFIRM_DELETE": "¿Eliminar este valor?",
-    "EMPTY": "No hay atributos para mostrar.",
-    "GROUPS": {
-      "TRAYECTORIA": "Trayectoria",
-      "COMPENSACION": "Compensación",
-      "SCREENING": "Screening",
-      "ESTADO": "Estado",
-      "CONTACTO": "Contacto",
-      "OTROS": "Otros"
-    },
-    "ROW_DELETE": "Eliminar atributo"
+    }
   }
 }
