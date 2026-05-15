@@ -128,13 +128,11 @@ const headerExpanded = ref(false);
         :conversation-attributes="currentChat.meta"
         :contact="contact"
       />
-    </div>
 
-    <!-- Sticky footer: actions + attachments preview lives en ConversationActions -->
-    <ConversationActions
-      v-if="currentChat"
-      :conversation-id="conversationId"
-      class="shrink-0 border-t border-n-slate-3 bg-n-solid-1"
-    />
+      <ConversationActions
+        v-if="currentChat"
+        :conversation-id="conversationId"
+      />
+    </div>
   </div>
 </template>

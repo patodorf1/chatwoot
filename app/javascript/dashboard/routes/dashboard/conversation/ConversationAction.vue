@@ -100,41 +100,20 @@ export default {
 
 <template>
   <div>
-    <div>
-      <ContactDetailsItem
-        compact
-        :title="$t('CONVERSATION_SIDEBAR.ASSIGNEE_LABEL')"
+    <section class="border-b border-n-slate-3">
+      <div
+        class="w-full flex items-center justify-between gap-2 px-4 py-2"
       >
-        <template #button>
-          <NextButton
-            v-if="showSelfAssign"
-            link
-            xs
-            icon="i-lucide-arrow-right"
-            class="!gap-1"
-            :label="$t('CONVERSATION_SIDEBAR.SELF_ASSIGN')"
-            @click="onSelfAssign"
-          />
-        </template>
-      </ContactDetailsItem>
-      <MultiselectDropdown
-        :options="agentsList"
-        :selected-item="assignedAgent"
-        :multiselector-title="$t('AGENT_MGMT.MULTI_SELECTOR.TITLE.AGENT')"
-        :multiselector-placeholder="$t('AGENT_MGMT.MULTI_SELECTOR.PLACEHOLDER')"
-        :no-search-result="
-          $t('AGENT_MGMT.MULTI_SELECTOR.SEARCH.NO_RESULTS.AGENT')
-        "
-        :input-placeholder="
-          $t('AGENT_MGMT.MULTI_SELECTOR.SEARCH.PLACEHOLDER.AGENT')
-        "
-        @select="onClickAssignAgent"
-      />
-    </div>
-    <ContactDetailsItem
-      compact
-      title="Estado"
-    />
-    <ConversationLabels :conversation-id="conversationId" />
+        <span
+          class="text-[11px] font-semibold tracking-[0.06em] uppercase
+                 text-n-slate-12 font-display"
+        >
+          Estado
+        </span>
+      </div>
+      <div class="px-4 pb-3">
+        <ConversationLabels :conversation-id="conversationId" />
+      </div>
+    </section>
   </div>
 </template>

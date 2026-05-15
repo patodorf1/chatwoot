@@ -57,8 +57,8 @@ const decorate = (def) => ({
 
 // Visible attributes only (whitelist + not hidden).
 const visibleAttrs = computed(() =>
-  props.allAttributes
-    .filter((d) => !isHidden(d.attribute_key) && isAllowed(d.attribute_key))
+  (props.allAttributes || [])
+    .filter((d) => d && !isHidden(d.attribute_key) && isAllowed(d.attribute_key))
 );
 
 // Pinned in the order declared in pinnedKeys.
@@ -73,10 +73,11 @@ const pinnedAttrs = computed(() =>
 // asignadas caen en "otros" al final.
 const groupedAttrs = computed(() => {
   const claimed = new Set(props.pinnedKeys);
-  const buckets = props.groups.map((g) => ({ id: g.id, items: [] }));
+  const groups = props.groups || [];
+  const buckets = groups.map((g) => ({ id: g.id, items: [] }));
 
-  props.groups.forEach((g, i) => {
-    g.keys.forEach((key) => {
+  groups.forEach((g, i) => {
+    (g.keys || []).forEach((key) => {
       if (claimed.has(key)) return;
       const def = visibleAttrs.value.find((d) => d.attribute_key === key);
       if (!def) return;
