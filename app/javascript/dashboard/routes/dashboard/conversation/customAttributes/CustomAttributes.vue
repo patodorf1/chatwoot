@@ -141,12 +141,11 @@ const onReorder = (groupId, newList) => {
 };
 
 // ── UI state ──────────────────────────────────────────────────────────────
-const collapsedGroups = ref(new Set());
+const expandedGroups = ref(new Set());
 const toggleGroup = (id) => {
-  if (collapsedGroups.value.has(id)) collapsedGroups.value.delete(id);
-  else collapsedGroups.value.add(id);
-  // force reactivity
-  collapsedGroups.value = new Set(collapsedGroups.value);
+  if (expandedGroups.value.has(id)) expandedGroups.value.delete(id);
+  else expandedGroups.value.add(id);
+  expandedGroups.value = new Set(expandedGroups.value);
 };
 </script>
 
@@ -184,7 +183,7 @@ const toggleGroup = (id) => {
       :title="t(`ATTRIBUTES_MGMT.GROUPS.${group.id.toUpperCase()}`)"
       :filled-count="group.items.filter((a) => a.value !== null && a.value !== '' && a.value !== undefined && a.value !== false).length"
       :total-count="group.items.length"
-      :collapsed="collapsedGroups.has(group.id)"
+      :collapsed="!expandedGroups.has(group.id)"
       @toggle="toggleGroup(group.id)"
     >
       <draggable

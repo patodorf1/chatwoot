@@ -18,7 +18,6 @@ import ContactInfo from './contact/ContactInfo.vue';
 import CustomAttributes from './customAttributes/CustomAttributes.vue';
 import ConversationActions from './ConversationAction.vue';
 import ConversationInfo from './ConversationInfo.vue';
-import ContactConversations from './ContactConversations.vue';
 
 const props = defineProps({
   conversationId: { type: [Number, String], required: true },
@@ -128,12 +127,6 @@ const headerExpanded = ref(false);
         v-if="currentChat?.meta"
         :conversation-attributes="currentChat.meta"
         :contact="contact"
-      />
-
-      <ContactConversations
-        v-if="contact"
-        :contact-id="contact.id"
-        :conversation-id="conversationId"
       />
     </div>
 
