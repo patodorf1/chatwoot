@@ -17,7 +17,6 @@ import { useMapGetter } from 'dashboard/composables/store';
 import ContactInfo from './contact/ContactInfo.vue';
 import CustomAttributes from './customAttributes/CustomAttributes.vue';
 import ConversationActions from './ConversationAction.vue';
-import ConversationInfo from './ConversationInfo.vue';
 
 const props = defineProps({
   conversationId: { type: [Number, String], required: true },
@@ -121,12 +120,6 @@ const headerExpanded = ref(false);
         :hidden-keys="hiddenAttributeKeys"
         :groups="attributeGroups"
         :loading="uiFlags.isFetchingItem"
-      />
-
-      <ConversationInfo
-        v-if="currentChat?.meta"
-        :conversation-attributes="currentChat.meta"
-        :contact="contact"
       />
 
       <ConversationActions
