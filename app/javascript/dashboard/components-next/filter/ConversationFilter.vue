@@ -1,5 +1,5 @@
 <script setup>
-import { useTemplateRef, onBeforeUnmount, computed, ref } from 'vue';
+import { useTemplateRef, onBeforeUnmount, onMounted, computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useTrack } from 'dashboard/composables';
 import { useStore } from 'dashboard/composables/store';
@@ -32,18 +32,26 @@ const filters = defineModel({
 });
 const folderNameLocal = ref(props.folderName);
 
-const DEFAULT_FILTER = {
-  attributeKey: 'status',
-  filterOperator: 'equal_to',
-  values: [],
-  queryOperator: 'and',
+// Build a fresh empty row from whatever filters this fork actually exposes.
+// The provider can change which attributes appear (e.g. "status" was removed
+// in favor of "labels"); deriving the default keeps reset/add/empty-open in
+// sync so we never seed a row pointing at a non-existent attribute.
+const buildDefaultFilter = () => {
+  const first = filterTypes.value?.[0];
+  const operator = first?.filterOperators?.[0]?.value || 'equal_to';
+  return {
+    attributeKey: first?.attributeKey || 'labels',
+    filterOperator: operator,
+    values: [],
+    queryOperator: 'and',
+  };
 };
 
 const { t } = useI18n();
 const store = useStore();
 
 const resetFilter = () => {
-  filters.value = [{ ...DEFAULT_FILTER }];
+  filters.value = [buildDefaultFilter()];
 };
 
 const removeFilter = index => {
@@ -55,8 +63,14 @@ const removeFilter = index => {
 };
 
 const addFilter = () => {
-  filters.value.push({ ...DEFAULT_FILTER });
+  filters.value.push(buildDefaultFilter());
 };
+
+onMounted(() => {
+  if (!filters.value || filters.value.length === 0) {
+    filters.value = [buildDefaultFilter()];
+  }
+});
 
 const conditionsRef = useTemplateRef('conditionsRef');
 
