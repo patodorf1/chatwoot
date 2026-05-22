@@ -26,8 +26,9 @@
 -->
 <script>
 import { mapGetters } from 'vuex';
-import Thumbnail from 'dashboard/components/widgets/Thumbnail.vue';
+import Thumbnail from 'dashboard/components-next/avatar/Avatar.vue';
 import { messageStamp } from 'shared/helpers/timeHelper';
+import { frontendURL, conversationUrl } from 'dashboard/helper/URLHelper';
 
 // Inject keys que ChatList / ConversationView ya proveen — los listamos a
 // todos aunque acá sólo usemos un subset; cualquier handler adicional que
@@ -90,7 +91,23 @@ export default {
     ...mapGetters({
       inboxes: 'inboxes/getInboxes',
       allLabels: 'labels/getLabels',
+      accountId: 'getCurrentAccountId',
+      activeInbox: 'getSelectedInbox',
     }),
+
+    conversationPath() {
+      return frontendURL(
+        conversationUrl({
+          accountId: this.accountId,
+          activeInbox: this.activeInbox,
+          id: this.chat.id,
+          label: this.label,
+          teamId: this.teamId,
+          conversationType: this.conversationType,
+          foldersId: this.foldersId,
+        })
+      );
+    },
 
     chat() {
       return this.source;
@@ -200,13 +217,22 @@ export default {
   },
 
   methods: {
-    onSelect() {
-      // Match el flujo del fork: toggle via los callbacks inyectados.
-      if (this.isActive) {
-        this.deSelectConversation?.();
-      } else {
-        this.selectConversation?.(this.chat, this.conversationType);
+    onSelect(e) {
+      const path = this.conversationPath;
+      if (!path) return;
+
+      // Cmd/Ctrl + click abre en pestaña nueva
+      if (e.metaKey || e.ctrlKey) {
+        e.preventDefault();
+        const host = window.chatwootConfig?.hostURL || window.location.origin;
+        window.open(`${host}${path}`, '_blank', 'noopener,noreferrer');
+        return;
       }
+
+      // Si ya está activa, no navegamos de nuevo
+      if (this.isActive) return;
+
+      this.$router.push({ path });
     },
   },
 };
@@ -228,8 +254,8 @@ export default {
       <Thumbnail
         v-if="sender.thumbnail"
         :src="sender.thumbnail"
-        :username="senderName"
-        size="36px"
+        :name="senderName"
+        :size="36"
         :status="sender.availability_status"
       />
       <div

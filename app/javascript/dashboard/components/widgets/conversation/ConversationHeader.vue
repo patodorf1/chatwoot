@@ -21,7 +21,7 @@ import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import { useMapGetter } from 'dashboard/composables/store';
 import { useUISettings } from 'dashboard/composables/useUISettings';
-import Thumbnail from 'dashboard/components/widgets/Thumbnail.vue';
+import Thumbnail from 'dashboard/components-next/avatar/Avatar.vue';
 
 const props = defineProps({
   chat: {
@@ -142,8 +142,8 @@ const goBack = () => {
       <Thumbnail
         v-if="sender.thumbnail"
         :src="sender.thumbnail"
-        :username="senderName"
-        size="36px"
+        :name="senderName"
+        :size="36"
       />
       <div
         v-else
