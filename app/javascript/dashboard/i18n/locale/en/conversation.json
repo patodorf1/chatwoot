@@ -50,12 +50,7 @@
     "UNKNOWN_FILE_TYPE": "Unknown File",
     "SAVE_CONTACT": "Save Contact",
     "NO_CONTENT": "No content to display",
-    "SHARED_ATTACHMENT": {
-      "CONTACT": "{sender} has shared a contact",
-      "LOCATION": "{sender} has shared a location",
-      "FILE": "{sender} has shared a file",
-      "MEETING": "{sender} has started a meeting"
-    },
+    "SHARED_ATTACHMENT": "Shared an attachment",
     "UPLOADING_ATTACHMENTS": "Uploading attachments...",
     "REPLIED_TO_STORY": "Replied to your story",
     "UNSUPPORTED_MESSAGE": "This message is unsupported. To view it, please open it on the original platform.",
@@ -102,7 +97,15 @@
         "RT": "RT {status}",
         "MISSED": "missed",
         "DUE": "due"
-      }
+      },
+      "BACK": "Back",
+      "ONLINE": "online",
+      "LABEL": "Label",
+      "RESOLVE": "Resolve",
+      "REOPEN": "Reopen",
+      "SNOOZE": "Snooze",
+      "MORE": "More actions",
+      "TOGGLE_CONTACT": "Toggle contact panel"
     },
     "RESOLVE_DROPDOWN": {
       "MARK_PENDING": "Mark as pending",
@@ -243,7 +246,14 @@
         "REMOVE_PREVIEW": "Remove quoted email thread",
         "COLLAPSE": "Collapse preview",
         "EXPAND": "Expand preview"
-      }
+      },
+      "SUGGEST_REPLY": "Suggest reply",
+      "REPLY_PLACEHOLDER": "Type a message…",
+      "PRIVATE_NOTE_PLACEHOLDER": "Type a private note (visible only to your team)…",
+      "SAVE_NOTE": "Save",
+      "EMOJI": "Insert emoji",
+      "ATTACH": "Attach file",
+      "EXPAND": "Expand composer"
     },
     "VISIBLE_TO_AGENTS": "Private Note: Only visible to you and your team",
     "CHANGE_STATUS": "Conversation status changed",
@@ -297,7 +307,9 @@
       "REJECT_CALL": "Reject",
       "JOIN_CALL": "Join call",
       "END_CALL": "End call"
-    }
+    },
+    "NO_NAME": "Unknown",
+    "SNOOZED": "Snoozed"
   },
   "EMAIL_TRANSCRIPT": {
     "TITLE": "Send conversation transcript",
