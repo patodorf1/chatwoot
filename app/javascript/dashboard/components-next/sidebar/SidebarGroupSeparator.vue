@@ -1,3 +1,9 @@
+<!--
+  SidebarGroupSeparator.vue  —  encabezado pasivo de sub-grupos.
+  REEMPLAZA: app/javascript/dashboard/components-next/sidebar/SidebarGroupSeparator.vue
+
+  Cambio cosmético: `text-[#6a6779]` → `text-[var(--rail-fg)]`.
+-->
 <script setup>
 import Icon from 'next/icon/Icon.vue';
 
@@ -15,7 +21,7 @@ defineProps({
 
 <template>
   <div
-    class="flex items-center gap-2 px-2 py-1.5 rounded-lg h-6 text-[#6a6779] select-none pointer-events-none"
+    class="flex items-center gap-2 px-2 py-1.5 rounded-lg h-6 text-[var(--rail-fg)] dark:text-white/70 select-none pointer-events-none"
   >
     <Icon v-if="icon" :icon="icon" class="size-4" />
     <span class="text-xs font-medium leading-5 flex-grow">

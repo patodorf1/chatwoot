@@ -1,0 +1,86 @@
+/*
+  sidebar-theme.css  —  paleta del rail izquierdo (Nivel 3).
+  Vive junto a Sidebar.vue en `components-next/sidebar/`.
+
+  Define 2 direcciones de color como CSS custom props:
+  ─ MARINE  (default) — brand WeRecruitIT. Off-white + marine + aqua.
+  ─ LAVANDA refinado — mantiene la identidad lavanda del fork actual
+    pero con mejor contraste y jerarquía.
+
+  Para alternar la dirección, agregale al `<aside>` raíz de Sidebar.vue:
+    data-sidebar-theme="lavender"
+  (sin atributo = marine, default).
+
+  Cómo se usa adentro del template:
+    bg-[var(--rail-bg)]            ←  fondo principal del rail
+    text-[var(--rail-fg)]          ←  texto muted (default)
+    text-[var(--rail-fg-strong)]   ←  texto activo / hover strong
+    bg-[var(--rail-hover)]         ←  fondo en hover
+    bg-[var(--rail-active-bg)]     ←  fondo del item activo (pill blanco en marine)
+    ring-1 ring-[var(--rail-active-ring)]  ←  contorno aqua/violeta del item activo
+    border-[var(--rail-line)]      ←  bordes & "child-item" lines
+    from-[var(--rail-bg)]          ←  gradiente del fade del footer / popover
+
+  ⚠️  Dark mode: estas vars NO se sobreescriben en dark (los componentes
+      siguen usando los tailwind `dark:*` originales). Si querés Marine
+      dark también, agregá un bloque [data-sidebar-theme] @ dark más abajo.
+*/
+
+/* ─── MARINE (default) ────────────────────────────────────────────────── */
+aside[data-sidebar-theme="marine"],
+aside:not([data-sidebar-theme]) {
+  /* Backgrounds */
+  --rail-bg:           #F4F7F6;
+  --rail-bg-elevated:  #FFFFFF;
+  --rail-fade-from:    #F4F7F6;
+
+  /* Text */
+  --rail-fg:           #527294;   /* muted body */
+  --rail-fg-strong:    #132738;   /* emphasis + active text */
+
+  /* Lines & overlays */
+  --rail-line:         rgba(19, 39, 56, 0.10);
+  --rail-line-strong:  rgba(19, 39, 56, 0.20);
+  --rail-hover:        rgba(19, 39, 56, 0.06);
+  --rail-divider:      rgba(19, 39, 56, 0.08);
+
+  /* Active item: white pill + aqua ring */
+  --rail-active-bg:    #FFFFFF;
+  --rail-active-ring:  #CAF7F8;          /* aqua-pale, WR brand */
+  --rail-active-text:  #132738;
+
+  /* Accents for stat / unread badges in active state */
+  --rail-badge-bg:     #132738;
+  --rail-badge-fg:     #FFFFFF;
+}
+
+/* ─── LAVANDA refinado ────────────────────────────────────────────────── */
+aside[data-sidebar-theme="lavender"] {
+  --rail-bg:           #E8E3F4;
+  --rail-bg-elevated:  #FFFFFF;
+  --rail-fade-from:    #E8E3F4;
+
+  --rail-fg:           #6B5E91;
+  --rail-fg-strong:    #2C2253;
+
+  --rail-line:         rgba(44, 34, 83, 0.12);
+  --rail-line-strong:  rgba(44, 34, 83, 0.22);
+  --rail-hover:        rgba(44, 34, 83, 0.08);
+  --rail-divider:      rgba(44, 34, 83, 0.10);
+
+  --rail-active-bg:    #FFFFFF;
+  --rail-active-ring:  #C8BCEA;          /* lavender-pale */
+  --rail-active-text:  #2C2253;
+
+  --rail-badge-bg:     #5B3FBF;
+  --rail-badge-fg:     #FFFFFF;
+}
+
+/* ─── Dark-mode passthrough (both themes share the same dark palette) ── */
+/* The .vue files use Tailwind `dark:*` classes directly (white/10, etc.)
+   so we don't touch dark here. If you want a branded dark Marine, override:
+
+   @media (prefers-color-scheme: dark) {
+     aside[data-sidebar-theme="marine"] { ... }
+   }
+*/

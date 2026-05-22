@@ -1,3 +1,18 @@
+<!--
+  SidebarGroupHeader.vue  —  header de cada grupo top-level del rail.
+  REEMPLAZA: app/javascript/dashboard/components-next/sidebar/SidebarGroupHeader.vue
+
+  Sólo cambios cosméticos: los hex hardcodeados salen a CSS vars
+  (`sidebar-theme.css` define la paleta Marine y Lavanda).
+
+  Active state:
+  ─ isActive && !hasActiveChild   → white pill + aqua ring + text strong
+  ─ hasActiveChild (grupo abierto) → sólo text strong (sin pill)
+  ─ idle                           → text muted, hover muestra hover bg
+
+  El badge contador (`count`) sigue como outline pequeño; cambia su contraste
+  según el estado activo.
+-->
 <script setup>
 import { computed } from 'vue';
 import { useMapGetter } from 'dashboard/composables/store.js';
@@ -26,15 +41,18 @@ const count = computed(() =>
 <template>
   <component
     :is="to ? 'router-link' : 'div'"
-    class="flex items-center gap-2 px-1.5 py-1 rounded-lg h-6 min-w-0"
+    class="flex items-center gap-2 px-1.5 py-1 rounded-lg h-6 min-w-0 transition-colors"
     role="button"
     draggable="false"
     :to="to"
     :title="label"
     :class="{
-      'text-[#34353f] dark:text-white bg-[#34353f]/10 dark:bg-white/10 font-medium': isActive && !hasActiveChild,
-      'text-[#34353f] dark:text-white font-medium': hasActiveChild,
-      'text-[#6a6779] dark:text-white/70 hover:bg-[#34353f]/10 dark:hover:bg-white/10': !isActive && !hasActiveChild,
+      'text-[var(--rail-active-text)] dark:text-white bg-[var(--rail-active-bg)] dark:bg-white/10 ring-1 ring-[var(--rail-active-ring)] dark:ring-white/0 font-medium':
+        isActive && !hasActiveChild,
+      'text-[var(--rail-fg-strong)] dark:text-white font-medium':
+        hasActiveChild,
+      'text-[var(--rail-fg)] dark:text-white/70 hover:bg-[var(--rail-hover)] dark:hover:bg-white/10':
+        !isActive && !hasActiveChild,
     }"
     @click.stop="emit('toggle')"
   >
@@ -59,8 +77,10 @@ const count = computed(() =>
         v-if="dynamicCount && !expandable"
         class="rounded-md capitalize text-xs leading-5 font-medium text-center outline outline-1 px-1 flex-shrink-0"
         :class="{
-          'text-[#34353f] dark:text-white outline-[#34353f]/40 dark:outline-white/40': isActive,
-          'text-[#6a6779] dark:text-white/70 outline-[#34353f]/20 dark:outline-white/20': !isActive,
+          'text-[var(--rail-active-text)] dark:text-white outline-[var(--rail-line-strong)] dark:outline-white/40':
+            isActive,
+          'text-[var(--rail-fg)] dark:text-white/70 outline-[var(--rail-line)] dark:outline-white/20':
+            !isActive,
         }"
       >
         {{ count }}
