@@ -41,6 +41,7 @@ const isComplete = computed(
         </span>
       </span>
       <span
+        v-if="totalCount > 0"
         class="text-[10px] tabular-nums font-medium font-display"
         :class="isComplete ? 'text-n-teal-text' : 'text-n-slate-10'"
       >

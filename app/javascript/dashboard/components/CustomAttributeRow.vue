@@ -204,16 +204,16 @@ const toggleCheckbox = () => emit('update', !props.value);
   <div
     v-else
     ref="rowEl"
-    class="flex items-baseline gap-3 px-4 py-1.5
+    class="flex flex-col gap-0.5 px-4 py-1.5
            hover:bg-n-slate-2 transition-colors group"
   >
     <span
-      class="w-[44%] text-[11.5px] text-n-slate-11 shrink-0 leading-tight font-ui"
+      class="text-[10.5px] uppercase tracking-wide text-n-slate-10 leading-tight font-ui"
     >
       {{ definition.attribute_display_name }}
     </span>
 
-    <div class="flex-1 min-w-0 flex items-center gap-1">
+    <div class="min-w-0 flex items-center gap-1">
       <!-- Editor -->
       <template v-if="editing">
         <!-- list → select -->

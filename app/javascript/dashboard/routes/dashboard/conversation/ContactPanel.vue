@@ -38,7 +38,7 @@ const allowedAttributeKeys = [
   'posicion_propuesta',
   'pais',
   'motivo_desestimacion',
-  'rem_local_ars',
+  'rem_local',
   'rem_usd',
   'respuestas_screening',
   'generar_informe',
@@ -54,7 +54,7 @@ const hiddenAttributeKeys = ['airtable_record_id', 'supabase_id'];
 //    define el orden de las secciones. Atributos sin grupo caen en "otros".
 const attributeGroups = [
   { id: 'trayectoria',  keys: ['puesto_actual', 'posicion_propuesta', 'pais', 'respondio_por'] },
-  { id: 'compensacion', keys: ['rem_local_ars', 'rem_usd'] },
+  { id: 'compensacion', keys: ['rem_local', 'rem_usd'] },
   { id: 'screening',    keys: ['respuestas_screening'] },
   { id: 'estado',       keys: ['motivo_desestimacion', 'generar_informe'] },
 ];
@@ -80,7 +80,7 @@ const headerExpanded = ref(false);
 </script>
 
 <template>
-  <div class="flex flex-col h-full bg-n-background border-l border-n-slate-3">
+  <div class="flex flex-col h-full w-full min-w-0 bg-n-background border-l border-n-slate-3">
     <!-- Top bar -->
     <header
       class="flex items-center justify-between px-4 h-12 shrink-0

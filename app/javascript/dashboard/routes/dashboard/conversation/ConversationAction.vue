@@ -7,6 +7,7 @@ import ContactDetailsItem from './ContactDetailsItem.vue';
 import MultiselectDropdown from 'shared/components/ui/MultiselectDropdown.vue';
 import ConversationLabels from './labels/LabelBox.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import AttributeGroup from './customAttributes/AttributeGroup.vue';
 
 export default {
   components: {
@@ -14,6 +15,12 @@ export default {
     MultiselectDropdown,
     ConversationLabels,
     NextButton,
+    AttributeGroup,
+  },
+  data() {
+    return {
+      labelsCollapsed: true,
+    };
   },
   props: {
     conversationId: {
@@ -99,21 +106,15 @@ export default {
 </script>
 
 <template>
-  <div>
-    <section class="border-b border-n-slate-3">
-      <div
-        class="w-full flex items-center justify-between gap-2 px-4 py-2"
-      >
-        <span
-          class="text-[11px] font-semibold tracking-[0.06em] uppercase
-                 text-n-slate-12 font-display"
-        >
-          Estado
-        </span>
-      </div>
-      <div class="px-4 pb-3">
-        <ConversationLabels :conversation-id="conversationId" />
-      </div>
-    </section>
-  </div>
+  <AttributeGroup
+    title="ETIQUETAS"
+    :filled-count="0"
+    :total-count="0"
+    :collapsed="labelsCollapsed"
+    @toggle="labelsCollapsed = !labelsCollapsed"
+  >
+    <div class="px-4 pb-3">
+      <ConversationLabels :conversation-id="conversationId" />
+    </div>
+  </AttributeGroup>
 </template>
