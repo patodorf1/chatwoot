@@ -1,3 +1,26 @@
+<!--
+  Sidebar.vue  —  rail izquierdo (Nivel 3).
+  REEMPLAZA: app/javascript/dashboard/components-next/sidebar/Sidebar.vue
+
+  CONTRATO REAL DEL FORK (verificado contra patodorf1/chatwoot @develop):
+  ─ Vive en `components-next/sidebar/` y es importado por Dashboard.vue
+    como `NextSidebar`.
+  ─ Props: `isMobileSidebarOpen` (Boolean).
+  ─ Emits: `closeKeyShortcutModal`, `openKeyShortcutModal`,
+           `showCreateAccountModal`, `closeMobileSidebar`.
+  ─ Sin cambios estructurales: `menuItems` computed sigue interno
+    (líneas ~211-345); provideSidebarContext + useSidebarResize idem.
+
+  CAMBIOS vs. v fork (todo cosmético):
+  ─ Los hex hardcodeados (#e0dafd, #6a6779, #34353f/*) salen a CSS custom
+    props en `sidebar-theme.css` (al lado). Marine es default; flippeable
+    a Lavanda refinado con `data-sidebar-theme="lavender"` en el <aside>.
+  ─ Active state del search/compose row usa `--rail-active-bg` + ring suave.
+  ─ El logo conserva el componente `Logo` original (no tocamos brand assets).
+
+  ⚠️ Si tu fork agregó campos a `menuItems` después de este snapshot,
+     mergeá el computed a mano — el cambio acá es sólo del template.
+-->
 <script setup>
 import { h, ref, computed, onMounted } from 'vue';
 import { provideSidebarContext, useSidebarResize } from './provider';
@@ -11,6 +34,9 @@ import { vOnClickOutside } from '@vueuse/components';
 import { useWindowSize, useEventListener } from '@vueuse/core';
 import { emitter } from 'shared/helpers/mitt';
 import { BUS_EVENTS } from 'shared/constants/busEvents';
+
+// Paleta del rail — define las CSS custom props del tema Marine / Lavanda.
+import './sidebar-theme.css';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import SidebarGroup from './SidebarGroup.vue';
@@ -403,7 +429,8 @@ const menuItems = computed(() => {
       closeMobileSidebar,
       { ignore: ['#mobile-sidebar-launcher'] },
     ]"
-    class="bg-[#e0dafd] dark:bg-n-background text-[#6a6779] dark:text-white/70 flex flex-col text-xs pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 w-[200px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 ltr:border-r rtl:border-l border-[#34353f]/10 dark:border-white/10"
+    data-sidebar-theme="marine"
+    class="bg-[var(--rail-bg)] dark:bg-n-background text-[var(--rail-fg)] dark:text-white/70 flex flex-col text-xs pb-px fixed top-0 ltr:left-0 rtl:right-0 h-full z-40 w-[200px] md:w-auto md:relative md:flex-shrink-0 md:ltr:translate-x-0 md:rtl:translate-x-0 ltr:border-r rtl:border-l border-[var(--rail-line)] dark:border-white/10"
     :class="[
       {
         'shadow-lg md:shadow-none': isMobileSidebarOpen,
@@ -435,7 +462,7 @@ const menuItems = computed(() => {
           <div class="grid flex-shrink-0 place-content-center size-6">
             <Logo class="size-4" />
           </div>
-          <div class="flex-shrink-0 w-px h-3 bg-[#34353f]/20" />
+          <div class="flex-shrink-0 w-px h-3 bg-[var(--rail-line-strong)]" />
           <SidebarAccountSwitcher
             class="flex-grow -mx-1 min-w-0"
             @show-create-account-modal="emit('showCreateAccountModal')"
@@ -448,10 +475,10 @@ const menuItems = computed(() => {
       >
         <RouterLink
           :to="{ name: 'search' }"
-          class="flex items-center justify-center size-8 rounded-lg border border-[#34353f]/15 bg-transparent transition-all duration-100 ease-out hover:bg-[#34353f]/10"
+          class="flex items-center justify-center size-8 rounded-lg border border-[var(--rail-line)] bg-[var(--rail-bg-elevated)] transition-all duration-100 ease-out hover:bg-[var(--rail-hover)] hover:border-[var(--rail-line-strong)]"
           :title="t('COMBOBOX.SEARCH_PLACEHOLDER')"
         >
-          <span class="i-lucide-search size-4 text-[#6a6779]" />
+          <span class="i-lucide-search size-4 text-[var(--rail-fg)]" />
         </RouterLink>
         <ComposeConversation align-position="right" @close="onComposeClose">
           <template #trigger="{ toggle, isOpen }">
@@ -459,9 +486,12 @@ const menuItems = computed(() => {
               icon="i-lucide-pen-line"
               color="slate"
               size="sm"
-              class="!size-8 !bg-transparent !text-[#6a6779] !border !border-[#34353f]/15 hover:!bg-[#34353f]/10 dark:hover:!bg-n-slate-9/30"
+              class="!size-8 !bg-[var(--rail-bg-elevated)] !text-[var(--rail-fg-strong)] !border !border-[var(--rail-line)] hover:!bg-[var(--rail-hover)] hover:!border-[var(--rail-line-strong)] dark:hover:!bg-n-slate-9/30"
               :class="[
-                { '!bg-n-alpha-2 dark:!bg-n-slate-9/30': isOpen },
+                {
+                  '!bg-[var(--rail-active-bg)] !ring-1 !ring-[var(--rail-active-ring)] dark:!bg-n-slate-9/30':
+                    isOpen,
+                },
               ]"
               @click="onComposeOpen(toggle)"
             />
@@ -488,7 +518,7 @@ const menuItems = computed(() => {
       class="flex relative flex-col flex-shrink-0 gap-1 justify-between items-center"
     >
       <div
-        class="pointer-events-none absolute inset-x-0 -top-[1.938rem] h-8 bg-gradient-to-t from-[#e0dafd] to-transparent"
+        class="pointer-events-none absolute inset-x-0 -top-[1.938rem] h-8 bg-gradient-to-t from-[var(--rail-fade-from)] to-transparent"
       />
       <SidebarChangelogCard
         v-if="
@@ -505,7 +535,7 @@ const menuItems = computed(() => {
         "
       />
       <div
-        class="px-1 py-1.5 flex-shrink-0 flex w-full z-50 gap-2 items-center border-t border-[#34353f]/10 shadow-[0px_-2px_4px_0px_rgba(27,28,29,0.02)]"
+        class="px-1 py-1.5 flex-shrink-0 flex w-full z-50 gap-2 items-center border-t border-[var(--rail-line)] shadow-[0px_-2px_4px_0px_rgba(27,28,29,0.02)]"
         :class="isEffectivelyCollapsed ? 'flex-col-reverse justify-center' : 'justify-between'"
       >
         <SidebarProfileMenu
@@ -514,14 +544,14 @@ const menuItems = computed(() => {
         />
         <button
           v-if="isEffectivelyCollapsed"
-          class="flex items-center justify-center size-6 rounded hover:bg-[#34353f]/10 text-[#6a6779] text-xs flex-shrink-0"
+          class="flex items-center justify-center size-6 rounded hover:bg-[var(--rail-hover)] text-[var(--rail-fg)] text-xs flex-shrink-0"
           @click="snapToExpanded"
         >
           &raquo;
         </button>
         <button
           v-if="!isEffectivelyCollapsed"
-          class="flex items-center justify-center size-6 rounded hover:bg-[#34353f]/10 text-[#6a6779] text-xs flex-shrink-0"
+          class="flex items-center justify-center size-6 rounded hover:bg-[var(--rail-hover)] text-[var(--rail-fg)] text-xs flex-shrink-0"
           @click="snapToCollapsed"
         >
           &laquo;

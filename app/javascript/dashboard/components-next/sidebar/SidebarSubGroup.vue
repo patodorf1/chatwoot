@@ -1,3 +1,11 @@
+<!--
+  SidebarSubGroup.vue  —  sub-grupo expandible dentro de un SidebarGroup.
+  REEMPLAZA: app/javascript/dashboard/components-next/sidebar/SidebarSubGroup.vue
+
+  Cambios sólo cosméticos:
+  ─ Gradient del fade inferior usa --rail-fade-from (matchea --rail-bg).
+  ─ Chevron indicator usa --rail-fg.
+-->
 <script setup>
 import { computed, ref } from 'vue';
 import SidebarGroupLeaf from './SidebarGroupLeaf.vue';
@@ -72,14 +80,14 @@ useEventListener(scrollableContainer, 'scroll', () => {
     <div
       v-if="isScrollable && isExpanded"
       v-show="!scrollEnd"
-      class="absolute bg-gradient-to-t from-[#e0dafd] w-full h-12 to-transparent -bottom-1 pointer-events-none flex items-end justify-end px-2 animate-fade-in-up"
+      class="absolute bg-gradient-to-t from-[var(--rail-fade-from)] w-full h-12 to-transparent -bottom-1 pointer-events-none flex items-end justify-end px-2 animate-fade-in-up"
     >
       <svg
         width="16"
         height="24"
         viewBox="0 0 16 24"
         fill="none"
-        class="text-[#6a6779]/50 opacity-50 group-hover:opacity-100"
+        class="text-[var(--rail-fg)] opacity-50 group-hover:opacity-100"
         xmlns="http://www.w3.org/2000/svg"
       >
         <path

@@ -1,3 +1,12 @@
+<!--
+  SidebarGroup.vue  —  grupo top-level del rail (Channels / Conversations / etc).
+  REEMPLAZA: app/javascript/dashboard/components-next/sidebar/SidebarGroup.vue
+
+  Cambios sólo cosméticos en el render del estado COLLAPSED:
+  ─ Active icon button: white pill + aqua ring (era tint slate /10).
+  ─ Hover: --rail-hover.
+  ─ Toda la lógica (popover, navigable children, activeChild ranking) intacta.
+-->
 <script setup>
 import { computed, onMounted, onUnmounted, watch, nextTick, ref } from 'vue';
 import { useSidebarContext, usePopoverState } from './provider';
@@ -94,7 +103,6 @@ const handlePopoverMouseLeave = () => {
   scheduleClose(100);
 };
 
-// Close popover when mouse leaves the window
 const handleWindowBlur = () => {
   closeActivePopover();
 };
@@ -102,9 +110,6 @@ const handleWindowBlur = () => {
 const accessibleItems = computed(() => {
   if (!hasChildren.value) return [];
   return props.children.filter(child => {
-    // If a item has no link, it means it's just a subgroup header
-    // So we don't need to check for permissions here, because there's nothing to
-    // access here anyway
     return child.to && isAllowed(child.to);
   });
 });
@@ -116,27 +121,17 @@ const hasAccessibleChildren = computed(() => {
 const isActive = computed(() => {
   if (props.to) {
     if (route.path === resolvePath(props.to)) return true;
-
     return props.activeOn.includes(route.name);
   }
-
   return false;
 });
 
-// We could use the RouterLink isActive too, but our routes are not always
-// nested correctly, so we need to check the active state ourselves
-// TODO: Audit the routes and fix the nesting and remove this
 const activeChild = computed(() => {
   const pathSame = navigableChildren.value.find(
     child => child.to && route.path === resolvePath(child.to)
   );
   if (pathSame) return pathSame;
 
-  // Rank the activeOn Prop higher than the path match
-  // There will be cases where the path name is the same but the params are different
-  // So we need to rank them based on the params
-  // For example, contacts segment list in the sidebar effectively has the same name
-  // But the params are different
   const activeOnPages = navigableChildren.value.filter(child =>
     child.activeOn?.includes(route.name)
   );
@@ -149,12 +144,6 @@ const activeChild = computed(() => {
         })
         .every(match => match);
     });
-
-    // If there is no ranked page, return the first activeOn page anyway
-    // Since this takes higher precedence over the path match
-    // This is not perfect, ideally we should rank each route based on all the techniques
-    // and then return the highest ranked one
-    // But this is good enough for now
     return rankedPage ?? activeOnPages[0];
   }
 
@@ -180,7 +169,6 @@ const toggleTrigger = () => {
     !isExpanded.value &&
     !hasActiveChild.value
   ) {
-    // if not already expanded, navigate to the first child
     const firstItem = accessibleItems.value[0];
     router.push(firstItem.to);
   }
@@ -233,10 +221,12 @@ watch(
           ref="triggerRef"
           :to="to && !hasChildren ? to : undefined"
           type="button"
-          class="flex items-center justify-center size-10 rounded-lg"
+          class="flex items-center justify-center size-10 rounded-lg transition-colors"
           :class="{
-            'text-[#34353f] bg-[#34353f]/10': isActive || hasActiveChild,
-            'text-[#6a6779] hover:bg-[#34353f]/10': !isActive && !hasActiveChild,
+            'text-[var(--rail-active-text)] bg-[var(--rail-active-bg)] ring-1 ring-[var(--rail-active-ring)]':
+              isActive || hasActiveChild,
+            'text-[var(--rail-fg)] hover:bg-[var(--rail-hover)]':
+              !isActive && !hasActiveChild,
           }"
           :title="label"
           @click="hasChildren ? handleCollapsedClick() : undefined"
