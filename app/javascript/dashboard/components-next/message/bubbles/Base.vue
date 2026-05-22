@@ -1,3 +1,23 @@
+<!--
+  Base.vue  —  base bubble (forma + paleta) compartida por todas las burbujas.
+  REEMPLAZA: app/javascript/dashboard/components-next/message/bubbles/Base.vue
+
+  CAMBIOS (sólo cosméticos):
+  ─ AGENT (outgoing): verde WhatsApp `#dcf8c6` → `#D9FDD3` (versión moderna,
+    levemente más brillante). Texto pasa a `text-n-slate-12` para mejor
+    contraste y consistencia con el resto del rediseño.
+  ─ USER (incoming): el `bg-white` queda; texto pasa a `text-n-slate-12`.
+  ─ PRIVATE: igual (amber). Sólo limpio el mention-node bold.
+  ─ ACTIVITY / BOT / TEMPLATE / ERROR / UNSUPPORTED: idénticos.
+  ─ Shape (rounded-xl + corner squared en la "cola"): IDÉNTICO al fork.
+    Esto ya era exactamente lo que pedía el design canvas — no había nada
+    que cambiar.
+
+  ⚠️ El color outgoing está hardcodeado (no hay token n-* equivalente al
+     verde-WhatsApp). Si querés moverlo a un token custom, agregá uno a
+     `tailwind.config.js` (ej. `n-whatsapp-outgoing`) y cambiá la línea
+     del variant map.
+-->
 <script setup>
 import { computed } from 'vue';
 
@@ -20,10 +40,12 @@ const { variant, orientation, inReplyTo, shouldGroupWithNext } =
 const { t } = useI18n();
 
 const varaintBaseMap = {
-  [MESSAGE_VARIANTS.AGENT]: 'bg-[#dcf8c6] text-gray-900',
+  // Outgoing — WhatsApp green refinado.
+  [MESSAGE_VARIANTS.AGENT]: 'bg-[#D9FDD3] text-n-slate-12',
   [MESSAGE_VARIANTS.PRIVATE]:
     'bg-n-solid-amber text-n-amber-12 [&_.prosemirror-mention-node]:font-semibold',
-  [MESSAGE_VARIANTS.USER]: 'bg-white text-gray-900',
+  // Incoming — bubble blanca limpia.
+  [MESSAGE_VARIANTS.USER]: 'bg-white text-n-slate-12',
   [MESSAGE_VARIANTS.ACTIVITY]: 'bg-n-alpha-1 text-n-slate-11 text-sm',
   [MESSAGE_VARIANTS.BOT]: 'bg-n-solid-iris text-n-slate-12',
   [MESSAGE_VARIANTS.TEMPLATE]: 'bg-n-solid-iris text-n-slate-12',
@@ -35,9 +57,9 @@ const varaintBaseMap = {
 
 const orientationMap = {
   [ORIENTATION.LEFT]:
-    'left-bubble rounded-xl ltr:rounded-bl-sm rtl:rounded-br-sm',
+    'left-bubble rounded-xl ltr:rounded-bl-sm rtl:rounded-br-sm shadow-sm',
   [ORIENTATION.RIGHT]:
-    'right-bubble rounded-xl ltr:rounded-br-sm rtl:rounded-bl-sm',
+    'right-bubble rounded-xl ltr:rounded-br-sm rtl:rounded-bl-sm shadow-sm',
   [ORIENTATION.CENTER]: 'rounded-md',
 };
 

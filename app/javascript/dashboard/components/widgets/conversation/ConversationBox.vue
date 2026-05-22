@@ -1,3 +1,17 @@
+<!--
+  ConversationBox.vue  —  container del chat view (header + msgs + composer).
+  REEMPLAZA: app/javascript/dashboard/routes/dashboard/conversation/ConversationBox.vue
+
+  CAMBIOS (sólo cosméticos, lógica intacta):
+  ─ Wallpaper sigue siendo /assets/images/dashboard/chat-bg.jpeg.
+  ─ El overlay encima del wallpaper pasa de blanco puro `bg-white/40` a un
+    blanco con micro-tint marine. Visualmente queda como un velo limpio que
+    deja respirar el patrón sin lavarlo.
+  ─ Sumo un 2do gradient layer (radial-soft) para dar profundidad sutil
+    al área del chat, en línea con el design canvas.
+  ─ Todo lo demás (computed, watchers, dispatch de labels, tabs de dashboard
+    apps, slot, isInboxView) queda IDÉNTICO.
+-->
 <script>
 import { mapGetters } from 'vuex';
 import ConversationHeader from './ConversationHeader.vue';
@@ -92,13 +106,29 @@ export default {
 <template>
   <div
     class="conversation-details-wrap flex flex-col min-w-0 w-full relative"
-    :style="{ backgroundImage: `url('/assets/images/dashboard/chat-bg.jpeg')`, backgroundSize: '400px', backgroundRepeat: 'repeat' }"
+    :style="{
+      backgroundImage: `url('/assets/images/dashboard/chat-bg.jpeg')`,
+      backgroundSize: '400px',
+      backgroundRepeat: 'repeat',
+    }"
     :class="{
       'border-l rtl:border-l-0 rtl:border-r border-n-weak': !isOnExpandedLayout,
     }"
   >
-    <!-- Overlay to reduce wallpaper contrast -->
-    <div class="absolute inset-0 bg-white/40 pointer-events-none" />
+    <!--
+      Overlay marine — dos capas:
+       1) Velo de fondo casi blanco con un toque aqua-pale (matchea --wr-aqua-pale
+          del brand). Suaviza el wallpaper sin lavarlo.
+       2) Glow radial sutil desde arriba — añade profundidad al área del chat.
+    -->
+    <div
+      class="absolute inset-0 pointer-events-none"
+      style="
+        background:
+          radial-gradient(120% 60% at 50% 0%, rgba(202, 247, 248, 0.18), transparent 60%),
+          linear-gradient(0deg, rgba(244, 250, 250, 0.62), rgba(244, 250, 250, 0.62));
+      "
+    />
     <ConversationHeader
       v-if="currentChat.id"
       :chat="currentChat"

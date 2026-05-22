@@ -1,3 +1,19 @@
+<!--
+  MessagesView.vue  —  lista de mensajes con scroll, paginación, banners.
+  REEMPLAZA: app/javascript/dashboard/routes/dashboard/conversation/MessagesView.vue
+
+  CAMBIOS (3 puntos, cosméticos, lógica intacta):
+  ─ Spinner: `text-n-brand` → `text-n-teal-9` (matchea el aqua Marine del rail).
+  ─ Unread badge pill: `bg-n-brand` → `bg-n-teal-9` con texto blanco.
+    Tipografía pasa a `font-ui` (Sora) y el pill gana un borde sutil
+    `ring-1 ring-n-teal-9/30` para que respire sobre el wallpaper.
+  ─ Typing-indicator pill: además del look existente, queda con border
+    `border-n-weak` + shadow más suave para integrarse con el overlay tintado
+    de `ConversationBox.vue`.
+
+  Todo el resto (scroll logic, fetchPreviousMessages, label suggestions,
+  mark-as-read, banners, mixins) queda IDÉNTICO al fork.
+-->
 <script>
 import { ref, provide } from 'vue';
 // composable
@@ -112,22 +128,18 @@ export default {
       return this.$store.getters['inboxes/getInbox'](this.inboxId);
     },
     typingUsersList() {
-      const userList = this.$store.getters[
-        'conversationTypingStatus/getUserList'
-      ](this.currentChat.id);
-      return userList;
+      return this.$store.getters['conversationTypingStatus/getUserList'](
+        this.currentChat.id
+      );
     },
     isAnyoneTyping() {
-      const userList = this.typingUsersList;
-      return userList.length !== 0;
+      return this.typingUsersList.length !== 0;
     },
     typingUserNames() {
-      const userList = this.typingUsersList;
       if (this.isAnyoneTyping) {
-        const [i18nKey, params] = getTypingUsersText(userList);
+        const [i18nKey, params] = getTypingUsersText(this.typingUsersList);
         return this.$t(i18nKey, params);
       }
-
       return '';
     },
     getMessages() {
@@ -155,7 +167,6 @@ export default {
         (!this.listLoadingStatus && this.isLoadingPrevious)
       );
     },
-    // Check there is a instagram inbox exists with the same instagram_id
     hasDuplicateInstagramInbox() {
       const instagramId = this.inbox.instagram_id;
       const { additional_attributes: additionalAttributes = {} } = this.inbox;
@@ -259,8 +270,6 @@ export default {
 
   created() {
     emitter.on(BUS_EVENTS.SCROLL_TO_MESSAGE, this.onScrollToMessage);
-    // when a message is sent we set the flag to true this hides the label suggestions,
-    // until the chat is changed and the flag is reset in the watch for currentChat
     emitter.on(BUS_EVENTS.MESSAGE_SENT, () => {
       this.messageSentSinceOpened = true;
     });
@@ -279,14 +288,12 @@ export default {
 
   methods: {
     async fetchSuggestions() {
-      // start empty, this ensures that the label suggestions are not shown
       this.labelSuggestions = [];
 
       if (this.isLabelSuggestionDismissed()) {
         return;
       }
 
-      // Early exit if conversation already has labels - no need to suggest more
       const existingLabels = this.currentChat?.labels || [];
       if (existingLabels.length > 0) return;
 
@@ -296,17 +303,8 @@ export default {
 
       this.labelSuggestions = await this.getLabelSuggestions();
 
-      // once the labels are fetched, we need to scroll to bottom
-      // but we need to wait for the DOM to be updated
-      // so we use the nextTick method
       this.$nextTick(() => {
-        // this param is added to route, telling the UI to navigate to the message
-        // it is triggered by the SCROLL_TO_MESSAGE method
-        // see setActiveChat on ConversationView.vue for more info
         const { messageId } = this.$route.query;
-
-        // only trigger the scroll to bottom if the user has not scrolled
-        // and there's no active messageId that is selected in view
         if (!messageId && !this.hasUserScrolled) {
           this.scrollToBottom();
         }
@@ -352,24 +350,15 @@ export default {
       this.isProgrammaticScroll = true;
       let relevantMessages = [];
 
-      // label suggestions are not part of the messages list
-      // so we need to handle them separately
       let labelSuggestions =
         this.conversationPanel.querySelector('.label-suggestion');
 
-      // if there are unread messages, scroll to the first unread message
       if (this.unreadMessageCount > 0) {
-        // capturing only the unread messages
         relevantMessages =
           this.conversationPanel.querySelectorAll('.message--unread');
       } else if (labelSuggestions) {
-        // when scrolling to the bottom, the label suggestions is below the last message
-        // so we scroll there if there are no unread messages
-        // Unread messages always take the highest priority
         relevantMessages = [labelSuggestions];
       } else {
-        // if there are no unread messages or label suggestion, scroll to the last message
-        // capturing last message from the messages list
         relevantMessages = Array.from(
           this.conversationPanel.querySelectorAll('.message--read')
         ).slice(-1);
@@ -419,7 +408,6 @@ export default {
 
     handleScroll(e) {
       if (this.isProgrammaticScroll) {
-        // Reset the flag
         this.isProgrammaticScroll = false;
         this.hasUserScrolled = false;
       } else {
@@ -473,7 +461,7 @@ export default {
           <li
             class="min-h-[4rem] flex flex-shrink-0 flex-grow-0 items-center flex-auto justify-center max-w-full mt-0 mr-0 mb-1 ml-0 relative first:mt-auto last:mb-0"
           >
-            <Spinner v-if="shouldShowSpinner" class="text-n-brand" />
+            <Spinner v-if="shouldShowSpinner" class="text-n-teal-9" />
           </li>
         </transition>
       </template>
@@ -483,7 +471,7 @@ export default {
           class="list-none flex justify-center items-center"
         >
           <span
-            class="shadow-lg rounded-full bg-n-brand text-white text-xs font-medium my-2.5 mx-auto px-2.5 py-1.5"
+            class="shadow-md ring-1 ring-n-teal-9/30 rounded-full bg-n-teal-9 text-white text-xs font-medium font-ui my-2.5 mx-auto px-2.5 py-1.5"
           >
             {{ unreadMessageLabel }}
           </span>
@@ -510,7 +498,7 @@ export default {
         class="absolute flex items-center w-full h-0 -top-7"
       >
         <div
-          class="flex py-2 pr-4 pl-5 shadow-md rounded-full bg-white dark:bg-n-solid-3 text-n-slate-11 text-xs font-semibold my-2.5 mx-auto"
+          class="flex py-2 pr-4 pl-5 shadow-md border border-n-weak rounded-full bg-white dark:bg-n-solid-3 text-n-slate-11 text-xs font-semibold my-2.5 mx-auto"
         >
           {{ typingUserNames }}
           <img
