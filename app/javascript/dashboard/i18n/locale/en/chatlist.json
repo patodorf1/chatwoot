@@ -23,6 +23,11 @@
       "OPEN": "Open",
       "ALL": "All"
     },
+    "READ_STATE_TABS": {
+      "UNREAD": "Unread",
+      "READ": "Read",
+      "ALL": "All"
+    },
     "CHAT_STATUS_FILTER_ITEMS": {
       "open": {
         "TEXT": "Open"
