@@ -23,6 +23,11 @@
       "OPEN": "Abiertas",
       "ALL": "Todas"
     },
+    "READ_STATE_TABS": {
+      "UNREAD": "No leídos",
+      "READ": "Leídos",
+      "ALL": "Todas"
+    },
     "CHAT_STATUS_FILTER_ITEMS": {
       "open": {
         "TEXT": "Abiertas"

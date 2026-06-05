@@ -91,6 +91,11 @@ provide('contextMenuElementTarget', virtualListRef);
 
 const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ME);
 const activeStatus = ref(wootConstants.STATUS_TYPE.OPEN);
+// Read-state tabs (No leídos / Leídos / Todas) shown only on WhatsApp/API
+// inboxes. 'oo' is the label auto-applied to a conversation while it awaits a
+// reply (added on incoming, removed on outgoing/resolve by automation rules).
+const UNREAD_LABEL = 'oo';
+const activeReadStateTab = ref('all');
 const activeSortBy = ref(wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC);
 const showAdvancedFilters = ref(false);
 // chatsOnView is to store the chats that are currently visible on the screen,
@@ -223,6 +228,50 @@ const onStatusTabChange = newStatus => {
   onBasicFilterChange(newStatus, 'status');
 };
 
+// Read/unread tabs shown only on WhatsApp/API inboxes. 'No leídos' = has the
+// 'oo' label (awaiting reply); 'Leídos' = does not have it; 'Todas' = the
+// normal list. Default is 'all' so the inbox opens unfiltered.
+const readStateTabItems = computed(() => [
+  { key: 'unread', name: t('CHAT_LIST.READ_STATE_TABS.UNREAD') },
+  { key: 'read', name: t('CHAT_LIST.READ_STATE_TABS.READ') },
+  { key: 'all', name: t('CHAT_LIST.READ_STATE_TABS.ALL') },
+]);
+
+const onReadStateTabChange = selectedTab => {
+  if (activeReadStateTab.value === selectedTab) return;
+  activeReadStateTab.value = selectedTab;
+  resetBulkActions();
+  emitter.emit('clearSearchInput');
+
+  // 'Todas' clears any label filter and falls back to the normal list.
+  if (selectedTab === 'all') {
+    resetAndFetchData();
+    return;
+  }
+
+  // 'No leídos'/'Leídos' need label negation, which only the server advanced
+  // filter supports. Scope by inbox (the /filter endpoint ignores the route
+  // inbox) and mirror the modal's two-step: populate appliedFilters so the
+  // local matcher + pagination activate, then apply.
+  const labelOperator = selectedTab === 'unread' ? 'equal_to' : 'not_equal_to';
+  const payload = [
+    {
+      attributeKey: 'inbox_id',
+      filterOperator: 'equal_to',
+      values: [Number(props.conversationInbox)],
+      queryOperator: 'and',
+    },
+    {
+      attributeKey: 'labels',
+      filterOperator: labelOperator,
+      values: [UNREAD_LABEL],
+      queryOperator: 'and',
+    },
+  ];
+  store.dispatch('setConversationFilters', useSnakeCase(payload));
+  onApplyFilter(payload);
+};
+
 const showAssigneeInConversationCard = computed(() => {
   return (
     hasAppliedFiltersOrActiveFolders.value ||
@@ -260,10 +309,12 @@ const conversationCustomAttributes = useFunctionGetter(
 );
 
 const activeAssigneeTabCount = computed(() => {
+  // Optional chaining guards against custom roles where the 'all' tab is absent
+  // from assigneeTabItems (find would return undefined and crash the list).
   const count = assigneeTabItems.value.find(
     item => item.key === activeAssigneeTab.value
-  ).count;
-  return count;
+  )?.count;
+  return count ?? 0;
 });
 
 const conversationListPagination = computed(() => {
@@ -307,7 +358,9 @@ const activeTeam = computed(() => {
 });
 
 const pageTitle = computed(() => {
-  if (hasAppliedFilters.value) {
+  // On WhatsApp/API inboxes the read-state tabs apply a filter under the hood;
+  // keep showing the inbox name instead of the generic filtered heading.
+  if (hasAppliedFilters.value && !isWhatsAppOrAPIInbox.value) {
     return t('CHAT_LIST.TAB_HEADING');
   }
   if (inbox.value.name) {
@@ -878,7 +931,11 @@ watch(activeTeam, () => resetAndFetchData());
 
 watch(
   computed(() => props.conversationInbox),
-  () => resetAndFetchData()
+  () => {
+    // Keep the read-state tab highlight in sync with the (now cleared) filter.
+    activeReadStateTab.value = 'all';
+    resetAndFetchData();
+  }
 );
 watch(
   computed(() => props.label),
@@ -975,6 +1032,15 @@ watch(conversationFilters, (newVal, oldVal) => {
       @chat-tab-change="updateAssigneeTab"
     />
     <ChatTypeTabs
+      v-if="isWhatsAppOrAPIInbox"
+      :items="readStateTabItems"
+      :active-tab="activeReadStateTab"
+      :show-badge="false"
+      is-compact
+      @chat-tab-change="onReadStateTabChange"
+    />
+    <ChatTypeTabs
+      v-else
       :items="statusTabItems"
       :active-tab="activeStatus"
       :show-badge="false"
