@@ -92,9 +92,9 @@ provide('contextMenuElementTarget', virtualListRef);
 const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ME);
 const activeStatus = ref(wootConstants.STATUS_TYPE.OPEN);
 // Read-state tabs (No leídos / Leídos / Todas) shown only on WhatsApp/API
-// inboxes. 'oo' is the label auto-applied to a conversation while it awaits a
+// inboxes. 'nl' is the label auto-applied to a conversation while it awaits a
 // reply (added on incoming, removed on outgoing/resolve by automation rules).
-const UNREAD_LABEL = 'oo';
+const UNREAD_LABEL = 'nl';
 const activeReadStateTab = ref('all');
 const activeSortBy = ref(wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC);
 const showAdvancedFilters = ref(false);
