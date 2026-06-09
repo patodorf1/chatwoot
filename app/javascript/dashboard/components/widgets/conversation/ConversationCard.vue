@@ -14,7 +14,11 @@ import PriorityMark from './PriorityMark.vue';
 import SLACardLabel from './components/SLACardLabel.vue';
 import ContextMenu from 'dashboard/components/ui/ContextMenu.vue';
 import VoiceCallStatus from './VoiceCallStatus.vue';
-import { getRecruitmentStatus, isRecruitmentStatusLabel } from 'dashboard/helper/recruitmentStatus';
+import {
+  getRecruitmentStatus,
+  isRecruitmentStatusLabel,
+  isHiddenCardLabel,
+} from 'dashboard/helper/recruitmentStatus';
 
 const props = defineProps({
   activeLabel: { type: String, default: '' },
@@ -133,7 +137,9 @@ const posicionPropuesta = computed(() => {
 const recruitmentStatus = computed(() => getRecruitmentStatus(props.chat.labels));
 
 const nonStatusLabels = computed(() => {
-  return (props.chat.labels || []).filter(l => !isRecruitmentStatusLabel(l));
+  return (props.chat.labels || []).filter(
+    l => !isRecruitmentStatusLabel(l) && !isHiddenCardLabel(l)
+  );
 });
 
 const showLabelsSection = computed(() => {

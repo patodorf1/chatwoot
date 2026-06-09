@@ -21,3 +21,17 @@ export function getRecruitmentStatus(labels) {
 export function isRecruitmentStatusLabel(labelTitle) {
   return RECRUITMENT_STATUS_TITLES.includes(labelTitle);
 }
+
+// Internal/system labels used by the Airtable writeback automation. They are
+// bookkeeping only and should never be shown as badges on conversation cards.
+export const HIDDEN_CARD_LABEL_TITLES = [
+  'creado_por_writeback',
+  'crear_igual_en_airtable',
+  'datos_insuficientes_writeback',
+  'linkear_a_airtable',
+  'revisar_duplicado_airtable',
+];
+
+export function isHiddenCardLabel(labelTitle) {
+  return HIDDEN_CARD_LABEL_TITLES.includes(labelTitle);
+}
