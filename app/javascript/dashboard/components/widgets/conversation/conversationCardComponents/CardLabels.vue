@@ -13,8 +13,18 @@ const slots = useSlots();
 const accountLabels = useMapGetter('labels/getLabels');
 
 const activeLabels = computed(() => {
-  return accountLabels.value.filter(({ title }) =>
-    props.conversationLabels.includes(title)
+  // Render every label the conversation carries, looking up its style in the
+  // account label catalog. If the catalog hasn't loaded a label yet (stale
+  // client cache), fall back to a default style so the badge still shows
+  // instead of silently disappearing.
+  return props.conversationLabels.map(
+    title =>
+      accountLabels.value.find(label => label.title === title) || {
+        id: `pending-${title}`,
+        title,
+        description: '',
+        color: '#94a3b8',
+      }
   );
 });
 
@@ -76,7 +86,8 @@ const onShowLabels = e => {
         class="!mb-0 max-w-[calc(100%-0.5rem)]"
         small
         :class="{
-          'invisible absolute': !showAllLabels && index > labelPosition,
+          'invisible absolute':
+            !showAllLabels && labelPosition !== -1 && index > labelPosition,
         }"
       />
       <button
