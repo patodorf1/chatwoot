@@ -228,12 +228,13 @@ const onStatusTabChange = newStatus => {
   onBasicFilterChange(newStatus, 'status');
 };
 
-// Read/unread tabs shown only on WhatsApp/API inboxes. 'No leídos' = has the
-// 'oo' label (awaiting reply); 'Leídos' = does not have it; 'Todas' = the
-// normal list. Default is 'all' so the inbox opens unfiltered.
+// Read-state tabs shown only on WhatsApp/API inboxes. Two tabs:
+// 'No leídos' = conversations that still carry the `nl` label (awaiting reply);
+// 'Todas' = the full inbox list. Both render the SAME fetched/sorted list — the
+// only difference is that 'No leídos' hides read ones client-side (see
+// filteredChatsOnView). Default is 'all' so the inbox opens unfiltered.
 const readStateTabItems = computed(() => [
   { key: 'unread', name: t('CHAT_LIST.READ_STATE_TABS.UNREAD') },
-  { key: 'read', name: t('CHAT_LIST.READ_STATE_TABS.READ') },
   { key: 'all', name: t('CHAT_LIST.READ_STATE_TABS.ALL') },
 ]);
 
@@ -243,33 +244,14 @@ const onReadStateTabChange = selectedTab => {
   resetBulkActions();
   emitter.emit('clearSearchInput');
 
-  // 'Todas' clears any label filter and falls back to the normal list.
-  if (selectedTab === 'all') {
+  // Both tabs render the same inbox list; 'No leídos' only hides read
+  // conversations client-side (see filteredChatsOnView). No server-side filter
+  // is applied, so the list can never get "stuck" or drop conversations the way
+  // the old label filter did. If a leftover advanced filter is active, clear it
+  // so we filter the normal inbox list.
+  if (hasAppliedFilters.value) {
     resetAndFetchData();
-    return;
   }
-
-  // 'No leídos'/'Leídos' need label negation, which only the server advanced
-  // filter supports. Scope by inbox (the /filter endpoint ignores the route
-  // inbox) and mirror the modal's two-step: populate appliedFilters so the
-  // local matcher + pagination activate, then apply.
-  const labelOperator = selectedTab === 'unread' ? 'equal_to' : 'not_equal_to';
-  const payload = [
-    {
-      attributeKey: 'inbox_id',
-      filterOperator: 'equal_to',
-      values: [Number(props.conversationInbox)],
-      queryOperator: 'and',
-    },
-    {
-      attributeKey: 'labels',
-      filterOperator: labelOperator,
-      values: [UNREAD_LABEL],
-      queryOperator: 'and',
-    },
-  ];
-  store.dispatch('setConversationFilters', useSnakeCase(payload));
-  onApplyFilter(payload);
 };
 
 const showAssigneeInConversationCard = computed(() => {
@@ -954,12 +936,18 @@ watch(activeFolder, (newVal, oldVal) => {
 });
 
 const filteredChatsOnView = computed(() => {
-  if (!localSearchQuery.value) return chatsOnView.value;
+  let list = chatsOnView.value;
+  // 'No leídos' tab: show only conversations still flagged unread (the `nl`
+  // label). Pure client-side filter over the same list 'Todas' shows, so it can
+  // never hide or reorder conversations the way the old server-side filter did.
+  if (isWhatsAppOrAPIInbox.value && activeReadStateTab.value === 'unread') {
+    list = list.filter(chat => (chat.labels || []).includes(UNREAD_LABEL));
+  }
+  if (!localSearchQuery.value) return list;
   const q = localSearchQuery.value.toLowerCase();
-  return chatsOnView.value.filter(chat => {
-    const name = (chat.meta?.sender?.name || '').toLowerCase();
-    return name.includes(q);
-  });
+  return list.filter(chat =>
+    (chat.meta?.sender?.name || '').toLowerCase().includes(q)
+  );
 });
 
 const onSearchQuery = query => {
