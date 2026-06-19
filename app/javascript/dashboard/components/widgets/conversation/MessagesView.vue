@@ -131,7 +131,11 @@ export default {
       return '';
     },
     getMessages() {
-      const messages = this.currentChat.messages || [];
+      // Hide system/activity messages (message_type 2: label changes, status
+      // changes, assignments) so the thread shows only the real conversation.
+      const messages = (this.currentChat.messages || []).filter(
+        message => message.message_type !== 2
+      );
       if (this.isAWhatsAppChannel) {
         return filterDuplicateSourceMessages(messages);
       }

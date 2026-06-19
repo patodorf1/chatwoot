@@ -91,10 +91,8 @@ provide('contextMenuElementTarget', virtualListRef);
 
 const activeAssigneeTab = ref(wootConstants.ASSIGNEE_TYPE.ME);
 const activeStatus = ref(wootConstants.STATUS_TYPE.OPEN);
-// Read-state tabs (No leídos / Leídos / Todas) shown only on WhatsApp/API
-// inboxes. 'nl' is the label auto-applied to a conversation while it awaits a
-// reply (added on incoming, removed on outgoing/resolve by automation rules).
-const UNREAD_LABEL = 'nl';
+// Read-state tabs (No leídos / Todas) shown only on WhatsApp/API inboxes.
+// 'No leídos' uses Chatwoot's native unread (unread_count) — no labels/rules.
 const activeReadStateTab = ref('all');
 const activeSortBy = ref(wootConstants.SORT_BY_TYPE.LAST_ACTIVITY_AT_DESC);
 const showAdvancedFilters = ref(false);
@@ -937,11 +935,11 @@ watch(activeFolder, (newVal, oldVal) => {
 
 const filteredChatsOnView = computed(() => {
   let list = chatsOnView.value;
-  // 'No leídos' tab: show only conversations still flagged unread (the `nl`
-  // label). Pure client-side filter over the same list 'Todas' shows, so it can
-  // never hide or reorder conversations the way the old server-side filter did.
+  // 'No leídos' tab: show only conversations Chatwoot itself flags as unread
+  // (native unread_count = unseen incoming messages). No labels/rules involved,
+  // so it clears automatically when the agent opens the conversation.
   if (isWhatsAppOrAPIInbox.value && activeReadStateTab.value === 'unread') {
-    list = list.filter(chat => (chat.labels || []).includes(UNREAD_LABEL));
+    list = list.filter(chat => (chat.unread_count || 0) > 0);
   }
   if (!localSearchQuery.value) return list;
   const q = localSearchQuery.value.toLowerCase();
