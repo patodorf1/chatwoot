@@ -22,14 +22,16 @@ export function isRecruitmentStatusLabel(labelTitle) {
   return RECRUITMENT_STATUS_TITLES.includes(labelTitle);
 }
 
-// Internal/system labels used by the Airtable writeback automation. They are
-// bookkeeping only and should never be shown as badges on conversation cards.
+// Internal/system labels that should never be shown as badges on conversation
+// cards: the Airtable writeback bookkeeping labels, plus 'nl' (the retired
+// unread marker — read state now uses Chatwoot's native unread, not this label).
 export const HIDDEN_CARD_LABEL_TITLES = [
   'creado_por_writeback',
   'crear_igual_en_airtable',
   'datos_insuficientes_writeback',
   'linkear_a_airtable',
   'revisar_duplicado_airtable',
+  'nl',
 ];
 
 export function isHiddenCardLabel(labelTitle) {
