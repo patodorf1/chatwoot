@@ -135,6 +135,7 @@ const closeComposeConversationModal = () => {
           'origen',
           'tecnologia_principal',
           'respondio_por',
+          'respondio_email',
           'pais',
           'posicion_propuesta',
           'puesto_actual',

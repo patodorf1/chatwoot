@@ -267,6 +267,10 @@ const currentPageFilterKey = computed(() => {
 
 const inbox = useFunctionGetter('inboxes/getInbox', activeInbox);
 const isWhatsAppOrAPIInbox = computed(() => {
+  // WeRecruit usa Chatwoot solo para WhatsApp. En la vista general (sin un inbox
+  // puntual) tratamos todo como inbox de WhatsApp: se muestran las tabs de
+  // leído/no leído en vez de asignación/estado, y el listado carga completo.
+  if (!inbox.value) return true;
   const channelType = inbox.value?.channel_type;
   return channelType === 'Channel::Api' || channelType === 'Channel::Whatsapp';
 });
